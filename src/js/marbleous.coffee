@@ -1,7 +1,19 @@
+DEBUG = on && console?
+
+#TODO: Rather provide different texture files for different scales
+#      instead of using a global multiplier as browser tend to handle
+#      anti-aliasing differently.
+
 MOD = 1
-BLOCK_SIZE    = 101 * MOD
-CANVAS_HEIGHT = 630 * MOD
-CANVAS_WIDTH  = 800 * MOD
+
+BLOCK_SIZE         = Math.floor(101 * MOD)
+BLOCK_SIZE_HALF    = Math.floor(BLOCK_SIZE / 2)
+BLOCK_SIZE_QUARTER = Math.floor(BLOCK_SIZE_HALF / 2)
+CANVAS_HEIGHT      = 8 * BLOCK_SIZE
+CANVAS_WIDTH       = 7 * BLOCK_SIZE
+
+TEXTURE_FILE       = 'img/outline.png'
+TEXTURE_BLOCK_SIZE = 101
 
 # All the types of blocks we support
 Types =
@@ -56,7 +68,7 @@ Types =
   'crossing-straight':
     top:            'crossing'
     topRotation:             0
-    middle:         'straight'
+    middle:   'tunnel-straight'
     middleRotation:          0
   'crossing-hole':
     top:       'crossing-hole'
@@ -104,54 +116,6 @@ class Map
       for y in [0...@size]
         @grid[x][y] = new Array(@size)
 
-    @canvas = $(canvasID)
-    @canvas.attr "width",  CANVAS_WIDTH
-    @canvas.attr "height", CANVAS_HEIGHT
-    
-    # TODO load block textures
-    
-    @context = @canvas.get(0).getContext "2d"
-
-  # TODO: Move this to a dedicated drawing class
-  drawMap: ->
-    console.log @grid
-    
-    for x in [0...@size]
-      for y in [0...@size]
-        for z in [0...@size]
-          currentBlock = @getBlock(x,y,z)          
-          @drawBlock(currentBlock, x, y, z) if currentBlock?
-
-  drawBlock: (block, x, y, z) ->
-    offsetY = -0.5 + CANVAS_HEIGHT - 3 / 4 * BLOCK_SIZE - (2 * z + x - y + @size) * BLOCK_SIZE / 4
-    offsetX =  1.5 + (x + y) * BLOCK_SIZE / 2
-
-    @drawOutline x, y, z, offsetX, offsetY
-
-    console.log "Drawing block of type #{block.type} at #{x} #{y}#{z}"
-
-  # TODO: Replace this with a bitmap operation instead
-  drawOutline: (x, y, z, offsetX, offsetY, color) ->
-    # Draw outline
-    @context.setLineWidth 1
-    @context.strokeStyle = color || '#000';
-    
-    @context.moveTo offsetX,                  offsetY + BLOCK_SIZE / 4
-    @context.lineTo offsetX + BLOCK_SIZE / 2, offsetY
-    @context.lineTo offsetX + BLOCK_SIZE,     offsetY + BLOCK_SIZE / 4
-    @context.lineTo offsetX + BLOCK_SIZE / 2, offsetY + BLOCK_SIZE / 2
-    @context.lineTo offsetX,                  offsetY + BLOCK_SIZE / 4
-
-    @context.lineTo offsetX,                  offsetY + BLOCK_SIZE / 2 + BLOCK_SIZE / 4
-    @context.lineTo offsetX + BLOCK_SIZE / 2, offsetY + BLOCK_SIZE
-    @context.lineTo offsetX + BLOCK_SIZE,     offsetY + BLOCK_SIZE / 2 + BLOCK_SIZE / 4
-    @context.lineTo offsetX + BLOCK_SIZE,     offsetY + BLOCK_SIZE / 4
-
-    @context.moveTo offsetX + BLOCK_SIZE / 2, offsetY + BLOCK_SIZE / 2
-    @context.lineTo offsetX + BLOCK_SIZE / 2, offsetY + BLOCK_SIZE
-    
-    @context.stroke()
-
   getBlock: (x, y, z) ->
     throw new Error unless x? and y? and z?
     if @grid[x][y][z]?
@@ -162,7 +126,76 @@ class Map
   compress: ->
     throw new Error "Compression has not yet been implemented"
 
-$(document).ready ->
-  @map = new Map(7)
+class Renderer
+  _supportedTextures:
+    #name       number of rotations
+    'outline':  1
+    'curve':    4
+    'straight': 2
 
-  @map.drawMap()
+  constructor: (@map, canvasID, @onload) ->
+    @canvas = $(canvasID)
+    @canvas.attr "width",  CANVAS_WIDTH
+    @canvas.attr "height", CANVAS_HEIGHT
+    @context = @canvas.get(0).getContext "2d"
+
+    # Load all textures from the texture file
+    @textures = {}
+
+    textureFile = new Image
+    textureFile.onload = =>
+      textureOffset = 0
+      for texture, rotationsCount of @_supportedTextures
+        console.log "loading #{texture}" if DEBUG
+
+        @textures[texture] = new Array rotationsCount
+        for rotation in [0...rotationsCount]
+          canvas = document.createElement 'canvas'
+          canvas.width  = BLOCK_SIZE
+          canvas.height = BLOCK_SIZE
+          context = canvas.getContext '2d'
+          try
+            context.drawImage textureFile,
+                              rotation * BLOCK_SIZE, textureOffset, TEXTURE_BLOCK_SIZE, TEXTURE_BLOCK_SIZE
+                                                  0,             0, BLOCK_SIZE, BLOCK_SIZE
+          catch error
+            if DEBUG
+              console.log "Encountered error #{error} while loading texture: #{texture}"
+              console.log "Texture file may be too small" if error.name is "INDEX_SIZE_ERR"
+            break
+
+          @textures[texture][rotation] = canvas
+        textureOffset++
+
+      return @onload()
+
+    textureFile.src = TEXTURE_FILE
+
+  getTexture: (name, rotation) ->
+    rotation ?= 0
+    
+    return @textures[name][rotation]
+
+  # TODO: Move this to a dedicated drawing class
+  drawMap: ->
+    for x in [0...@map.size]
+      for y in [0...@map.size]
+        for z in [0...@map.size]
+          currentBlock = @map.getBlock(x,y,z)          
+          @drawBlock(currentBlock, x, y, z) # if currentBlock?
+
+  drawBlock: (block, x, y, z) ->
+    offsetY = CANVAS_HEIGHT - 3 * BLOCK_SIZE_QUARTER - (2 * z + x - y + @map.size) * BLOCK_SIZE_QUARTER
+    offsetX = (x + y) * BLOCK_SIZE_HALF
+
+    @drawOutline offsetX, offsetY
+
+  # TODO: Replace this with a bitmap operation instead
+  drawOutline: (x, y, color) ->
+    @context.drawImage @getTexture('outline'), x, y, BLOCK_SIZE, BLOCK_SIZE
+
+$(document).ready ->
+  @map      = new Map(7)
+
+  @renderer = new Renderer @map, '#main-canvas', =>
+    @renderer.drawMap()
