@@ -135,7 +135,7 @@ class Renderer
     'middle':
       'curve':           4
       'straight':        2
-      'dive':            1
+      'dive':            4
 
 
   constructor: (@map, canvasID, @onload) ->
