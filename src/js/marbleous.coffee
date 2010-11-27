@@ -99,8 +99,9 @@ class Block
       @properties.topRotation    = (@properties.topRotation    + 90) % 360
       @properties.middleRotation = (@properties.middleRotation + 90) % 360
     else
-      @properties.topRotation    = (@properties.topRotation    - 90) % 360
-      @properties.middleRotation = (@properties.middleRotation - 90) % 360
+      # -90 % 360 in JavaScript returns -90, hence we go the other way ’round
+      @properties.topRotation    = (@properties.topRotation    + 270) % 360
+      @properties.middleRotation = (@properties.middleRotation + 270) % 360
 
 class Map
   constructor: (@size, canvasID) ->
