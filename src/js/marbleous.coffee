@@ -83,6 +83,9 @@ Types =
 class Block
   constructor: (@type, rotation) ->
     @properties = (Types[@type] || Types['blank'])()
+
+    throw new Error "Unknown block type #{@type}" unless @properties
+
     switch rotation
       when 90
         @rotateCW()
