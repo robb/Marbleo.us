@@ -1,4 +1,5 @@
-DEBUG = on && console?
+### @const ###
+DEBUG = off
 
 #TODO: Rather provide different texture files for different scales
 #      instead of using a global multiplier as browser tend to handle
@@ -275,3 +276,5 @@ $(document).ready ->
       blockAtMouse = @renderer.blockAtScreenCoordinates event.offsetX, event.offsetY
       console.log "Clicked block of type #{blockAtMouse.type}" if blockAtMouse
       console.timeEnd "hit-test" if DEBUG
+
+      return this
