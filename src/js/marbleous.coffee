@@ -224,8 +224,8 @@ class Renderer
 
   drawMap: ->
     for x in [@map.size - 1..0]
-      for y in [@map.size - 1..0]
-        for z in [0..@map.size]
+      for y in [0...@map.size]
+        for z in [0...@map.size]
           currentBlock = @map.getBlock(x,y,z)
           @drawBlock(currentBlock, x, y, z) #if currentBlock?
 
