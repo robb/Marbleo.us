@@ -13,7 +13,7 @@ BLOCK_SIZE_QUARTER = Math.floor(BLOCK_SIZE_HALF / 2)
 CANVAS_HEIGHT      = 8 * BLOCK_SIZE
 CANVAS_WIDTH       = 7 * BLOCK_SIZE
 
-TEXTURE_FILE       = 'img/textures.png'
+TEXTURE_FILE       = '/img/textures.png'
 TEXTURE_BLOCK_SIZE = 101
 
 # All the types of blocks we support
@@ -209,8 +209,8 @@ class Renderer
           [screenX, screenY] = @renderingCoordinatesForBlock blockX, blockY, blockZ
 
           # TODO: There seems to be a minor difference on Safari – investigate
-          if screenX <= x <= (screenX + BLOCK_SIZE) and screenY <= y <= (screenY + BLOCK_SIZE)
-            pixel = @getTexture('hitboxes','block').getContext('2d').getImageData x - screenX, y - screenY, 0, 0
+          if screenX <= x < (screenX + BLOCK_SIZE) and screenY <= y < (screenY + BLOCK_SIZE)
+            pixel = @getTexture('hitboxes','block').getContext('2d').getImageData x - screenX, y - screenY, 1, 1
 
             return currentBlock if pixel.data[3] > 0
 
@@ -265,15 +265,19 @@ $(document).ready ->
     console.timeEnd "rendering" if DEBUG
 
     $('#main-canvas').bind 'mousemove', (event) =>
-      blockAtMouse = @renderer.blockAtScreenCoordinates event.offsetX, event.offsetY
+      blockAtMouse = @renderer.blockAtScreenCoordinates event.layerX, event.layerY
       if blockAtMouse
-        $('body').css "cursor", "-webkit-grab"
+        if $.browser.webkit
+          cursor = "-webkit-grab"
+        else if $.browser.mozilla
+          cursor = "-moz-grab"
+        $('body').css "cursor", cursor
       else
         $('body').css "cursor", "auto"
 
     $('#main-canvas').bind 'click', (event) =>
       console.time "hit-test" if DEBUG
-      blockAtMouse = @renderer.blockAtScreenCoordinates event.offsetX, event.offsetY
+      blockAtMouse = @renderer.blockAtScreenCoordinates event.layerX, event.layerY
       console.log "Clicked block of type #{blockAtMouse.type}" if blockAtMouse
       console.timeEnd "hit-test" if DEBUG
 
