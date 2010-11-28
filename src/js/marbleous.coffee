@@ -127,7 +127,10 @@ class Map
 
 class Renderer
   _supportedTextures:
-    #name                number of rotations
+    #texture group:
+    #  name: number of rotations
+    'hitboxes':
+      'block':           1
     'basic':
       'backline':        1
       'outline':         1
@@ -182,6 +185,36 @@ class Renderer
 
     textureFile.src = TEXTURE_FILE
 
+  # This calculates the position of the top-left pixel of the square that the
+  # textures get rendered in.
+  # Please note that this position lies not in the block in terms of
+  # hit-testing
+  #
+  # Relative to the point of origin of the canvas
+  renderingCoordinatesForBlock: (x,y,z) ->
+    screenX = (x + y) * BLOCK_SIZE_HALF
+    screenY = CANVAS_HEIGHT - 3 * BLOCK_SIZE_QUARTER - (2 * z + x - y + @map.size) * BLOCK_SIZE_QUARTER
+
+    [screenX, screenY]
+
+  # Please note that x and y must be relative to the point of origin of the
+  # canvas
+  blockAtScreenCoordinates: (x, y) ->
+    # Brute force at O(n^3) seems fast enough here
+    for blockX in [0...@map.size]
+      for blockY in [0...@map.size]
+        for blockZ in [0...@map.size]
+          continue unless currentBlock = @map.getBlock blockX, blockY, blockZ
+          [screenX, screenY] = @renderingCoordinatesForBlock blockX, blockY, blockZ
+
+          # TODO: There seems to be a minor difference on Safari – investigate
+          if screenX <= x <= (screenX + BLOCK_SIZE) and screenY <= y <= (screenY + BLOCK_SIZE)
+            pixel = @getTexture('hitboxes','block').getContext('2d').getImageData x - screenX, y - screenY, 0, 0
+
+            return currentBlock if pixel.data[3] > 0
+
+    return null
+
   getTexture: (group, type, rotation) ->
     unless rotation
       return @textures[group][type][0]
@@ -189,7 +222,6 @@ class Renderer
     rotationCount = @_supportedTextures[group][type]
     return @textures[group][type][rotation / 90 % rotationCount]
 
-  # TODO: Move this to a dedicated drawing class
   drawMap: ->
     for x in [@map.size - 1..0]
       for y in [@map.size - 1..0]
@@ -198,28 +230,27 @@ class Renderer
           @drawBlock(currentBlock, x, y, z) #if currentBlock?
 
   drawBlock: (block, x, y, z) ->
-    offsetY = CANVAS_HEIGHT - 3 * BLOCK_SIZE_QUARTER - (2 * z + x - y + @map.size) * BLOCK_SIZE_QUARTER
-    offsetX = (x + y) * BLOCK_SIZE_HALF
+    [screenX, screenY] = @renderingCoordinatesForBlock x, y, z
 
     if block?
       if block.properties.low
         low_texture = @getTexture 'low', block.properties.low, block.properties.lowRotation
-        @context.drawImage low_texture, offsetX, offsetY, BLOCK_SIZE, BLOCK_SIZE
+        @context.drawImage low_texture, screenX, screenY, BLOCK_SIZE, BLOCK_SIZE
 
       if block.properties.middle
         mid_texture = @getTexture 'middle', block.properties.middle, block.properties.middleRotation
-        @context.drawImage mid_texture, offsetX, offsetY, BLOCK_SIZE, BLOCK_SIZE
+        @context.drawImage mid_texture, screenX, screenY, BLOCK_SIZE, BLOCK_SIZE
 
       if block.properties.top
         top_texture = @getTexture 'top', block.properties.top, block.properties.topRotation
-        @context.drawImage top_texture, offsetX, offsetY, BLOCK_SIZE, BLOCK_SIZE
+        @context.drawImage top_texture, screenX, screenY, BLOCK_SIZE, BLOCK_SIZE
 
-      @drawOutline offsetX, offsetY
+      @drawOutline screenX, screenY
 
-  # TODO: Replace this with a bitmap operation instead
   drawOutline: (x, y, color) ->
     @context.drawImage @getTexture('basic','outline'), x, y, BLOCK_SIZE, BLOCK_SIZE
 
+# Set up game
 $(document).ready ->
   @map      = new Map(7)
 
@@ -231,3 +262,16 @@ $(document).ready ->
     console.time "rendering" if DEBUG
     @renderer.drawMap()
     console.timeEnd "rendering" if DEBUG
+
+    $('#main-canvas').bind 'mousemove', (event) =>
+      blockAtMouse = @renderer.blockAtScreenCoordinates event.offsetX, event.offsetY
+      if blockAtMouse
+        $('body').css "cursor", "-webkit-grab"
+      else
+        $('body').css "cursor", "auto"
+
+    $('#main-canvas').bind 'click', (event) =>
+      console.time "hit-test" if DEBUG
+      blockAtMouse = @renderer.blockAtScreenCoordinates event.offsetX, event.offsetY
+      console.log "Clicked block of type #{blockAtMouse.type}" if blockAtMouse
+      console.timeEnd "hit-test" if DEBUG
