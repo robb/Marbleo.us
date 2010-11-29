@@ -7,17 +7,16 @@ class Map
 
     ### @constant ###
     # initialize grid
-    @grid = new Array(@size)
-    for x in [0...@size]
-      @grid[x] = new Array(@size)
-      for y in [0...@size]
-        @grid[x][y] = new Array(@size)
+    @grid = new Array Math.pow(@size, 3)
 
     @setNeedsRedraw yes
 
+  setBlock: (block, x, y, z) ->
+    @grid[x + y * @size + z * @size * @size] = block
+
   getBlock: (x, y, z) ->
     throw new Error unless x? and y? and z?
-    return @grid[x][y][z]
+    return @grid[x + y * @size + z * @size * @size]
   
   selectBlock: (@selectedBlock) ->
     @setNeedsRedraw yes
