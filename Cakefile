@@ -1,6 +1,14 @@
 fs     = require 'fs'
 {exec} = require 'child_process'
 
+buildFiles = [
+  "Constants",
+  "Block",
+  "Map",
+  "Renderer",
+  "Main"
+]
+
 task 'build', 'Build application from source files', ->
   puts 'Compiling HAML files'
   exec 'mkdir bin'
@@ -25,21 +33,16 @@ task 'build', 'Build application from source files', ->
   exec 'cp src/img/* bin/img/', (err) ->
     throw err if err
 
-  appContents = null;
   puts 'Compiling CoffeeScript files'
   exec 'mkdir bin/js'
-  fs.readdir 'src/js', (err, files) ->
-    appContents = new Array remaining = files.length
-    files.sort()
-    for file in files
-      if not file.match /coffee$/
-        remaining--
-        continue
-      else
-        fs.readFile "src/js/#{file}", 'utf8', (err, fileContents) ->
-          throw err if err
-          appContents[remaining] = fileContents
-          process() unless --remaining
+
+  appContents = new Array remaining = buildFiles.length
+  counter = 0
+  for file in buildFiles
+    fs.readFile "src/js/#{file}.coffee", 'utf8', (err, fileContents) ->
+      throw err if err
+      appContents[counter++] = fileContents
+      process() unless --remaining
   process = ->
     fs.writeFile 'bin/js/marbleous.coffee', appContents.join('\n\n'), 'utf8', (err) ->
       throw err if err
