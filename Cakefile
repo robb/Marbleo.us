@@ -59,7 +59,8 @@ task 'minify', 'Minify the resulting application file after build', ->
                 --js bin/js/marbleous.js
                 --js_output_file bin/js/marbleous-min.js
                 --warning_level QUIET
-                --externs lib/jquery-1.4.4.js", (err, stdout, stderr) ->
+                --externs lib/jquery-1.4.4.js
+                --externs lib/webkit_console.js", (err, stdout, stderr) ->
     print stdout + stderr
     copy()
 
