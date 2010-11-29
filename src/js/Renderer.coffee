@@ -1,12 +1,19 @@
+## @constant ###
 MOD = 1
-
+## @constant ###
 BLOCK_SIZE         = Math.floor(101 * MOD)
+## @constant ###
 BLOCK_SIZE_HALF    = Math.floor(BLOCK_SIZE / 2)
+## @constant ###
 BLOCK_SIZE_QUARTER = Math.floor(BLOCK_SIZE_HALF / 2)
+## @constant ###
 CANVAS_HEIGHT      = 8 * BLOCK_SIZE
+## @constant ###
 CANVAS_WIDTH       = 7 * BLOCK_SIZE
 
+## @constant ###
 TEXTURE_FILE       = '/img/textures.png'
+## @constant ###
 TEXTURE_BLOCK_SIZE = 101
 
 Cutouts =

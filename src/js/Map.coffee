@@ -1,8 +1,11 @@
 class Map
   constructor: (@size, canvasID) ->
+    ### @constant ###
     @size    ?=             7
+    ### @constant ###
     canvasID ?= '#main-canvas'
-    
+
+    ### @constant ###
     # initialize grid
     @grid = new Array(@size)
     for x in [0...@size]
