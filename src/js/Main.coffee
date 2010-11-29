@@ -23,5 +23,8 @@ $(document).ready ->
         $('body').css "cursor", "auto"
 
     $('#main-canvas').bind 'click', (event) =>
-      blockAtMouse = @renderer.blockAtScreenCoordinates event.layerX, event.layerY
-      console.log "Clicked block of type #{blockAtMouse.type}" if blockAtMouse
+      @map.selectBlock @renderer.blockAtScreenCoordinates event.layerX, event.layerY
+
+    renderingLoop = =>
+      @renderer.drawMap()
+    setInterval renderingLoop, 20
