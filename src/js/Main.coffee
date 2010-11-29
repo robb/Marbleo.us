@@ -23,9 +23,5 @@ $(document).ready ->
         $('body').css "cursor", "auto"
 
     $('#main-canvas').bind 'click', (event) =>
-      console.time "hit-test" if DEBUG
       blockAtMouse = @renderer.blockAtScreenCoordinates event.layerX, event.layerY
       console.log "Clicked block of type #{blockAtMouse.type}" if blockAtMouse
-      console.timeEnd "hit-test" if DEBUG
-
-      return this
