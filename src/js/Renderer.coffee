@@ -62,14 +62,7 @@ class Renderer
   # block columns
   setupCaches: ->
     ## @constant ###
-    @Cache =
-      singleBlockCanvas:  null
-      singleBlockContext: null
-
-    @Cache.singleBlockCanvas        = document.createElement 'canvas'
-    @Cache.singleBlockCanvas.width  = BLOCK_SIZE
-    @Cache.singleBlockCanvas.height = BLOCK_SIZE
-    @Cache.singleBlockContext       = @Cache.singleBlockCanvas.getContext '2d'
+    @Cache = {}
 
   setupTextures: (textureFile) ->
     textureOffset = 0
@@ -128,73 +121,81 @@ class Renderer
 
   getTexture: (group, type, rotation) ->
     unless rotation
-      return @textures[group][type][0]
+      return @textures[group][type][0] if @_supportedTextures[group][type]?
 
     rotationCount = @_supportedTextures[group][type]
+    return null unless rotationCount?
     return @textures[group][type][rotation / 90 % rotationCount]
 
   drawMap: ->
     return if @isDrawing or not @map.needsRedraw
-
     console.time "draw" if DEBUG
-
     @isDrawing = yes
     @context.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
-    for x in [@map.size - 1..0]
-      for y in [0...@map.size]
-        for z in [0...@map.size]
-          currentBlock = @map.getBlock(x,y,z)
-          @drawBlock(currentBlock, x, y, z) if currentBlock?
+    @map.visibleBlocksEach (block, x, y, z) =>
+      @drawBlock(block, x, y, z) if block
 
     @map.setNeedsRedraw no
     @isDrawing = no
-
     console.timeEnd "draw" if DEBUG
 
-  # TODO: This is the main application bottleneck.
-  # Try to improve rendering performance by using a better caching
-  # strategie
   drawBlock: (block, x, y, z) ->
     [screenX, screenY] = @renderingCoordinatesForBlock x, y, z
 
-    @Cache.singleBlockContext.clearRect 0, 0, BLOCK_SIZE, BLOCK_SIZE
+    cache_key = "#{block.properties.top            || 'none'}:" +
+                "#{block.properties.topRotation    || 'none'}:" +
+                "#{block.properties.middle         || 'none'}:" +
+                "#{block.properties.middleRotation || 'none'}:" +
+                "#{block.properties.low            || 'none'}:" +
+                "#{block.properties.lowRotation    || 'none'}:" +
+                "#{block == @map.selectedBlock}:"
 
-    unless block == @map.selectedBlock
-      solid = @getTexture('basic','solid')
-      @Cache.singleBlockContext.drawImage solid, 0, 0, BLOCK_SIZE, BLOCK_SIZE
-    else
-      backside = @getTexture 'basic', 'backside'
-      @Cache.singleBlockContext.drawImage backside, 0, 0, BLOCK_SIZE, BLOCK_SIZE
+    unless cached = @Cache[cache_key]
+      @Cache[cache_key] = cached = document.createElement 'canvas'
+      cached.height = cached.width = BLOCK_SIZE
+      buffer = cached.getContext "2d"
 
-      if block.properties.low
-        low_texture = @getTexture 'low', block.properties.low, block.properties.lowRotation
-        @Cache.singleBlockContext.drawImage low_texture, 0, 0, BLOCK_SIZE, BLOCK_SIZE
+      unless block == @map.selectedBlock
+        solid = @getTexture 'basic', 'solid'
+        buffer.drawImage solid, 0, 0, BLOCK_SIZE, BLOCK_SIZE
+      else
+        backside = @getTexture 'basic', 'backside'
+        buffer.drawImage backside, 0, 0, BLOCK_SIZE, BLOCK_SIZE
 
-      if block.properties.middle
-        mid_texture = @getTexture 'middle', block.properties.middle, block.properties.middleRotation
-        @Cache.singleBlockContext.drawImage mid_texture, 0, 0, BLOCK_SIZE, BLOCK_SIZE
+        if block.properties.low?
+          low_texture = @getTexture 'low', block.properties.low, block.properties.lowRotation
+          if low_texture?
+            buffer.drawImage low_texture, 0, 0, BLOCK_SIZE, BLOCK_SIZE
 
-    if block.properties.top
-      top_texture = @getTexture 'top', block.properties.top, block.properties.topRotation
-      @Cache.singleBlockContext.drawImage top_texture, 0, 0, BLOCK_SIZE, BLOCK_SIZE
+        if block.properties.middle?
+          mid_texture = @getTexture 'middle', block.properties.middle, block.properties.middleRotation
+          if mid_texture?
+            buffer.drawImage mid_texture, 0, 0, BLOCK_SIZE, BLOCK_SIZE
 
-      cutouts = Cutouts[block.properties.top];
+      if block.properties.top?
+        top_texture = @getTexture 'top', block.properties.top, block.properties.topRotation
+        if top_texture?
+          buffer.drawImage top_texture, 0, 0, BLOCK_SIZE, BLOCK_SIZE
 
-      if cutouts?
-        @Cache.singleBlockContext.globalCompositeOperation = 'destination-out'
+        cutouts = Cutouts[block.properties.top];
 
-        for pos in cutouts
-          if pos + block.properties.topRotation % 360 == 180
-            cutout180 = @getTexture 'basic', 'cutout', 180
-            @Cache.singleBlockContext.drawImage cutout180, 0, 0, BLOCK_SIZE, BLOCK_SIZE
-          else if pos + block.properties.topRotation % 360 == 270
-            cutout270 = @getTexture 'basic', 'cutout', 270
-            @Cache.singleBlockContext.drawImage cutout270, 0, 0, BLOCK_SIZE, BLOCK_SIZE
+        # TODO: This operation is pretty expensive.
+        if cutouts?
+          buffer.globalCompositeOperation = 'destination-out'
 
-        @Cache.singleBlockContext.globalCompositeOperation = 'source-over'
+          for pos in cutouts
+            if pos + block.properties.topRotation % 360 == 180
+              cutout180 = @getTexture 'basic', 'cutout', 180
+              buffer.drawImage cutout180, 0, 0, BLOCK_SIZE, BLOCK_SIZE
+            else if pos + block.properties.topRotation % 360 == 270
+              cutout270 = @getTexture 'basic', 'cutout', 270
+              buffer.drawImage cutout270, 0, 0, BLOCK_SIZE, BLOCK_SIZE
 
-    @drawOutline @Cache.singleBlockContext, 0, 0
-    @context.drawImage @Cache.singleBlockCanvas, screenX, screenY, BLOCK_SIZE, BLOCK_SIZE
+          buffer.globalCompositeOperation = 'source-over'
+
+      @drawOutline buffer, 0, 0
+
+    @context.drawImage cached, screenX, screenY, BLOCK_SIZE, BLOCK_SIZE
 
   # TODO: Add color support
   drawOutline: (context, x, y, color) ->
