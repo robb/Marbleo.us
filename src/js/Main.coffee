@@ -2,9 +2,10 @@
 $(document).ready ->
   @map      = new Map(7)
 
-  @map.grid[0][0][0] = new Block 'curve-straight',     90
-  @map.grid[1][0][0] = new Block 'double-straight',    90
-  @map.grid[2][0][0] = new Block 'curve-straight-alt', 90
+  for x in [0...7]
+    for y in [0...7]
+      for z in [0...7]
+        @map.setBlock new Block('curve-straight', 90), x, y, z
 
   @renderer = new Renderer @map, '#main-canvas', =>
     console.time "rendering" if DEBUG
@@ -23,9 +24,8 @@ $(document).ready ->
         $('body').css "cursor", "auto"
 
     $('#main-canvas').bind 'click', (event) =>
-      console.time "hit-test" if DEBUG
-      blockAtMouse = @renderer.blockAtScreenCoordinates event.layerX, event.layerY
-      console.log "Clicked block of type #{blockAtMouse.type}" if blockAtMouse
-      console.timeEnd "hit-test" if DEBUG
+      @map.selectBlock @renderer.blockAtScreenCoordinates event.layerX, event.layerY
 
-      return this
+    renderingLoop = =>
+      @renderer.drawMap()
+    setInterval renderingLoop, 20
