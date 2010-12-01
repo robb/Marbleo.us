@@ -12,19 +12,22 @@ $(document).ready ->
     @renderer.drawMap()
     console.timeEnd "rendering" if DEBUG
 
+    # TODO: Fails to reset the cursor if mousemove doesn go over
+    #       the canvas, move this to the body
     $('#main-canvas').bind 'mousemove', (event) =>
-      blockAtMouse = @renderer.blockAtScreenCoordinates event.layerX, event.layerY
-      if blockAtMouse
-        if $.browser.webkit
-          cursor = "-webkit-grab"
-        else if $.browser.mozilla
-          cursor = "-moz-grab"
-        $('body').css "cursor", cursor
+      x = event.offsetX || event.layerX - $(event.target).position().left
+      y = event.offsetY || event.layerY - $(event.target).position().top
+      if @renderer.blockAtScreenCoordinates x, y
+        cursor = if $.browser.webkit then '-webkit-grab' else \
+                 if $.browser.mozilla then '-moz-grab'
       else
-        $('body').css "cursor", "auto"
+        cursor = 'auto'
+      $('body').css 'cursor', cursor
 
     $('#main-canvas').bind 'click', (event) =>
-      @map.selectBlock @renderer.blockAtScreenCoordinates event.layerX, event.layerY
+      x = event.offsetX || event.layerX - $(event.target).position().left
+      y = event.offsetY || event.layerY - $(event.target).position().top
+      @map.selectBlock @renderer.blockAtScreenCoordinates x, y
 
     renderingLoop = =>
       @renderer.drawMap()
