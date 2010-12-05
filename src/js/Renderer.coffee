@@ -230,6 +230,5 @@ class Renderer
 
     @context.drawImage cached, screenX, screenY, BLOCK_SIZE, BLOCK_SIZE
 
-  # TODO: Add color support
-  drawOutline: (context, x, y, color) ->
+  drawOutline: (context, x, y) ->
     context.drawImage @getTexture('basic','outline'), x, y, BLOCK_SIZE, BLOCK_SIZE
