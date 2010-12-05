@@ -17,17 +17,21 @@ $(document).ready ->
     $('#main-canvas').bind 'mousemove', (event) =>
       x = event.offsetX || event.layerX - $(event.target).position().left
       y = event.offsetY || event.layerY - $(event.target).position().top
-      if @renderer.blockAtScreenCoordinates x, y
+      if side = @renderer.sideAtScreenCoordinates x, y
         cursor = if $.browser.webkit then '-webkit-grab' else \
                  if $.browser.mozilla then '-moz-grab'
       else
         cursor = 'auto'
       $('body').css 'cursor', cursor
 
+      console.log side
+
     $('#main-canvas').bind 'click', (event) =>
       x = event.offsetX || event.layerX - $(event.target).position().left
       y = event.offsetY || event.layerY - $(event.target).position().top
-      @map.selectBlock @renderer.blockAtScreenCoordinates x, y
+
+      if info = @renderer.resolveScreenCoordinates x, y
+        console.log info
 
     renderingLoop = =>
       @renderer.drawMap()

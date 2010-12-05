@@ -55,6 +55,11 @@ class Renderer
     @canvas.attr "height", CANVAS_HEIGHT
     @context = @canvas.get(0).getContext "2d"
 
+    @hittestCanvas = document.createElement 'canvas'
+    @hittestCanvas.width  = CANVAS_WIDTH
+    @hittestCanvas.height = CANVAS_HEIGHT
+    @hittestContext = @hittestCanvas.getContext "2d"
+
     # Load all textures from the texture file
     @textures = {}
 
@@ -111,22 +116,39 @@ class Renderer
 
     [screenX, screenY]
 
+  # Returns either 'top', 'south', 'east' or null depending on what side
+  # of a block (if any) is displayed at the given coordinates
+  sideAtScreenCoordinates: (x, y) ->
+    pixel = @hittestContext.getImageData x, y, 1, 1
+
+    if pixel.data[0] > 0
+      return 'south'
+    else if pixel.data[1] > 0
+      return 'east'
+    else if pixel.data[2] > 0
+      return 'top'
+    else
+      return null
+
   # Please note that x and y must be relative to the point of origin of the
   # canvas
-  blockAtScreenCoordinates: (x, y) ->
-    # Brute force at O(n^3) seems fast enough here
-    for blockX in [0...@map.size]
-      for blockY in [@map.size - 1..0]
-        for blockZ in [@map.size - 1..0]
-          continue unless currentBlock = @map.getBlock blockX, blockY, blockZ
-          [screenX, screenY] = @renderingCoordinatesForBlock blockX, blockY, blockZ
+  resolveScreenCoordinates: (x, y) ->
+    if side = @sideAtScreenCoordinates x, y
+      for blockX in [0...@map.size]
+        for blockY in [@map.size - 1..0]
+          for blockZ in [@map.size - 1..0]
+            continue unless currentBlock = @map.getBlock blockX, blockY, blockZ
+            [screenX, screenY] = @renderingCoordinatesForBlock blockX, blockY, blockZ
 
-          # TODO: There seems to be a minor difference on Safari – investigate
-          if screenX <= x < (screenX + BLOCK_SIZE) and screenY <= y < (screenY + BLOCK_SIZE)
             pixel = @getTexture('basic','solid').getContext('2d').getImageData x - screenX, y - screenY, 1, 1
-            return currentBlock if pixel.data[3] > 0
-
-    return null
+            if pixel.data[3] > 0
+              return {
+                block: currentBlock
+                coordinates: [blockX, blockY, blockZ]
+                side: side
+              }
+    else
+      return null
 
   getTexture: (group, type, rotation) ->
     unless rotation
@@ -140,13 +162,21 @@ class Renderer
     return if @isDrawing or not @map.needsRedraw
     console.time "draw" if DEBUG
     @isDrawing = yes
-    @context.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
+
+    @context.clearRect        0, 0, CANVAS_WIDTH, CANVAS_HEIGHT
+    @hittestContext.clearRect 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT
+
     @map.visibleBlocksEach (block, x, y, z) =>
-      @drawBlock(block, x, y, z) if block
+      @drawBlock  block, x, y, z
+      @drawHitbox block, x, y, z
 
     @map.setNeedsRedraw no
     @isDrawing = no
     console.timeEnd "draw" if DEBUG
+
+  drawHitbox: (block, x, y, z) ->
+    [screenX, screenY] = @renderingCoordinatesForBlock x, y, z
+    @hittestContext.drawImage @getTexture('basic','hitbox'), screenX, screenY, BLOCK_SIZE, BLOCK_SIZE
 
   drawBlock: (block, x, y, z) ->
     [screenX, screenY] = @renderingCoordinatesForBlock x, y, z
