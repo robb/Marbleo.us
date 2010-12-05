@@ -1,9 +1,7 @@
 class Map
-  constructor: (size, canvasID) ->
+  constructor: (size) ->
     ### @constant ###
     @size    =            size
-    ### @constant ###
-    canvasID ?= '#main-canvas'
 
     ### @constant ###
     # initialize grid
