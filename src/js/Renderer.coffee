@@ -26,19 +26,28 @@ class Renderer
     #texture group:
     #  name: number of rotations/variations
     'basic':
+      # This hitbox is used to detect which side of the block
+      # is at a given pixel by looking up the color.
+      # #0000FF => Top
+      # #00FF00 => East
+      # #FF0000 => South
+      'hitbox':          1
       'solid':           1
       'backside':        1
       'outline':         1
+      # TODO: Add cutouts for straights/crossings
       'cutout':          2
     'top':
-      'curve':           4
-      'straight':        2
       'crossing':        1
       'crossing-hole':   1
+      'curve':           4
+      'straight':        2
     'middle':
+      'crossing':        1
       'curve':           4
       'straight':        2
       'dive':            4
+      'drop-middle':     4
 
   constructor: (@map, canvasID, @onload) ->
     @canvas = $(canvasID)
