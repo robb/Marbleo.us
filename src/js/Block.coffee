@@ -15,6 +15,12 @@ class Block
       when 270
         @rotateCCW()
 
+  setOpacity: (opacity) ->
+    throw new Error "Illegal value for opacity" unless 0 <= opacity <= 1.0
+    @opacity = opacity
+
+  setIsSelected: (@isSelected) ->
+
   rotateCW:  -> @rotate  true
   rotateCCW: -> @rotate false
   rotate: (clockwise) ->
@@ -25,6 +31,12 @@ class Block
       # -90 % 360 in JavaScript returns -90, hence we go the other way ’round
       @properties.topRotation    = (@properties.topRotation    + 270) % 360
       @properties.middleRotation = (@properties.middleRotation + 270) % 360
+
+  toString: ->
+    "#{@properties.top}#{@properties.topRotation}"
+    "#{@properties.middle}#{@properties.middleRotation}"
+    "#{@properties.low}#{@properties.lowRotation}"
+    "#{@opacity}#{@isSelected}"
 
   # All the types of blocks we support
   @Types:

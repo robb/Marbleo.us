@@ -151,13 +151,7 @@ class Renderer
   drawBlock: (block, x, y, z) ->
     [screenX, screenY] = @renderingCoordinatesForBlock x, y, z
 
-    cache_key = "#{block.properties.top            || 'none'}:" +
-                "#{block.properties.topRotation    || 'none'}:" +
-                "#{block.properties.middle         || 'none'}:" +
-                "#{block.properties.middleRotation || 'none'}:" +
-                "#{block.properties.low            || 'none'}:" +
-                "#{block.properties.lowRotation    || 'none'}:" +
-                "#{block == @map.selectedBlock}:"
+    cache_key = block.toString()
 
     unless cached = @Cache[cache_key]
       @Cache[cache_key] = cached = document.createElement 'canvas'
