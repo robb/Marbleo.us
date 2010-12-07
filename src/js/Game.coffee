@@ -58,6 +58,8 @@ class Game
       when 'normal'
         @selectBlock null
 
+    return off
+
   bodyMove: (event) =>
     switch @state.type
       when 'dragging'
@@ -65,10 +67,14 @@ class Game
       else
         $('body').css 'cursor', @settings.defaultCursor
 
+    return off
+
   bodyUp: (event) =>
     switch @state.type
       when 'dragging'
         @draggingUp event
+
+    return off
 
   canvasUp: (event) =>
     switch @state.type
@@ -129,35 +135,34 @@ class Game
   draggingMove: (event) =>
     unless @state.type is 'dragging'
       # Start dragging operation
-      @state.type = 'dragging'
       $('body').css 'cursor', @settings.draggingCursor
 
       @selectBlock null
 
-      stack = new Array
+      @state.stack = new Array
       [bX, bY, bZ] = @state.info.coordinates
       for i in [bZ..@map.size]
         break unless block = @map.popBlock(bX, bY, i)
-        stack.push block
         block.setDragged yes
+        @state.stack.push block
 
-      @map.setNeedsRedraw yes
-      @state.stack = stack
+      @state.type = 'dragging'
+      # Redraw the map to update the hitmap
+      @renderer.drawMap yes
+
+    # Removing all dragged blocks as they may be drawn elsewhere
+    # FIXME: This is only necessary if the position or state of the dragged
+    #        blocks actually changed
+    @map.blocksEach (block, x, y, z) =>
+      if block && block.dragged
+        @map.setBlock null, x, y, z
 
     x = event.offsetX || event.layerX - $(event.target).position().left
     y = event.offsetY || event.layerY - $(event.target).position().top
     info = @renderer.resolveScreenCoordinates(x, y)
 
-    # Removing all dragged blocks as they may be drawn elsewhere
-    # FIXME: This is only necessary if the position of the dragged
-    #        blocks actually changed
-    @map.blocksEach (block, x, y, z) =>
-      if block && block.dragged
-        @map.popBlock x, y, z
-    @map.setNeedsRedraw yes
-
+    # If the user drags the stack onto another block, draw it there
     if info.side is 'top'
-      # If the user drags the stack onto another block, draw it there
       [nX, nY, nZ] = info.coordinates
       targetBlock = @map.getBlock nX, nY, nZ
       i = 0
@@ -171,6 +176,8 @@ class Game
         lowestBlock.properties.low = 'crossing'
       lowestBlock.properties.lowRotation = targetBlock.properties.topRotation
 
+    @map.setNeedsRedraw yes
+
   draggingUp: (event) =>
     @state.stack = null
     @map.blocksEach (block, x, y, z) =>
@@ -181,3 +188,6 @@ class Game
     # TODO: Take action based on position
     @state.type = 'normal'
     $('body').css 'cursor', @settings.defaultCursor
+
+    # Render the map again to make sure the hitmap is up to date
+    @renderer.drawMap()

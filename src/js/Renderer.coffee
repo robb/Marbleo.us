@@ -109,6 +109,8 @@ class Renderer
             continue if not currentBlock or currentBlock.dragged
             [screenX, screenY] = @renderingCoordinatesForBlock blockX, blockY, blockZ
 
+            continue unless screenX <= x < (screenX + BLOCK_SIZE) and screenY <= y < (screenY + BLOCK_SIZE)
+
             pixel = @getTexture('basic','solid').getContext('2d').getImageData x - screenX, y - screenY, 1, 1
             if pixel.data[3] > 0
               return {
@@ -127,8 +129,8 @@ class Renderer
     return null unless rotationCount?
     return @textures[group][type][rotation / 90 % rotationCount]
 
-  drawMap: ->
-    return if @isDrawing or not @map.needsRedraw
+  drawMap: (force) ->
+    return if (@isDrawing or not @map.needsRedraw) and not force
     console.time "draw" if DEBUG
     @isDrawing = yes
 
