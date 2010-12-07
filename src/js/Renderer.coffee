@@ -137,7 +137,8 @@ class Renderer
       for blockX in [0...@map.size]
         for blockY in [@map.size - 1..0]
           for blockZ in [@map.size - 1..0]
-            continue unless currentBlock = @map.getBlock blockX, blockY, blockZ
+            currentBlock = @map.getBlock(blockX, blockY, blockZ)
+            continue if not currentBlock or currentBlock.dragged
             [screenX, screenY] = @renderingCoordinatesForBlock blockX, blockY, blockZ
 
             pixel = @getTexture('basic','solid').getContext('2d').getImageData x - screenX, y - screenY, 1, 1
@@ -148,7 +149,7 @@ class Renderer
                 side: side
               }
     else
-      return null
+      return {}
 
   getTexture: (group, type, rotation) ->
     unless rotation
@@ -168,7 +169,7 @@ class Renderer
 
     @map.visibleBlocksEach (block, x, y, z) =>
       @drawBlock  block, x, y, z
-      @drawHitbox block, x, y, z
+      @drawHitbox block, x, y, z unless block.dragged
 
     @map.setNeedsRedraw no
     @isDrawing = no
