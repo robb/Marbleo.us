@@ -6,6 +6,7 @@ buildFiles = [
   "Block",
   "Map",
   "Renderer",
+  "Game",
   "Main"
 ]
 

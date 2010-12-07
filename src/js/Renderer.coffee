@@ -188,7 +188,7 @@ class Renderer
       cached.height = cached.width = BLOCK_SIZE
       buffer = cached.getContext "2d"
 
-      unless block == @map.selectedBlock
+      unless block.selected
         solid = @getTexture 'basic', 'solid'
         buffer.drawImage solid, 0, 0, BLOCK_SIZE, BLOCK_SIZE
       else

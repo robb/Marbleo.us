@@ -19,7 +19,8 @@ class Block
     throw new Error "Illegal value for opacity" unless 0 <= opacity <= 1.0
     @opacity = opacity
 
-  setIsSelected: (@isSelected) ->
+  setSelected: (@selected) ->
+  setDragged: (@dragged) ->
 
   rotateCW:  -> @rotate  true
   rotateCCW: -> @rotate false
@@ -36,7 +37,7 @@ class Block
     return "#{@properties.top}#{@properties.topRotation}
             #{@properties.middle}#{@properties.middleRotation}
             #{@properties.low}#{@properties.lowRotation}
-            #{@opacity}#{@isSelected}"
+            #{@opacity}#{@selected}"
 
   # All the types of blocks we support
   @Types:
