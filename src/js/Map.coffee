@@ -35,12 +35,13 @@ class Map
 
   visibleBlocksEach: (functionToAppy) ->
     @blocksEach (block, x, y, z) =>
+      return unless block
       hidden = 0       <= (x - 1) and
                (y + 1) <  @size   and
                (z + 1) <  @size   and
-               @grid[(x - 1) +      y  * @size +      z  * @size * @size] isnt undefined and
-               @grid[     x  + (y + 1) * @size +      z  * @size * @size] isnt undefined and
-               @grid[     x  +      y  * @size + (z + 1) * @size * @size] isnt undefined
+               @grid[(x - 1) +      y  * @size +      z  * @size * @size] and
+               @grid[     x  + (y + 1) * @size +      z  * @size * @size] and
+               @grid[     x  +      y  * @size + (z + 1) * @size * @size]
 
       functionToAppy block, x, y, z unless hidden
 
