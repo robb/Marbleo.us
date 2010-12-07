@@ -16,39 +16,7 @@ TEXTURE_FILE       = '/img/textures.png'
 ## @constant ###
 TEXTURE_BLOCK_SIZE = 101
 
-Cutouts =
-  'straight':          [0, 180]
-  'curve':             [0,  90]
-  'crossing': [0, 90, 180, 270]
-
 class Renderer
-  _supportedTextures:
-    #texture group:
-    #  name: number of rotations/variations
-    'basic':
-      # This hitbox is used to detect which side of the block
-      # is at a given pixel by looking up the color.
-      # #0000FF => Top
-      # #00FF00 => East
-      # #FF0000 => South
-      'hitbox':          1
-      'solid':           1
-      'backside':        1
-      'outline':         1
-      # TODO: Add cutouts for straights/crossings
-      'cutout':          2
-    'top':
-      'crossing':        1
-      'crossing-hole':   1
-      'curve':           4
-      'straight':        2
-    'middle':
-      'crossing':        1
-      'curve':           4
-      'straight':        2
-      'dive':            4
-      'drop-middle':     4
-
   constructor: (@map, canvasID, @onload) ->
     @canvas = $(canvasID)
     @canvas.attr "width",   CANVAS_WIDTH
@@ -80,7 +48,7 @@ class Renderer
 
   setupTextures: (textureFile) ->
     textureOffset = 0
-    for textureGroup, textureDescription of @_supportedTextures
+    for textureGroup, textureDescription of Renderer.SupportedTextures
       for texture, rotationsCount of textureDescription
         console.log "loading #{textureGroup}.#{texture}" if DEBUG
 
@@ -153,9 +121,9 @@ class Renderer
 
   getTexture: (group, type, rotation) ->
     unless rotation
-      return @textures[group][type][0] if @_supportedTextures[group][type]?
+      return @textures[group][type][0] if Renderer.SupportedTextures[group][type]?
 
-    rotationCount = @_supportedTextures[group][type]
+    rotationCount = Renderer.SupportedTextures[group][type]
     return null unless rotationCount?
     return @textures[group][type][rotation / 90 % rotationCount]
 
@@ -189,10 +157,7 @@ class Renderer
       cached.height = cached.width = BLOCK_SIZE
       buffer = cached.getContext "2d"
 
-      unless block.selected
-        solid = @getTexture 'basic', 'solid'
-        buffer.drawImage solid, 0, 0, BLOCK_SIZE, BLOCK_SIZE
-      else
+      if block.selected
         backside = @getTexture 'basic', 'backside'
         buffer.drawImage backside, 0, 0, BLOCK_SIZE, BLOCK_SIZE
 
@@ -206,14 +171,21 @@ class Renderer
           if mid_texture?
             buffer.drawImage mid_texture, 0, 0, BLOCK_SIZE, BLOCK_SIZE
 
+      if block.selected
+        buffer.globalAlpha = 0.3
+
+      solid = @getTexture 'basic', 'solid'
+      buffer.drawImage solid, 0, 0, BLOCK_SIZE, BLOCK_SIZE
+
+      buffer.globalAlpha = 1.0
+
       if block.properties.top?
         top_texture = @getTexture 'top', block.properties.top, block.properties.topRotation
         if top_texture?
           buffer.drawImage top_texture, 0, 0, BLOCK_SIZE, BLOCK_SIZE
 
-        cutouts = Cutouts[block.properties.top];
-
-        # FIXME: This operation is pretty expensive.
+        # FIXME: This operations are pretty expensive.
+        cutouts = Renderer.Cutouts[block.properties.top];
         if cutouts?
           buffer.globalCompositeOperation = 'destination-out'
 
@@ -227,9 +199,87 @@ class Renderer
 
           buffer.globalCompositeOperation = 'source-over'
 
+        midHoles = Renderer.MidHoles[block.properties.middle]
+        if midHoles?
+          for pos in midHoles
+            if pos + block.properties.middleRotation % 180 == 0
+              midHoleSouth = @getTexture 'basic', 'hole-middle', 0
+              buffer.drawImage midHoleSouth, 0, 0, BLOCK_SIZE, BLOCK_SIZE
+
+            if pos + block.properties.middleRotation % 180 == 90
+              midHoleEast = @getTexture 'basic', 'hole-middle', 90
+              buffer.drawImage midHoleEast, 0, 0, BLOCK_SIZE, BLOCK_SIZE
+
+        lowHoles = Renderer.LowHoles[block.properties.middle]
+        if lowHoles?
+          for pos in lowHoles
+            if pos + block.properties.middleRotation % 180 == 0
+              lowHoleSouth = @getTexture 'basic', 'hole-low', 0
+              buffer.drawImage lowHoleSouth, 0, 0, BLOCK_SIZE, BLOCK_SIZE
+
+            if pos + block.properties.middleRotation % 180 == 90
+              lowHoleEast = @getTexture 'basic', 'hole-low', 90
+              buffer.drawImage lowHoleEast, 0, 0, BLOCK_SIZE, BLOCK_SIZE
+
       @drawOutline buffer, 0, 0
 
     @context.drawImage cached, screenX, screenY, BLOCK_SIZE, BLOCK_SIZE
 
   drawOutline: (context, x, y) ->
     context.drawImage @getTexture('basic','outline'), x, y, BLOCK_SIZE, BLOCK_SIZE
+
+  @SupportedTextures:
+    #texture group:
+    #  name: number of rotations/variations
+    'basic':
+      # This hitbox is used to detect which side of the block
+      # is at a given pixel by looking up the color.
+      # #0000FF => Top
+      # #00FF00 => East
+      # #FF0000 => South
+      'hitbox':          1
+      'solid':           1
+      'backside':        1
+      'outline':         1
+      'hole-middle':     2
+      'hole-low':        2
+      # TODO: Add cutouts for straights/crossings
+      'cutout':          2
+    'top':
+      'crossing':        1
+      'crossing-hole':   1
+      'curve':           4
+      'straight':        2
+    'middle':
+      'crossing':        1
+      'curve':           4
+      'straight':        2
+      'dive':            4
+      'drop-middle':     4
+      'drop-low':        4
+      'exchange':        4
+      'exchange-alt':    4
+    'low':
+      'crossing':        1
+      'curve':           4
+      'straight':        2
+
+  @Cutouts:
+    'straight':          [0, 180]
+    'curve':             [0,  90]
+    'crossing': [0, 90, 180, 270]
+
+  @MidHoles:
+    'crossing': [0, 90, 180, 270]
+    'curve':             [0,  90]
+    'straight':          [0, 180]
+    'dive':                 [  0]
+    'drop-middle':          [  0]
+    'exchange':             [ 90]
+    'exchange-alt':         [  0]
+
+  @LowHoles:
+    'dive':                 [180]
+    'drop-low':             [  0]
+    'exchange':             [  0]
+    'exchange-alt':         [ 90]

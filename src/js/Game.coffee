@@ -159,8 +159,17 @@ class Game
     if info.side is 'top'
       # If the user drags the stack onto another block, draw it there
       [nX, nY, nZ] = info.coordinates
+      targetBlock = @map.getBlock nX, nY, nZ
+      i = 0
       for block in @state.stack
-        @map.setBlock block, nX, nY, ++nZ
+        @map.setBlock block, nX, nY, ++i + nZ
+      # Set the low type and rotation to whatever the target block has on top
+      lowestBlock = @state.stack[0]
+      unless targetBlock.properties.top is 'crossing-hole'
+        lowestBlock.properties.low = targetBlock.properties.top
+      else
+        lowestBlock.properties.low = 'crossing'
+      lowestBlock.properties.lowRotation = targetBlock.properties.topRotation
 
   draggingUp: (event) =>
     @state.stack = null
