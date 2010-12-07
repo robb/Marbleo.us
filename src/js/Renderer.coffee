@@ -213,7 +213,7 @@ class Renderer
 
         cutouts = Cutouts[block.properties.top];
 
-        # TODO: This operation is pretty expensive.
+        # FIXME: This operation is pretty expensive.
         if cutouts?
           buffer.globalCompositeOperation = 'destination-out'
 
