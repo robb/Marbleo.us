@@ -14,7 +14,12 @@ class Map
   getBlock: (x, y, z) ->
     throw new Error unless x? and y? and z?
     return @grid[x + y * @size + z * @size * @size]
-  
+
+  popBlock: (x, y, z) ->
+    block = @getBlock x, y, z
+    @setBlock null, x, y, z
+    return block
+
   selectBlock: (@selectedBlock) ->
     @setNeedsRedraw yes
     return @selectedBlock
