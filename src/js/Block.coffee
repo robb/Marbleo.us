@@ -33,10 +33,10 @@ class Block
       @properties.middleRotation = (@properties.middleRotation + 270) % 360
 
   toString: ->
-    "#{@properties.top}#{@properties.topRotation}"
-    "#{@properties.middle}#{@properties.middleRotation}"
-    "#{@properties.low}#{@properties.lowRotation}"
-    "#{@opacity}#{@isSelected}"
+    return "#{@properties.top}#{@properties.topRotation}
+            #{@properties.middle}#{@properties.middleRotation}
+            #{@properties.low}#{@properties.lowRotation}
+            #{@opacity}#{@isSelected}"
 
   # All the types of blocks we support
   @Types:
