@@ -107,7 +107,7 @@ class Game
       when 'dragging'
         @draggingMove event
       when 'normal'
-        if side = @renderer.sideAtScreenCoordinates x, y
+        if side = @renderer.sideAtScreenCoordinates(x, y)
           $('body').css 'cursor', @settings.dragCursor
         else
           $('body').css 'cursor', @settings.defaultCursor
@@ -175,6 +175,19 @@ class Game
       else
         lowestBlock.properties.low = 'crossing'
       lowestBlock.properties.lowRotation = targetBlock.properties.topRotation
+
+    # If the user drags the stack onto the floor, draw it there
+    else if info.side is 'floor'
+      [nX, nY, nZ] = info.coordinates
+      targetBlock = @map.getBlock nX, nY, nZ
+      i = 0
+      for block in @state.stack
+        @map.setBlock block, nX, nY, i++
+
+      # Set the low type of the to nothing
+      lowestBlock = @state.stack[0]
+      lowestBlock.properties.low = null
+      lowestBlock.properties.lowRotation = null
 
     @map.setNeedsRedraw yes
 

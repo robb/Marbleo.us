@@ -1,3 +1,6 @@
+# TODO: Move these into a settings hash passed to the Renderer on 
+#       initialization
+
 ## @constant ###
 MOD = 1
 ## @constant ###
@@ -95,23 +98,37 @@ class Renderer
       return 'east'
     else if pixel.data[2] > 0
       return 'top'
+    else if pixel.data[3] > 0
+      return 'floor'
     else
       return null
 
   # Please note that x and y must be relative to the point of origin of the
   # canvas
   resolveScreenCoordinates: (x, y) ->
-    if side = @sideAtScreenCoordinates x, y
+    side = @sideAtScreenCoordinates(x, y)
+    if side is 'floor'
+      for blockX in [0...@map.size]
+        for blockY in [@map.size - 1..0]
+          [screenX, screenY] = @renderingCoordinatesForBlock blockX, blockY, 0
+          pixel = @getTexture('basic','floor-hitbox').getContext('2d').getImageData x - screenX, y - screenY, 1, 1
+
+          if pixel.data[3] > 0
+            return {
+              coordinates: [blockX, blockY, 0]
+              side: 'floor'
+            }
+    else if side
       for blockX in [0...@map.size]
         for blockY in [@map.size - 1..0]
           for blockZ in [@map.size - 1..0]
-            currentBlock = @map.getBlock(blockX, blockY, blockZ)
+            currentBlock = @map.getBlock blockX, blockY, blockZ
             continue if not currentBlock or currentBlock.dragged
             [screenX, screenY] = @renderingCoordinatesForBlock blockX, blockY, blockZ
 
             continue unless screenX <= x < (screenX + BLOCK_SIZE) and screenY <= y < (screenY + BLOCK_SIZE)
 
-            pixel = @getTexture('basic','solid').getContext('2d').getImageData x - screenX, y - screenY, 1, 1
+            pixel = @getTexture('basic','hitbox').getContext('2d').getImageData x - screenX, y - screenY, 1, 1
             if pixel.data[3] > 0
               return {
                 block: currentBlock
@@ -137,6 +154,8 @@ class Renderer
     @context.clearRect        0, 0, CANVAS_WIDTH, CANVAS_HEIGHT
     @hittestContext.clearRect 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT
 
+    @drawFloor()
+
     @map.visibleBlocksEach (block, x, y, z) =>
       @drawBlock  block, x, y, z
       @drawHitbox block, x, y, z unless block.dragged
@@ -144,6 +163,13 @@ class Renderer
     @map.setNeedsRedraw no
     @isDrawing = no
     console.timeEnd "draw" if DEBUG
+
+  drawFloor: ->
+    for x in [0...@map.size]
+      for y in [0...@map.size]
+        [screenX, screenY] = @renderingCoordinatesForBlock x, y, 0
+        @context.drawImage        @getTexture('basic','floor'), screenX, screenY, BLOCK_SIZE, BLOCK_SIZE
+        @hittestContext.drawImage @getTexture('basic','floor-hitbox'), screenX, screenY, BLOCK_SIZE, BLOCK_SIZE
 
   drawHitbox: (block, x, y, z) ->
     [screenX, screenY] = @renderingCoordinatesForBlock x, y, z
@@ -236,11 +262,15 @@ class Renderer
     'basic':
       # This hitbox is used to detect which side of the block
       # is at a given pixel by looking up the color.
-      # #0000FF => Top
-      # #00FF00 => East
-      # #FF0000 => South
+      #   RGBA       side
+      # #0000FFFF => Top
+      # #00FF00FF => East
+      # #FF0000FF => South
       'hitbox':          1
+      # #000000FF => Floor
+      'floor-hitbox':    1
       'solid':           1
+      'floor':           1
       'backside':        1
       'outline':         1
       'hole-middle':     2
