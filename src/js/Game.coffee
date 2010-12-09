@@ -34,6 +34,8 @@ class Game
       $body.bind 'mousemove', @bodyMove
       $body.bind 'mousedown', @bodyDown
 
+      $(document).bind 'keydown', @keyDown
+
       # Populate map
       if DEBUG
         @map.setBlock new Block('curve-straight', 90),  0, 0, 0
@@ -228,3 +230,10 @@ class Game
 
     # Render the map again to make sure the hitmap is up to date
     @renderer.drawMap()
+
+  keyDown: (event) =>
+    switch event.keyCode
+      when 65 # a
+        @map.rotateCW()
+      when 68 # d
+        @map.rotateCCW()
