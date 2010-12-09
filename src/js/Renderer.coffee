@@ -5,7 +5,7 @@ class Renderer
     blockSize:        101
     blockSizeHalf:    Math.floor(101 / 2)
     blockSizeQuarter: Math.floor(Math.floor(101 / 2) / 2)
-    canvasHeight:     8 * 101
+    canvasHeight:     7 * 101
     canvasWidth:      7 * 101
     textureFile:      '/img/textures.png'
     textureBlockSize: 101
@@ -234,7 +234,9 @@ class Renderer
       if topType
         top_texture = @getTexture 'top', topType, topRotation
         if top_texture?
+          buffer.globalAlpha = 0.6 if block.selected
           buffer.drawImage top_texture, 0, 0, @settings.blockSize, @settings.blockSize
+          buffer.globalAlpha = 1.0
 
       midHoles = Renderer.MidHoles[midType]
       if midHoles

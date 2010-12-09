@@ -1,13 +1,38 @@
 %html
   %head
     %title Marbleo.us
+    %meta{:http_equiv => "Content-Type",
+          :content => "text/html; charset=UTF-8"}
     %script{:type => "text/javascript",
             :src  => "http://code.jquery.com/jquery-1.4.4.min.js"}
     %script{:type => "text/javascript",
-            :src  => "js/marbleous.js"}
+            :src  => "/js/marbleous.js"}
+    %link{:rel  => "stylesheet",
+          :href  => "/css/desktop.css"}
 
-  %body{:style => "-webkit-user-select: none"}
-    #container
-      %canvas#main-canvas{:style => "user-select: none"}
-      %canvas#dragged-canvas{:style => "display: none; user-select: none"}
-    #palette
+  %body
+    #wrapper
+      #container
+        #game
+          .sg-35
+            %canvas#main-canvas
+            #palette{:style => 'user-select: none'}
+        #info
+          .how-to-play
+            .number 1
+            %p
+              Just select some blocks from the right.
+            .number 2
+            %p 
+              Drag ’em to the main stage
+            .number 3
+            %p
+              when you’re good to go, drop the marble on the field!
+              It’s that easy.
+
+          .about
+            %p
+              Marbleo.us is a project for the GIS Super Informatik Cup
+              Which rocks. It was built by Simon Hohberg and Robert Böhnke
+              in winter 2010.
+    %canvas#dragged-canvas{:style => "display: none"}

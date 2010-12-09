@@ -235,14 +235,14 @@ class Game
 
     [canvasX, canvasY] = @renderer.renderingCoordinatesForBlock x, y, z + blocks.length
     # Using bitwise-or 0 to convert Strings to ints
-    marginTop   = @mainCanvas.css(  'margin-top').replace('px','') | 0 
-    marginLeft  = @mainCanvas.css( 'margin-left').replace('px','') | 0
-    paddingTop  = @mainCanvas.css( 'padding-top').replace('px','') | 0
-    paddingLeft = @mainCanvas.css('padding-left').replace('px','') | 0
+    # marginTop   = @mainCanvas.css(  'margin-top').replace('px','') | 0 
+    # marginLeft  = @mainCanvas.css( 'margin-left').replace('px','') | 0
+    # paddingTop  = @mainCanvas.css( 'padding-top').replace('px','') | 0
+    # paddingLeft = @mainCanvas.css('padding-left').replace('px','') | 0
 
     info =
-      mouseOffsetX: state.downX - canvasX + paddingLeft + marginLeft
-      mouseOffsetY: state.downY - canvasY + paddingTop  + marginTop - @renderer.settings.blockSizeHalf
+      mouseOffsetX: state.downX - canvasX
+      mouseOffsetY: state.downY - canvasY - @renderer.settings.blockSizeHalf
 
     @startDragWithBlocks blocks, info
 

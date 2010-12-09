@@ -1,0 +1,33 @@
+@import    grid
+@import default
+
+#wrapper
+  width: $width
+  margin: 0 auto
+
+#palette
+  width: $width
+  height: 120px
+
+  overflow-y: hidden
+  overflow-x: scroll
+
+  white-space: nowrap
+
+  text-align: left
+
+  img
+    margin: 0 8px
+
+#info
+  padding-top: 16px
+
+  .how-to-play
+    @include prepend(2)
+    @include col(9)
+
+  .about
+    @include prepend(2)
+    @include col(9)
+    @include append(2)
+    @include last
