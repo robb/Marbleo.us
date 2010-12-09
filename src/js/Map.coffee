@@ -20,10 +20,6 @@ class Map
     @setBlock null, x, y, z
     return block
 
-  selectBlock: (@selectedBlock) ->
-    @setNeedsRedraw yes
-    return @selectedBlock
-
   setNeedsRedraw: (@needsRedraw) ->
 
   blocksEach: (functionToApply) ->
