@@ -158,18 +158,31 @@ class Renderer
 
     @map.visibleBlocksEach (block, x, y, z) =>
       @drawBlock  block, x, y, z
-      @drawHitbox block, x, y, z unless block.dragged
+
+    @drawHitmap()
+
+    if DEBUG
+      @context.globalAlpha = 0.4
+      @context.drawImage @hittestCanvas, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT
+      @context.globalAlpha = 1.0
 
     @map.setNeedsRedraw no
     @isDrawing = no
     console.timeEnd "draw" if DEBUG
+
+  drawHitmap: ->
+    @map.blocksEach (block, x, y, z) =>
+      if z is 0
+        [screenX, screenY] = @renderingCoordinatesForBlock x, y, 0
+        @hittestContext.drawImage @getTexture('basic','floor-hitbox'), screenX, screenY, BLOCK_SIZE, BLOCK_SIZE
+      if block and not block.dragged
+        @drawHitbox block, x, y, z
 
   drawFloor: ->
     for x in [0...@map.size]
       for y in [0...@map.size]
         [screenX, screenY] = @renderingCoordinatesForBlock x, y, 0
         @context.drawImage        @getTexture('basic','floor'), screenX, screenY, BLOCK_SIZE, BLOCK_SIZE
-        @hittestContext.drawImage @getTexture('basic','floor-hitbox'), screenX, screenY, BLOCK_SIZE, BLOCK_SIZE
 
   drawHitbox: (block, x, y, z) ->
     [screenX, screenY] = @renderingCoordinatesForBlock x, y, z
