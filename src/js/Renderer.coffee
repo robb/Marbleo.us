@@ -161,7 +161,7 @@ class Renderer
 
     @drawHitmap()
 
-    if DEBUG
+    if OVERLAY
       @context.globalAlpha = 0.4
       @context.drawImage @hittestCanvas, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT
       @context.globalAlpha = 1.0
