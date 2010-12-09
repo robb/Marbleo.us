@@ -1,3 +1,4 @@
+sys    = require 'sys'
 fs     = require 'fs'
 {exec} = require 'child_process'
 
@@ -11,7 +12,7 @@ buildFiles = [
 ]
 
 task 'build', 'Build application from source files', ->
-  puts 'Compiling HAML files'
+  sys.puts 'Compiling HAML files'
   exec 'mkdir bin'
   fs.readdir 'src/', (err, files) ->
     for file in files
@@ -20,7 +21,7 @@ task 'build', 'Build application from source files', ->
       exec "haml src/#{file} bin/#{newFile}", (err) ->
         throw err if err
 
-  puts 'Compiling SASS files'
+  sys.puts 'Compiling SASS files'
   exec 'mkdir bin/css'
   fs.readdir 'src/css', (err, files) ->
     for file in files
@@ -29,12 +30,12 @@ task 'build', 'Build application from source files', ->
       exec "sass src/css/#{file} bin/css/#{newFile}", (err) ->
         throw err if err
 
-  puts 'Copying images'
+  sys.puts 'Copying images'
   exec 'mkdir bin/img/'
   exec 'cp src/img/* bin/img/', (err) ->
     throw err if err
 
-  puts 'Compiling CoffeeScript files'
+  sys.puts 'Compiling CoffeeScript files'
   exec 'mkdir bin/js'
 
   appContents = new Array remaining = buildFiles.length
@@ -49,14 +50,14 @@ task 'build', 'Build application from source files', ->
       throw err if err
       exec 'coffee --compile bin/js/marbleous.coffee', (err, stdout, stderr) ->
         throw err if err
-        print stdout + stderr
+        sys.print stdout + stderr
         fs.unlink 'bin/js/marbleous.coffee', (err) ->
           throw err if err
-          puts 'Done.'
+          sys.puts 'Done.'
 
 
 task 'minify', 'Minify the resulting application file after build', ->
-  puts 'Compiling using ADVANCED_OPTIMIZATIONS'
+  sys.puts 'Compiling using ADVANCED_OPTIMIZATIONS'
   exec "closure --compilation_level ADVANCED_OPTIMIZATIONS
                 --summary_detail_level 3
                 --warning_level VERBOSE
@@ -65,11 +66,11 @@ task 'minify', 'Minify the resulting application file after build', ->
                 --warning_level QUIET
                 --externs lib/jquery-1.4.4.js
                 --externs lib/webkit_console.js", (err, stdout, stderr) ->
-    print stdout + stderr
+    sys.print stdout + stderr
     copy()
 
   copy = ->
-    puts "Overwriting old version with result"
+    sys.puts "Overwriting old version with result"
     exec 'mv -vf bin/js/marbleous-min.js bin/js/marbleous.js', (err, stdout, stderr) ->
       throw err if err
-      print stdout + stderr
+      sys.print stdout + stderr
