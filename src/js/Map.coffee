@@ -50,9 +50,9 @@ class Map
       hidden = 0       <= (x - 1) and
                (y + 1) <  @size   and
                (z + 1) <  @size   and
-               @grid[(x - 1) +      y  * @size +      z  * @size * @size] and
-               @grid[     x  + (y + 1) * @size +      z  * @size * @size] and
-               @grid[     x  +      y  * @size + (z + 1) * @size * @size]
+               @getBlock(x - 1,     y,     z) and
+               @getBlock(    x, y + 1,     z) and
+               @getBlock(    x,     y, z + 1)
 
       functionToAppy block, x, y, z unless hidden
 
