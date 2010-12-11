@@ -85,9 +85,9 @@ class Game
       when 'dragging'
         @draggingUp event
       when 'down'
-        x = event.offsetX || event.layerX - $(event.target).position().left
-        y = event.offsetY || event.layerY - $(event.target).position().top
-        if @state.info.block is @renderer.resolveScreenCoordinates(x, y).block
+        mouseX = event.pageX - $('#main-canvas').offset().left
+        mouseY = event.pageY - $('#main-canvas').offset().top
+        if @state.info.block is @renderer.resolveScreenCoordinates(mouseX, mouseY).block
           @selectBlock @state.info.block
           @state.type = 'normal'
       when 'normal'
@@ -99,8 +99,8 @@ class Game
     return off
 
   canvasMove: (event) =>
-    mouseX = event.pageX - $('#main-canvas').position().left
-    mouseY = event.pageY - $('#main-canvas').position().top
+    mouseX = event.pageX - $('#main-canvas').offset().left
+    mouseY = event.pageY - $('#main-canvas').offset().top
     switch @state.type
       when 'down'
         # If the user moves more than @settings.draggingOffset pixels
@@ -111,7 +111,7 @@ class Game
       when 'dragging'
         @draggingMove event
       when 'normal'
-        if side = @renderer.sideAtScreenCoordinates mouseX, mouseY
+        if (side = @renderer.sideAtScreenCoordinates(mouseX, mouseY)) and side isnt 'floor'
           $('body').css 'cursor', @settings.dragCursor
         else
           $('body').css 'cursor', @settings.defaultCursor
@@ -122,8 +122,8 @@ class Game
   canvasDown: (event) =>
     switch @state.type
       when 'normal'
-        mouseX = event.pageX - $('#main-canvas').position().left
-        mouseY = event.pageY - $('#main-canvas').position().top
+        mouseX = event.pageX - $('#main-canvas').offset().left
+        mouseY = event.pageY - $('#main-canvas').offset().top
         info = @renderer.resolveScreenCoordinates mouseX, mouseY
         if info.block
           @state.type  = 'down'
@@ -150,9 +150,9 @@ class Game
         changed = yes
       @map.setNeedsRedraw yes if changed
 
-    x = event.pageX - $('#main-canvas').position().left
-    y = event.pageY - $('#main-canvas').position().top
-    info = @renderer.resolveScreenCoordinates(x, y)
+    mouseX = event.pageX - $('#main-canvas').offset().left
+    mouseY = event.pageY - $('#main-canvas').offset().top
+    info = @renderer.resolveScreenCoordinates mouseX, mouseY
 
     # If the user drags the stack onto another block, draw it there
     if info.side is 'top' or info.side is 'floor'
