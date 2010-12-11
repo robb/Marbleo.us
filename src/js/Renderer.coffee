@@ -1,35 +1,32 @@
-# TODO: Move these into a settings hash passed to the Renderer on 
-#       initialization
-
-## @constant ###
-MOD = 1
-## @constant ###
-BLOCK_SIZE         = Math.floor(101 * MOD)
-## @constant ###
-BLOCK_SIZE_HALF    = Math.floor(BLOCK_SIZE / 2)
-## @constant ###
-BLOCK_SIZE_QUARTER = Math.floor(BLOCK_SIZE_HALF / 2)
-## @constant ###
-CANVAS_HEIGHT      = 8 * BLOCK_SIZE
-## @constant ###
-CANVAS_WIDTH       = 7 * BLOCK_SIZE
-
-## @constant ###
-TEXTURE_FILE       = '/img/textures.png'
-## @constant ###
-TEXTURE_BLOCK_SIZE = 101
-
 class Renderer
-  constructor: (@map, canvasID, @onload) ->
-    @canvas = $(canvasID)
-    @canvas.attr "width",   CANVAS_WIDTH
-    @canvas.attr "height", CANVAS_HEIGHT
-    @context = @canvas.get(0).getContext "2d"
+  @defaultSettings:
+    mainCanvasID:     '#main-canvas'
+    draggedCanvasID:  '#dragged-canvas'
+    blockSize:        101
+    blockSizeHalf:    Math.floor(101 / 2)
+    blockSizeQuarter: Math.floor(Math.floor(101 / 2) / 2)
+    canvasHeight:     8 * 101
+    canvasWidth:      7 * 101
+    textureFile:      '/img/textures.png'
+    textureBlockSize: 101
+
+  constructor: (@map, @onload, @settings) ->
+    @settings ||= {}
+    for key, value of Renderer.defaultSettings
+      @settings[key] = @settings[key] || Renderer.defaultSettings[key]
+
+    @canvas = $(@settings.mainCanvasID)
+    @canvas.attr  'width', @settings.canvasWidth
+    @canvas.attr 'height', @settings.canvasHeight
+    @context = @canvas.get(0).getContext '2d'
 
     @hittestCanvas = document.createElement 'canvas'
-    @hittestCanvas.width  = CANVAS_WIDTH
-    @hittestCanvas.height = CANVAS_HEIGHT
-    @hittestContext = @hittestCanvas.getContext "2d"
+    @hittestCanvas.width  = @settings.canvasWidth
+    @hittestCanvas.height = @settings.canvasHeight
+    @hittestContext = @hittestCanvas.getContext '2d'
+
+    @draggedCanvas = $(@settings.draggedCanvasID)
+    @draggedContext = @draggedCanvas.get(0).getContext '2d'
 
     # Load all textures from the texture file
     @textures = {}
@@ -41,7 +38,7 @@ class Renderer
 
     textureFile = new Image
     textureFile.onload = onloadCallback
-    textureFile.src = TEXTURE_FILE
+    textureFile.src = @settings.textureFile
 
   # Sets up multiple caches to accelerate the rendering of the blocks and
   # block columns
@@ -59,13 +56,14 @@ class Renderer
         @textures[textureGroup][texture] = new Array rotationsCount
         for rotation in [0...rotationsCount]
           canvas = document.createElement 'canvas'
-          canvas.width  = BLOCK_SIZE
-          canvas.height = BLOCK_SIZE
+          canvas.width  = @settings.blockSize
+          canvas.height = @settings.blockSize
           context = canvas.getContext '2d'
           try
+            textureBSize = @settings.textureBlockSize
             context.drawImage textureFile,
-                              rotation * TEXTURE_BLOCK_SIZE, textureOffset * TEXTURE_BLOCK_SIZE, TEXTURE_BLOCK_SIZE, TEXTURE_BLOCK_SIZE
-                                                          0,                                  0,         BLOCK_SIZE,         BLOCK_SIZE
+                              rotation * textureBSize, textureOffset * textureBSize,        textureBSize,        textureBSize
+                                                    0,                            0, @settings.blockSize, @settings.blockSize
           catch error
             if DEBUG
               console.log "Encountered error #{error} while loading texture: #{texture}"
@@ -82,8 +80,8 @@ class Renderer
   #
   # Relative to the point of origin of the canvas
   renderingCoordinatesForBlock: (x,y,z) ->
-    screenX = (x + y) * BLOCK_SIZE_HALF
-    screenY = CANVAS_HEIGHT - 3 * BLOCK_SIZE_QUARTER - (2 * z + x - y + @map.size) * BLOCK_SIZE_QUARTER
+    screenX = (x + y) * @settings.blockSizeHalf
+    screenY = @settings.canvasHeight - 3 * @settings.blockSizeQuarter - (2 * z + x - y + @map.size) * @settings.blockSizeQuarter
 
     [screenX, screenY]
 
@@ -106,11 +104,17 @@ class Renderer
   # Please note that x and y must be relative to the point of origin of the
   # canvas
   resolveScreenCoordinates: (x, y) ->
+    unless 0 < x < @settings.canvasWidth and 0 < y < @settings.canvasHeight
+      return {}
+
     side = @sideAtScreenCoordinates(x, y)
     if side is 'floor'
       for blockX in [0...@map.size]
         for blockY in [@map.size - 1..0]
           [screenX, screenY] = @renderingCoordinatesForBlock blockX, blockY, 0
+
+          continue unless screenX <= x < (screenX + @settings.blockSize) and screenY <= y < (screenY + @settings.blockSize)
+
           pixel = @getTexture('basic','floor-hitbox').getContext('2d').getImageData x - screenX, y - screenY, 1, 1
 
           if pixel.data[3] > 0
@@ -126,7 +130,7 @@ class Renderer
             continue if not currentBlock or currentBlock.dragged
             [screenX, screenY] = @renderingCoordinatesForBlock blockX, blockY, blockZ
 
-            continue unless screenX <= x < (screenX + BLOCK_SIZE) and screenY <= y < (screenY + BLOCK_SIZE)
+            continue unless screenX <= x < (screenX + @settings.blockSize) and screenY <= y < (screenY + @settings.blockSize)
 
             pixel = @getTexture('basic','hitbox').getContext('2d').getImageData x - screenX, y - screenY, 1, 1
             if pixel.data[3] > 0
@@ -151,19 +155,20 @@ class Renderer
     console.time "draw" if DEBUG
     @isDrawing = yes
 
-    @context.clearRect        0, 0, CANVAS_WIDTH, CANVAS_HEIGHT
-    @hittestContext.clearRect 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT
+    @context.clearRect        0, 0, @settings.canvasWidth, @settings.canvasHeight
+    @hittestContext.clearRect 0, 0, @settings.canvasWidth, @settings.canvasHeight
 
     @drawFloor()
 
     @map.visibleBlocksEach (block, x, y, z) =>
-      @drawBlock  block, x, y, z
+      [screenX, screenY] = @renderingCoordinatesForBlock x, y, z
+      @drawBlock @context, block, screenX, screenY
 
     @drawHitmap()
 
     if OVERLAY
       @context.globalAlpha = 0.4
-      @context.drawImage @hittestCanvas, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT
+      @context.drawImage @hittestCanvas, 0, 0, @settings.canvasWidth, @settings.canvasHeight
       @context.globalAlpha = 1.0
 
     @map.setNeedsRedraw no
@@ -174,56 +179,51 @@ class Renderer
     @map.blocksEach (block, x, y, z) =>
       if z is 0
         [screenX, screenY] = @renderingCoordinatesForBlock x, y, 0
-        @hittestContext.drawImage @getTexture('basic','floor-hitbox'), screenX, screenY, BLOCK_SIZE, BLOCK_SIZE
+        @hittestContext.drawImage @getTexture('basic','floor-hitbox'), screenX, screenY, @settings.blockSize, @settings.blockSize
       if block and not block.dragged
-        @drawHitbox block, x, y, z
+        [screenX, screenY] = @renderingCoordinatesForBlock x, y, z
+        @hittestContext.drawImage @getTexture('basic','hitbox'), screenX, screenY, @settings.blockSize, @settings.blockSize
 
   drawFloor: ->
     for x in [0...@map.size]
       for y in [0...@map.size]
         [screenX, screenY] = @renderingCoordinatesForBlock x, y, 0
-        @context.drawImage        @getTexture('basic','floor'), screenX, screenY, BLOCK_SIZE, BLOCK_SIZE
+        @context.drawImage @getTexture('basic','floor'), screenX, screenY, @settings.blockSize, @settings.blockSize
 
-  drawHitbox: (block, x, y, z) ->
-    [screenX, screenY] = @renderingCoordinatesForBlock x, y, z
-    @hittestContext.drawImage @getTexture('basic','hitbox'), screenX, screenY, BLOCK_SIZE, BLOCK_SIZE
-
-  drawBlock: (block, x, y, z) ->
-    [screenX, screenY] = @renderingCoordinatesForBlock x, y, z
-
+  drawBlock: (context, block, x, y) ->
     cache_key = block.toString()
 
     unless cached = @Cache[cache_key]
       @Cache[cache_key] = cached = document.createElement 'canvas'
-      cached.height = cached.width = BLOCK_SIZE
+      cached.height = cached.width = @settings.blockSize
       buffer = cached.getContext "2d"
 
       if block.selected
         backside = @getTexture 'basic', 'backside'
-        buffer.drawImage backside, 0, 0, BLOCK_SIZE, BLOCK_SIZE
+        buffer.drawImage backside, 0, 0, @settings.blockSize, @settings.blockSize
 
         if block.properties.low?
           low_texture = @getTexture 'low', block.properties.low, block.properties.lowRotation
           if low_texture?
-            buffer.drawImage low_texture, 0, 0, BLOCK_SIZE, BLOCK_SIZE
+            buffer.drawImage low_texture, 0, 0, @settings.blockSize, @settings.blockSize
 
         if block.properties.middle?
           mid_texture = @getTexture 'middle', block.properties.middle, block.properties.middleRotation
           if mid_texture?
-            buffer.drawImage mid_texture, 0, 0, BLOCK_SIZE, BLOCK_SIZE
+            buffer.drawImage mid_texture, 0, 0, @settings.blockSize, @settings.blockSize
 
       if block.selected
         buffer.globalAlpha = 0.3
 
       solid = @getTexture 'basic', 'solid'
-      buffer.drawImage solid, 0, 0, BLOCK_SIZE, BLOCK_SIZE
+      buffer.drawImage solid, 0, 0, @settings.blockSize, @settings.blockSize
 
       buffer.globalAlpha = 1.0
 
       if block.properties.top?
         top_texture = @getTexture 'top', block.properties.top, block.properties.topRotation
         if top_texture?
-          buffer.drawImage top_texture, 0, 0, BLOCK_SIZE, BLOCK_SIZE
+          buffer.drawImage top_texture, 0, 0, @settings.blockSize, @settings.blockSize
 
         # FIXME: This operations are pretty expensive.
         cutouts = Renderer.Cutouts[block.properties.top];
@@ -233,10 +233,10 @@ class Renderer
           for pos in cutouts
             if pos + block.properties.topRotation % 360 == 180
               cutout180 = @getTexture 'basic', 'cutout', 180
-              buffer.drawImage cutout180, 0, 0, BLOCK_SIZE, BLOCK_SIZE
+              buffer.drawImage cutout180, 0, 0, @settings.blockSize, @settings.blockSize
             else if pos + block.properties.topRotation % 360 == 270
               cutout270 = @getTexture 'basic', 'cutout', 270
-              buffer.drawImage cutout270, 0, 0, BLOCK_SIZE, BLOCK_SIZE
+              buffer.drawImage cutout270, 0, 0, @settings.blockSize, @settings.blockSize
 
           buffer.globalCompositeOperation = 'source-over'
 
@@ -245,29 +245,42 @@ class Renderer
           for pos in midHoles
             if pos + block.properties.middleRotation % 180 == 0
               midHoleSouth = @getTexture 'basic', 'hole-middle', 0
-              buffer.drawImage midHoleSouth, 0, 0, BLOCK_SIZE, BLOCK_SIZE
+              buffer.drawImage midHoleSouth, 0, 0, @settings.blockSize, @settings.blockSize
 
             if pos + block.properties.middleRotation % 180 == 90
               midHoleEast = @getTexture 'basic', 'hole-middle', 90
-              buffer.drawImage midHoleEast, 0, 0, BLOCK_SIZE, BLOCK_SIZE
+              buffer.drawImage midHoleEast, 0, 0, @settings.blockSize, @settings.blockSize
 
         lowHoles = Renderer.LowHoles[block.properties.middle]
         if lowHoles?
           for pos in lowHoles
             if pos + block.properties.middleRotation % 180 == 0
               lowHoleSouth = @getTexture 'basic', 'hole-low', 0
-              buffer.drawImage lowHoleSouth, 0, 0, BLOCK_SIZE, BLOCK_SIZE
+              buffer.drawImage lowHoleSouth, 0, 0, @settings.blockSize, @settings.blockSize
 
             if pos + block.properties.middleRotation % 180 == 90
               lowHoleEast = @getTexture 'basic', 'hole-low', 90
-              buffer.drawImage lowHoleEast, 0, 0, BLOCK_SIZE, BLOCK_SIZE
+              buffer.drawImage lowHoleEast, 0, 0, @settings.blockSize, @settings.blockSize
 
       @drawOutline buffer, 0, 0
 
-    @context.drawImage cached, screenX, screenY, BLOCK_SIZE, BLOCK_SIZE
+    context.drawImage cached, x, y, @settings.blockSize, @settings.blockSize
 
   drawOutline: (context, x, y) ->
-    context.drawImage @getTexture('basic','outline'), x, y, BLOCK_SIZE, BLOCK_SIZE
+    context.drawImage @getTexture('basic','outline'), x, y, @settings.blockSize, @settings.blockSize
+
+  drawDraggedBlocks: (stack) ->
+    width  = @settings.blockSize
+    height = if stack.length is 1
+               @settings.blockSize
+             else
+               @settings.blockSize + @settings.blockSizeHalf * (stack.length - 1)
+
+    @draggedCanvas.attr  'width', width
+    @draggedCanvas.attr 'height', height
+
+    for block, index in stack
+      @drawBlock @draggedContext, block, 0, height - @settings.blockSize - (index) * @settings.blockSizeHalf
 
   @SupportedTextures:
     #texture group:
