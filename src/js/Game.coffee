@@ -85,8 +85,8 @@ class Game
       when 'dragging'
         @draggingUp event
       when 'down'
-        mouseX = event.pageX - $('#main-canvas').offset().left
-        mouseY = event.pageY - $('#main-canvas').offset().top
+        mouseX = event.pageX - @mainCanvas.offset().left
+        mouseY = event.pageY - @mainCanvas.offset().top
         if @state.info.block is @renderer.resolveScreenCoordinates(mouseX, mouseY).block
           @selectBlock @state.info.block
           @state.type = 'normal'
@@ -99,8 +99,8 @@ class Game
     return off
 
   canvasMove: (event) =>
-    mouseX = event.pageX - $('#main-canvas').offset().left
-    mouseY = event.pageY - $('#main-canvas').offset().top
+    mouseX = event.pageX - @mainCanvas.offset().left
+    mouseY = event.pageY - @mainCanvas.offset().top
     switch @state.type
       when 'down'
         # If the user moves more than @settings.draggingOffset pixels
@@ -122,8 +122,8 @@ class Game
   canvasDown: (event) =>
     switch @state.type
       when 'normal'
-        mouseX = event.pageX - $('#main-canvas').offset().left
-        mouseY = event.pageY - $('#main-canvas').offset().top
+        mouseX = event.pageX - @mainCanvas.offset().left
+        mouseY = event.pageY - @mainCanvas.offset().top
         info = @renderer.resolveScreenCoordinates mouseX, mouseY
         if info.block
           @state.type  = 'down'
@@ -150,8 +150,8 @@ class Game
         changed = yes
       @map.setNeedsRedraw yes if changed
 
-    mouseX = event.pageX - $('#main-canvas').offset().left
-    mouseY = event.pageY - $('#main-canvas').offset().top
+    mouseX = event.pageX - @mainCanvas.offset().left
+    mouseY = event.pageY - @mainCanvas.offset().top
     info = @renderer.resolveScreenCoordinates mouseX, mouseY
 
     # If the user drags the stack onto another block, draw it there
