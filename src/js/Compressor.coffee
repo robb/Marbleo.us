@@ -5,16 +5,16 @@ class Compressor
     bytes   = new Array
     map.blocksEach (block, x, y, z) =>
       return unless block
-      for byte in @compressBlock block, x, y, z
-        bytes.push byte
+      for currentByte in @compressBlock block, x, y, z
+        bytes.push currentByte
 
     # Base 64 Encoding with URL and Filename Safe Alphabet
     # according to http://tools.ietf.org/html/rfc3548
     string = new Array
     counter = 0
     tmp = 0
-    for byte in bytes
-      tmp = (tmp << 8) | byte
+    for currentByte in bytes
+      tmp = (tmp << 8) | currentByte
       counter++
 
       if counter % 3 is 0 # every third byte
