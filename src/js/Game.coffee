@@ -198,8 +198,15 @@ class Game
     @renderer.drawDraggedBlocks @state.stack
 
     [canvasX, canvasY] = @renderer.renderingCoordinatesForBlock bX, bY, i
-    @state.mouseOffsetY = @state.downY - canvasY - @renderer.settings.blockSizeHalf
-    @state.mouseOffsetX = @state.downX - canvasX
+    # Using bitwise-or 0 to convert Strings to ints
+    marginTop   = @mainCanvas.css(  'margin-top').replace('px','') | 0 
+    marginLeft  = @mainCanvas.css( 'margin-left').replace('px','') | 0
+    paddingTop  = @mainCanvas.css( 'padding-top').replace('px','') | 0
+    paddingLeft = @mainCanvas.css('padding-left').replace('px','') | 0
+    @state.mouseOffsetY = @state.downY - canvasY + paddingTop  + marginTop - @renderer.settings.blockSizeHalf
+    @state.mouseOffsetX = @state.downX - canvasX + paddingLeft + marginLeft
+
+    console.log @state.mouseOffsetX
 
     @state.type = 'dragging'
     @renderer.drawMap yes # Redraw the map to update the hitmap
