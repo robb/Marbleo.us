@@ -6,6 +6,10 @@ class Block
     for key, value of Block.Types[type]
       @properties[key] = value
 
+    @properties.topRotation    ||= 0
+    @properties.middleRotation ||= 0
+    @properties.lowRotation    ||= 0
+
     switch rotation
       when 90
         @rotateCW()
