@@ -1,24 +1,57 @@
 class Compressor
-  @BytesPerBlock: 7
+  @BytesPerBlock: 4
   constructor: ->
   compress: (map) ->
     bytes   = new Array
-    map.blocksEach (block, x, y, z) =>
-      return unless block
-      for currentByte in @encodeBlock block, x, y, z
-        bytes.push currentByte
+    gapSize = 0
+    for x in [0...map.size]
+      for y in [0...map.size]
+        for z in [0...map.size]
+          unless block = map.getBlock(x, y, z)
+            gapSize++
+            continue
+
+          if gapSize > 0
+            bytes.push 0xFF # Indicates gap
+            bytes.push (gapSize & 0xFF0000) >> 16
+            bytes.push (gapSize & 0x00FF00) >>  8
+            bytes.push (gapSize & 0x0000FF)
+            gapSize = 0
+
+          for currentByte in @encodeBlock block
+            bytes.push currentByte
 
     return @encodeArray bytes
 
   decompress: (string, map) ->
     bytes = @decodeArray string
 
-    bytesIndex = 0
+    bytesIndex    = 0
+    blockPosition = 0
     while bytesIndex < (bytes.length - 2)
-      [block, x, y, z] = @decodeBlock bytes[bytesIndex..bytesIndex + Compressor.BytesPerBlock]
+      if bytes[bytesIndex] is 0xFF # Indicates gap
+        gapSize = bytes[bytesIndex + 1] << 16 |
+                  bytes[bytesIndex + 2] <<  8 |
+                  bytes[bytesIndex + 3]
 
+        blockPosition += gapSize
+        bytesIndex += Compressor.BytesPerBlock
+
+      block = @decodeBlock bytes[bytesIndex..bytesIndex + Compressor.BytesPerBlock]
+
+      [x, remainder] = @quotientAndRemainder blockPosition, map.size * map.size
+      [y, remainder] = @quotientAndRemainder remainder,     map.size
+      z = remainder
       map.setBlock block, x, y, z
+
       bytesIndex += Compressor.BytesPerBlock
+      blockPosition++
+
+  quotientAndRemainder: (dividend, divisor) ->
+    quotient   = Math.floor(dividend / divisor)
+    remainder =             dividend % divisor
+
+    return [quotient, remainder]
 
   # Base 64 Encoding with URL and Filename Safe Alphabet
   # according to http://tools.ietf.org/html/rfc3548
@@ -67,39 +100,32 @@ class Compressor
 
   # Make sure this only uses the number of bytes specified in
   # Compressor.BytesPerBlock
-  encodeBlock: (block, x, y, z) ->
+  encodeBlock: (block) ->
     bytes = new Array
-    bytes.push (0xFF & x)
-    bytes.push (0xFF & y)
-    bytes.push (0xFF & z)
-    bytes.push Compressor.CompressionTable[block.properties.top]    || 0x00
-    bytes.push Compressor.CompressionTable[block.properties.middle] || 0x00
-    bytes.push Compressor.CompressionTable[block.properties.low]    || 0x00
-
     bytes.push (block.properties.topRotation    / 90) << 4 |
                (block.properties.middleRotation / 90) << 2 |
                (block.properties.lowRotation    / 90)
+
+    bytes.push Compressor.CompressionTable[block.properties.top]    || 0x00
+    bytes.push Compressor.CompressionTable[block.properties.middle] || 0x00
+    bytes.push Compressor.CompressionTable[block.properties.low]    || 0x00
 
     return bytes
 
   # TODO: Add a validating constructor to Block class
   decodeBlock: (bytes) ->
-    x = bytes[0]
-    y = bytes[1]
-    z = bytes[2]
-
     block = new Block 'blank'
-    for type, code of Compressor.CompressionTable
-      block.properties.top    = type if code is bytes[3]
-      block.properties.middle = type if code is bytes[4]
-      block.properties.low    = type if code is bytes[5]
-
-    rotations = bytes[6]
+    rotations = bytes[0]
     block.properties.topRotation    = 90 * ((rotations & 0x30) >> 4)
     block.properties.middleRotation = 90 * ((rotations & 0x0C) >> 2)
     block.properties.lowRotation    = 90 *  (rotations & 0x03)
 
-    return [block, x, y, z]
+    for type, code of Compressor.CompressionTable
+      block.properties.top    = type if code is bytes[1]
+      block.properties.middle = type if code is bytes[2]
+      block.properties.low    = type if code is bytes[3]
+
+    return block
 
   # We encode 3 bytes as four characters
   encodeBytes: (bytes) ->
@@ -171,4 +197,3 @@ class Compressor
     'crossing-hole': 0x07
     'drop-middle':   0x08
     'drop-low':      0x09
-

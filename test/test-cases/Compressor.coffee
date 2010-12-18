@@ -42,8 +42,8 @@ byteArray = [0x45, 0x46, 0x47, 0x48, 0x49, 0x50]
 
 test 'array <=> string encoding/decoding', ->
   compressor = new Compressor
-  equal compressor.encodeArray(byteArray), "RUZHSElQ", "Array should be RUZHSElQ"
-  deepEqual compressor.decodeArray("RUZHSElQ"), byteArray, "Array should be RUZHSElQ"
+  equal compressor.encodeArray(byteArray), "RUZHSElQ", "Array should resolve to RUZHSElQ"
+  deepEqual compressor.decodeArray("RUZHSElQ"), byteArray, "Array should resolve to RUZHSElQ"
 
 test 'block <=> bytes encoding/decoding', ->
   compressor = new Compressor
@@ -54,20 +54,36 @@ test 'block <=> bytes encoding/decoding', ->
     new Block 'crossing-hole', 180
   ]
   for block in blocks
-    deepEqual compressor.decodeBlock(compressor.encodeBlock(block))[0],
+    deepEqual compressor.decodeBlock(compressor.encodeBlock(block)),
               block
 
 test 'map <=> string encoding/decoding', ->
   compressor = new Compressor
   map = new Map 7
-  map.setBlock new Block(), 1, 2, 0
-  map.setBlock new Block('double-straight'), 1, 2, 1
+
+  map.setBlock new Block('crossing-hole'), 0, 0, 0
+  map.setBlock new Block('blank'),         0, 0, 1
+  map.setBlock new Block('blank'),         0, 5, 0
+  map.setBlock new Block('blank'),         0, 5, 1
+  map.setBlock new Block('blank'),         0, 5, 2
+  map.setBlock new Block('blank'),         0, 5, 3
 
   emptyMap = new Map 7
 
-  ok string = compressor.compress(map), "Compression did return String"
-  ok string.length % 3 is 0,            "String length of #{string.length} is multiple of three"
-  
+  string = compressor.compress(map)
+  ok string?, "Compression did return String"
+
   compressor.decompress(string, emptyMap)
 
   deepEqual emptyMap, map
+
+test 'max string length for 7x7x7 map', ->
+  map = new Map 7
+  for x in [0..7]
+    for y in [0..7]
+      for z in [0..7]
+        map.setBlock new Block(), x, y, z
+
+  compressor = new Compressor
+  string = compressor.compress(map)
+  ok string.length <= 2000, "String length must be at most 2000 character long, is #{string.length}"
