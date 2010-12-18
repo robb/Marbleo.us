@@ -37,12 +37,15 @@ class Game
       $(document).bind 'keydown', @keyDown
 
       # Populate map
-      if DEBUG
-        @map.setBlock new Block('curve-straight', 90),  0, 0, 0
-        @map.setBlock new Block('blank'),               0, 1, 0
-        @map.setBlock new Block('blank'),               0, 1, 1
-        @map.setBlock new Block('double-straight', 90), 1, 0, 0
-        @map.setBlock new Block('double-straight', 90), 2, 0, 0
+      #if DEBUG
+      #  for x in [0...@map.size]
+      #    for y in [0...@map.size]
+      #      for z in [0...@map.size]
+      #          @map.setBlock new Block('blank'), x, y, z
+
+      if window.location.hash.length
+        compressor = new Compressor
+        compressor.decompress window.location.hash.slice(1), @map
 
       renderingLoop = =>
         @renderer.drawMap()
@@ -244,3 +247,7 @@ class Game
         @map.rotateCW()
       when 68 # d
         @map.rotateCCW()
+      when 80 # p
+        compressor = new Compressor
+        string = compressor.compress @map
+        window.location.replace('#' + string);

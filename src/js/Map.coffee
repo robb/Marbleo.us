@@ -1,5 +1,6 @@
 class Map
   constructor: (size) ->
+    throw new Error "Size must be between 0 and 255" unless 0 < size < 255
     ### @constant ###
     @size    =            size
 
@@ -67,6 +68,3 @@ class Map
     for block in @grid
       block.rotate clockwise if block
     @setNeedsRedraw yes
-
-  compress: ->
-    throw new Error "Compression has not yet been implemented"
