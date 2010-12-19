@@ -79,9 +79,9 @@ test 'map <=> string encoding/decoding', ->
 
 test 'max string length for 7x7x7 map', ->
   map = new Map 7
-  for x in [0..7]
-    for y in [0..7]
-      for z in [0..7]
+  for x in [0...7]
+    for y in [0...7]
+      for z in [0...7]
         map.setBlock new Block(), x, y, z
 
   compressor = new Compressor
