@@ -14,27 +14,28 @@ buildFiles = [
 
 task 'build', 'Build application from source files', ->
   sys.puts 'Compiling HAML files'
-  exec 'mkdir bin'
-  fs.readdir 'src/', (err, files) ->
-    for file in files
-      continue unless file.match /haml$/
-      newFile = file.replace /haml/g, 'html'
-      exec "haml src/#{file} bin/#{newFile}", (err) ->
-        throw err if err
+  exec 'mkdir bin', ->
+    fs.readdir 'src/', (err, files) ->
+      for file in files
+        continue unless file.match /haml$/
+        newFile = file.replace /haml/g, 'html'
+        exec "haml src/#{file} bin/#{newFile}", (err) ->
+          throw err if err
 
   sys.puts 'Compiling SASS files'
-  exec 'mkdir bin/css'
-  fs.readdir 'src/css', (err, files) ->
-    for file in files
-      continue unless file.match /s(c|a)ss$/
-      newFile = file.replace /s(c|a)ss/g, 'css'
-      exec "sass src/css/#{file} bin/css/#{newFile}", (err) ->
-        throw err if err
+  exec 'mkdir bin/css', ->
+    exec 'mkdir src/css', ->
+      fs.readdir 'src/css', (err, files) ->
+        for file in files
+          continue unless file.match /s(c|a)ss$/
+          newFile = file.replace /s(c|a)ss/g, 'css'
+          exec "sass src/css/#{file} bin/css/#{newFile}", (err) ->
+            throw err if err
 
   sys.puts 'Copying images'
-  exec 'mkdir bin/img/'
-  exec 'cp src/img/* bin/img/', (err) ->
-    throw err if err
+  exec 'mkdir bin/img/', ->
+    exec 'cp src/img/* bin/img/', (err) ->
+      throw err if err
 
   sys.puts 'Compiling CoffeeScript files'
   exec 'mkdir bin/js'
