@@ -193,8 +193,8 @@ class Game
 
     @state.stack = new Array
     [bX, bY, bZ] = @state.info.coordinates
-    for i in [bZ..@map.size]
-      break unless block = @map.popBlock(bX, bY, i)
+    for i in [bZ...@map.size]
+      break unless block = @map.removeBlock(bX, bY, i)
       block.setDragged yes
       @state.stack.push block
 
