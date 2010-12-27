@@ -10,8 +10,7 @@ class Renderer
     textureFile:      '/img/textures.png'
     textureBlockSize: 101
 
-  constructor: (@map, @onload, @settings) ->
-    @settings ||= {}
+  constructor: (@map, @onload, @settings = {}) ->
     for key, value of Renderer.defaultSettings
       @settings[key] = @settings[key] || Renderer.defaultSettings[key]
 

@@ -38,8 +38,7 @@ class Map
       height++
     return height
 
-  getStack: (x, y, z) ->
-    z ||= 0
+  getStack: (x, y, z = 0) ->
     @validateCoordinates x, y, z
 
     return [] if z > height = @heightAt x, y
@@ -49,8 +48,7 @@ class Map
       blocks.push @getBlock x, y, currentZ
     return blocks
 
-  setStack: (blocks, x, y, z) ->
-    z ||= 0
+  setStack: (blocks, x, y, z = 0) ->
     @validateCoordinates x, y, z
     unless blocks.length + z < @size
       throw new Error "Cannot place stack, height out of bounds"
@@ -58,8 +56,7 @@ class Map
     for block in blocks
       @setBlock block, x, y, z++
 
-  removeStack: (x, y, z) ->
-    z ||= 0
+  removeStack: (x, y, z = 0) ->
     stack = @getStack x, y, z
     for currentZ in [z...z + stack.length]
       @setBlock null, x, y, currentZ

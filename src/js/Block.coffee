@@ -1,7 +1,5 @@
 class Block
-  constructor: (type, rotation) ->
-    type ||= 'blank'
-
+  constructor: (type = 'blank', rotation) ->
     @properties = {}
     for key, value of Block.Types[type]
       @properties[key] = value
