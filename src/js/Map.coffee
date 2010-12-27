@@ -34,7 +34,7 @@ class Map
     [x, y] = @applyRotation x, y if @rotation
 
     height = 0
-    while @getBlock x, y, height
+    while height < @size and @getBlock x, y, height
       height++
     return height
 
@@ -50,7 +50,7 @@ class Map
 
   setStack: (blocks, x, y, z = 0) ->
     @validateCoordinates x, y, z
-    unless blocks.length + z < @size
+    unless blocks.length - 1 + z < @size
       throw new Error "Cannot place stack, height out of bounds"
 
     for block in blocks

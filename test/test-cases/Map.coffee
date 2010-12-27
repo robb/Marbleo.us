@@ -48,10 +48,18 @@ test 'Stack operation: removeStack', ->
   mapA.setBlock new Block('curve-straight'), 2, 2, 0
   mapA.setBlock new Block('blank')         , 2, 2, 1
   mapA.setBlock new Block('blank')         , 2, 2, 2
+  mapA.setBlock new Block('blank')         , 2, 2, 3
+  mapA.setBlock new Block('blank')         , 2, 2, 4
+  mapA.setBlock new Block('blank')         , 2, 2, 5
+  mapA.setBlock new Block('blank')         , 2, 2, 6
 
   mapB.setBlock new Block('curve-straight'), 2, 2, 0
   mapB.setBlock new Block('blank')         , 2, 2, 1
   mapB.setBlock new Block('blank')         , 2, 2, 2
+  mapB.setBlock new Block('blank')         , 2, 2, 3
+  mapB.setBlock new Block('blank')         , 2, 2, 4
+  mapB.setBlock new Block('blank')         , 2, 2, 5
+  mapB.setBlock new Block('blank')         , 2, 2, 6
 
   blocks = mapA.removeStack 2, 2
   deepEqual emptyMap, mapA, "map should be empty"
