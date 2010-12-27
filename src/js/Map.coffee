@@ -31,7 +31,6 @@ class Map
 
   heightAt: (x, y) ->
     @validateCoordinates x, y, 0
-    [x, y] = @applyRotation x, y if @rotation
 
     height = 0
     while height < @size and @getBlock x, y, height

@@ -13,6 +13,14 @@ test 'Access block outside bounds', ->
   raises ->
     map.getBlock(9,9,9)
 
+test 'Stack operation: heightAt', ->
+  map = new Map 7
+  map.setBlock new Block('blank'), 0, 0, 0
+  map.setBlock new Block('blank'), 0, 0, 1
+  map.rotateCW()
+
+  equal 2, map.heightAt 0, 6
+
 test 'Stack operation: getStack', ->
   map = new Map 7
 
