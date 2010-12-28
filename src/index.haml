@@ -6,7 +6,7 @@
     %script{:type => "text/javascript",
             :src  => "js/marbleous.js"}
 
-  %body
+  %body{:style => "-webkit-user-select: none"}
     #container
-      %canvas#main-canvas
-      %canvas#dragged-canvas{:style => "display: none"}
+      %canvas#main-canvas{:style => "user-select: none"}
+      %canvas#dragged-canvas{:style => "display: none; user-select: none"}
