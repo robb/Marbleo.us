@@ -28,12 +28,14 @@ class Block
   rotateCCW: -> @rotate false
   rotate: (clockwise) ->
     if clockwise
-      @properties.topRotation    = (@properties.topRotation    + 90) % 360
-      @properties.middleRotation = (@properties.middleRotation + 90) % 360
+      @properties.topRotation    = (@properties.topRotation    +  90) % 360
+      @properties.middleRotation = (@properties.middleRotation +  90) % 360
+      @properties.lowRotation    = (@properties.lowRotation    +  90) % 360
     else
       # -90 % 360 in JavaScript returns -90, hence we go the other way ’round
       @properties.topRotation    = (@properties.topRotation    + 270) % 360
       @properties.middleRotation = (@properties.middleRotation + 270) % 360
+      @properties.lowRotation    = (@properties.lowRotation    + 270) % 360
 
   toString: ->
     return "#{@properties.top}#{@properties.topRotation}
