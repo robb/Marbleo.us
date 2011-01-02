@@ -240,27 +240,27 @@ class Renderer
 
           buffer.globalCompositeOperation = 'source-over'
 
-        midHoles = Renderer.MidHoles[block.properties.middle]
-        if midHoles?
-          for pos in midHoles
-            if (pos + block.properties.middleRotation) % 360 == 0
-              midHoleSouth = @getTexture 'basic', 'hole-middle', 0
-              buffer.drawImage midHoleSouth, 0, 0, @settings.blockSize, @settings.blockSize
+      midHoles = Renderer.MidHoles[block.properties.middle]
+      if midHoles?
+        for pos in midHoles
+          if (pos + block.properties.middleRotation) % 360 == 0
+            midHoleSouth = @getTexture 'basic', 'hole-middle', 0
+            buffer.drawImage midHoleSouth, 0, 0, @settings.blockSize, @settings.blockSize
 
-            if (pos + block.properties.middleRotation) % 360 == 90
-              midHoleEast = @getTexture 'basic', 'hole-middle', 90
-              buffer.drawImage midHoleEast, 0, 0, @settings.blockSize, @settings.blockSize
+          if (pos + block.properties.middleRotation) % 360 == 90
+            midHoleEast = @getTexture 'basic', 'hole-middle', 90
+            buffer.drawImage midHoleEast, 0, 0, @settings.blockSize, @settings.blockSize
 
-        lowHoles = Renderer.LowHoles[block.properties.middle]
-        if lowHoles?
-          for pos in lowHoles
-            if (pos + block.properties.middleRotation) % 360 == 0
-              lowHoleSouth = @getTexture 'basic', 'hole-low', 0
-              buffer.drawImage lowHoleSouth, 0, 0, @settings.blockSize, @settings.blockSize
+      lowHoles = Renderer.LowHoles[block.properties.middle]
+      if lowHoles?
+        for pos in lowHoles
+          if (pos + block.properties.middleRotation) % 360 == 0
+            lowHoleSouth = @getTexture 'basic', 'hole-low', 0
+            buffer.drawImage lowHoleSouth, 0, 0, @settings.blockSize, @settings.blockSize
 
-            if (pos + block.properties.middleRotation) % 360 == 90
-              lowHoleEast = @getTexture 'basic', 'hole-low', 90
-              buffer.drawImage lowHoleEast, 0, 0, @settings.blockSize, @settings.blockSize
+          if (pos + block.properties.middleRotation) % 360 == 90
+            lowHoleEast = @getTexture 'basic', 'hole-low', 90
+            buffer.drawImage lowHoleEast, 0, 0, @settings.blockSize, @settings.blockSize
 
       @drawOutline buffer, 0, 0
 
