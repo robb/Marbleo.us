@@ -47,7 +47,7 @@ class Renderer
 
   setupTextures: (textureFile) ->
     textureOffset = 0
-    for textureGroup, textureDescription of Renderer.SupportedTextures
+    for textureGroup, textureDescription of Renderer.TextureFileDescription
       for texture, rotationsCount of textureDescription
         console.log "loading #{textureGroup}.#{texture}" if DEBUG
 
@@ -80,15 +80,16 @@ class Renderer
   # Relative to the point of origin of the canvas
   renderingCoordinatesForBlock: (x,y,z) ->
     screenX = (x + y) * @settings.blockSizeHalf
-    screenY = @settings.canvasHeight - 3 * @settings.blockSizeQuarter - (2 * z + x - y + @map.size) * @settings.blockSizeQuarter
+    screenY = @settings.canvasHeight \
+              - 3 * @settings.blockSizeQuarter \
+              - (2 * z + x - y + @map.size) * @settings.blockSizeQuarter
 
     [screenX, screenY]
 
-  # Returns either 'top', 'south', 'east' or null depending on what side
-  # of a block (if any) is displayed at the given coordinates
+  # Returns either 'top', 'south', 'east', 'floor' or null depending on what
+  # side  of a block (if any) is displayed at the given coordinates
   sideAtScreenCoordinates: (x, y) ->
     pixel = @hittestContext.getImageData x, y, 1, 1
-
     if pixel.data[0] > 0
       return 'south'
     else if pixel.data[1] > 0
@@ -143,13 +144,13 @@ class Renderer
 
   getTexture: (group, type, rotation) ->
     unless rotation
-      return @textures[group][type][0] if Renderer.SupportedTextures[group][type]?
+      return @textures[group][type][0] if Renderer.TextureFileDescription[group][type]?
 
-    rotationCount = Renderer.SupportedTextures[group][type]
+    rotationCount = Renderer.TextureFileDescription[group][type]
     return null unless rotationCount?
     return @textures[group][type][rotation / 90 % rotationCount]
 
-  drawMap: (force) ->
+  drawMap: (force = no) ->
     return if (@isDrawing or not @map.needsRedraw) and not force
     console.time "draw" if DEBUG
     @isDrawing = yes
@@ -281,7 +282,7 @@ class Renderer
     for block, index in stack
       @drawBlock @draggedContext, block, 0, height - @settings.blockSize - (index) * @settings.blockSizeHalf
 
-  @SupportedTextures:
+  @TextureFileDescription:
     #texture group:
     #  name: number of rotations/variations
     'basic':
@@ -314,8 +315,8 @@ class Renderer
       'dive':            4
       'drop-middle':     4
       'drop-low':        4
-      'exchange':        4
       'exchange-alt':    4
+      'exchange':        4
     'low':
       'crossing':        1
       'curve':           4
@@ -332,11 +333,11 @@ class Renderer
     'straight':          [0, 180]
     'dive':                 [  0]
     'drop-middle':          [  0]
-    'exchange':             [ 90]
-    'exchange-alt':         [  0]
+    'exchange':             [  0]
+    'exchange-alt':         [ 90]
 
   @LowHoles:
     'dive':                 [180]
     'drop-low':             [  0]
-    'exchange':             [  0]
-    'exchange-alt':         [ 90]
+    'exchange':             [ 90]
+    'exchange-alt':         [  0]
