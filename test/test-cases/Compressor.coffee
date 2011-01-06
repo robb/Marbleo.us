@@ -48,10 +48,10 @@ test 'array <=> string encoding/decoding', ->
 test 'block <=> bytes encoding/decoding', ->
   compressor = new Compressor
   blocks = [
-    new Block 'curve-exchange-alt', 90
-    new Block 'blank', 0
-    new Block 'double-straight', 270
-    new Block 'crossing-hole', 180
+    Block.ofType 'curve-exchange-alt', 90
+    Block.ofType 'blank', 0
+    Block.ofType 'double-straight', 270
+    Block.ofType 'crossing-hole', 180
   ]
   for block in blocks
     deepEqual compressor.decodeBlock(compressor.encodeBlock(block)),
@@ -61,12 +61,12 @@ test 'map <=> string encoding/decoding', ->
   compressor = new Compressor
   map = new Map 7
 
-  map.setBlock new Block('crossing-hole'), 0, 0, 0
-  map.setBlock new Block('blank'),         0, 0, 1
-  map.setBlock new Block('blank'),         0, 5, 0
-  map.setBlock new Block('blank'),         0, 5, 1
-  map.setBlock new Block('blank'),         0, 5, 2
-  map.setBlock new Block('blank'),         0, 5, 3
+  map.setBlock Block.ofType('crossing-hole'), 0, 0, 0
+  map.setBlock Block.ofType('blank'),         0, 0, 1
+  map.setBlock Block.ofType('blank'),         0, 5, 0
+  map.setBlock Block.ofType('blank'),         0, 5, 1
+  map.setBlock Block.ofType('blank'),         0, 5, 2
+  map.setBlock Block.ofType('blank'),         0, 5, 3
 
   emptyMap = new Map 7
 
@@ -82,7 +82,7 @@ test 'max string length for 7x7x7 map', ->
   for x in [0...7]
     for y in [0...7]
       for z in [0...7]
-        map.setBlock new Block(), x, y, z
+        map.setBlock Block.ofType('blank'), x, y, z
 
   compressor = new Compressor
   string = compressor.compress(map)

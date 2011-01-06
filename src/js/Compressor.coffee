@@ -48,8 +48,8 @@ class Compressor
       blockPosition++
 
   quotientAndRemainder: (dividend, divisor) ->
-    quotient   = Math.floor(dividend / divisor)
-    remainder =             dividend % divisor
+    quotient  = Math.floor(dividend / divisor)
+    remainder =            dividend % divisor
 
     return [quotient, remainder]
 
@@ -112,20 +112,20 @@ class Compressor
 
     return bytes
 
-  # TODO: Add a validating constructor to Block class
   decodeBlock: (bytes) ->
-    block = new Block 'blank'
-    rotations = bytes[0]
-    block.properties.topRotation    = 90 * ((rotations & 0x30) >> 4)
-    block.properties.middleRotation = 90 * ((rotations & 0x0C) >> 2)
-    block.properties.lowRotation    = 90 *  (rotations & 0x03)
+    properties = {}
+    rotations  = bytes[0]
+
+    properties.topRotation    = 90 * ((rotations & 0x30) >> 4)
+    properties.middleRotation = 90 * ((rotations & 0x0C) >> 2)
+    properties.lowRotation    = 90 *  (rotations & 0x03)
 
     for type, code of Compressor.CompressionTable
-      block.properties.top    = type if code is bytes[1]
-      block.properties.middle = type if code is bytes[2]
-      block.properties.low    = type if code is bytes[3]
+      properties.top    = type if code is bytes[1]
+      properties.middle = type if code is bytes[2]
+      properties.low    = type if code is bytes[3]
 
-    return block
+    return new Block properties
 
   # We encode 3 bytes as four characters
   encodeBytes: (bytes) ->

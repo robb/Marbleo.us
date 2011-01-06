@@ -61,6 +61,12 @@ class Map
       @setBlock null, x, y, currentZ
     return stack
 
+  validate: ->
+    @blocksEach (block, x, y, z) =>
+      if block and z > 0 and not @getBlock x, y, z - 1
+        throw new Error "Encountered floating block at #{x}:#{y}:#{z}"
+      # TODO: Validate block stacks regarding matching low and top properties
+
   validateCoordinates: (x, y, z) ->
     throw new Error "Index out of bounds #{x}:#{y}:#{z}" unless 0 <= x < @size and
                                                                 0 <= y < @size and

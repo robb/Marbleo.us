@@ -194,6 +194,10 @@ class Renderer
     cache_key = block.toString()
 
     unless cached = @Cache[cache_key]
+      [topType, topRotation] = block.getProperty 'top'
+      [midType, midRotation] = block.getProperty 'middle'
+      [lowType, lowRotation] = block.getProperty 'low'
+
       @Cache[cache_key] = cached = document.createElement 'canvas'
       cached.height = cached.width = @settings.blockSize
       buffer = cached.getContext "2d"
@@ -202,13 +206,13 @@ class Renderer
         backside = @getTexture 'basic', 'backside'
         buffer.drawImage backside, 0, 0, @settings.blockSize, @settings.blockSize
 
-        if block.properties.low?
-          low_texture = @getTexture 'low', block.properties.low, block.properties.lowRotation
+        if lowType
+          low_texture = @getTexture 'low', lowType, lowRotation
           if low_texture?
             buffer.drawImage low_texture, 0, 0, @settings.blockSize, @settings.blockSize
 
-        if block.properties.middle?
-          mid_texture = @getTexture 'middle', block.properties.middle, block.properties.middleRotation
+        if midType
+          mid_texture = @getTexture 'middle', midType, midRotation
           if mid_texture?
             buffer.drawImage mid_texture, 0, 0, @settings.blockSize, @settings.blockSize
 
@@ -220,45 +224,45 @@ class Renderer
 
       buffer.globalAlpha = 1.0
 
-      if block.properties.top?
-        top_texture = @getTexture 'top', block.properties.top, block.properties.topRotation
+      if topType
+        top_texture = @getTexture 'top', topType, topRotation
         if top_texture?
           buffer.drawImage top_texture, 0, 0, @settings.blockSize, @settings.blockSize
 
         # FIXME: This operations are pretty expensive.
-        cutouts = Renderer.Cutouts[block.properties.top];
+        cutouts = Renderer.Cutouts[topType];
         if cutouts?
           buffer.globalCompositeOperation = 'destination-out'
 
           for pos in cutouts
-            if (pos + block.properties.topRotation) % 360 == 180
+            if (pos + topRotation) % 360 == 180
               cutout180 = @getTexture 'basic', 'cutout', 180
               buffer.drawImage cutout180, 0, 0, @settings.blockSize, @settings.blockSize
-            else if (pos + block.properties.topRotation) % 360 == 270
+            else if (pos + topRotation) % 360 == 270
               cutout270 = @getTexture 'basic', 'cutout', 270
               buffer.drawImage cutout270, 0, 0, @settings.blockSize, @settings.blockSize
 
           buffer.globalCompositeOperation = 'source-over'
 
-      midHoles = Renderer.MidHoles[block.properties.middle]
+      midHoles = Renderer.MidHoles[midType]
       if midHoles?
         for pos in midHoles
-          if (pos + block.properties.middleRotation) % 360 == 0
+          if (pos + midRotation) % 360 == 0
             midHoleSouth = @getTexture 'basic', 'hole-middle', 0
             buffer.drawImage midHoleSouth, 0, 0, @settings.blockSize, @settings.blockSize
 
-          if (pos + block.properties.middleRotation) % 360 == 90
+          if (pos + midRotation) % 360 == 90
             midHoleEast = @getTexture 'basic', 'hole-middle', 90
             buffer.drawImage midHoleEast, 0, 0, @settings.blockSize, @settings.blockSize
 
-      lowHoles = Renderer.LowHoles[block.properties.middle]
+      lowHoles = Renderer.LowHoles[midType]
       if lowHoles?
         for pos in lowHoles
-          if (pos + block.properties.middleRotation) % 360 == 0
+          if (pos + midRotation) % 360 == 0
             lowHoleSouth = @getTexture 'basic', 'hole-low', 0
             buffer.drawImage lowHoleSouth, 0, 0, @settings.blockSize, @settings.blockSize
 
-          if (pos + block.properties.middleRotation) % 360 == 90
+          if (pos + midRotation) % 360 == 90
             lowHoleEast = @getTexture 'basic', 'hole-low', 90
             buffer.drawImage lowHoleEast, 0, 0, @settings.blockSize, @settings.blockSize
 

@@ -45,7 +45,7 @@ class Game
         for x in [0...@map.size]
           for y in [0...@map.size]
             for z in [0...@map.size]
-                @map.setBlock new Block('double-straight'), x, y, z
+                @map.setBlock Block.ofType('double-straight'), x, y, z
 
       if window.location.hash.length
         compressor = new Compressor
@@ -218,15 +218,14 @@ class Game
       lowestBlock = @state.stack[0]
       if info.side is 'top'
         # Set the low type and rotation to whatever the target block has on top
-        lowestBlock.properties.low = if targetBlock.properties.top is 'crossing-hole'
-                                       'crossing'
-                                     else
-                                       targetBlock.properties.top
-        lowestBlock.properties.lowRotation = targetBlock.properties.topRotation
+        [type, rotation] = targetBlock.getProperty 'top'
+
+        type = (type is 'crossing-hole') && 'crossing' || type
+
+        lowestBlock.setProperty 'low', type, rotation
       else
         # Set the low type of the to nothing
-        lowestBlock.properties.low = null
-        lowestBlock.properties.lowRotation = null
+        lowestBlock.setProperty 'low', null, 0
 
       @map.setNeedsRedraw yes
 

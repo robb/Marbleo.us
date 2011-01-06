@@ -15,8 +15,8 @@ test 'Access block outside bounds', ->
 
 test 'Stack operation: heightAt', ->
   map = new Map 7
-  map.setBlock new Block('blank'), 0, 0, 0
-  map.setBlock new Block('blank'), 0, 0, 1
+  map.setBlock Block.ofType('blank'), 0, 0, 0
+  map.setBlock Block.ofType('blank'), 0, 0, 1
   map.rotateCW()
 
   equal 2, map.heightAt 0, 6
@@ -24,9 +24,9 @@ test 'Stack operation: heightAt', ->
 test 'Stack operation: getStack', ->
   map = new Map 7
 
-  block1 = new Block 'blank'
-  block2 = new Block 'double-straight', 90
-  block3 = new Block 'curve-straight'
+  block1 = Block.ofType 'blank'
+  block2 = Block.ofType 'double-straight', 90
+  block3 = Block.ofType 'curve-straight'
 
   map.setBlock block1, 3, 4, 0
   map.setBlock block2, 3, 4, 1
@@ -39,13 +39,13 @@ test 'Stack operation: setStack', ->
   mapA = new Map 7
   mapB = new Map 7
 
-  mapA.setBlock new Block('blank'),        6, 6, 0
-  mapA.setBlock new Block('blank'),        6, 6, 1
-  mapA.setBlock new Block('crossing-low'), 6, 6, 2
+  mapA.setBlock Block.ofType('blank'),    6, 6, 0
+  mapA.setBlock Block.ofType('blank'),    6, 6, 1
+  mapA.setBlock Block.ofType('crossing-straight'), 6, 6, 2
 
-  mapB.setStack [new Block('blank'),
-                 new Block('blank'),
-                 new Block('crossing-low')], 6, 6
+  mapB.setStack [Block.ofType('blank'),
+                 Block.ofType('blank'),
+                 Block.ofType('crossing-straight')], 6, 6
   deepEqual mapA, mapB
 
 test 'Stack operation: removeStack', ->
@@ -53,21 +53,21 @@ test 'Stack operation: removeStack', ->
   mapB     = new Map 7
   emptyMap = new Map 7
 
-  mapA.setBlock new Block('curve-straight'), 2, 2, 0
-  mapA.setBlock new Block('blank')         , 2, 2, 1
-  mapA.setBlock new Block('blank')         , 2, 2, 2
-  mapA.setBlock new Block('blank')         , 2, 2, 3
-  mapA.setBlock new Block('blank')         , 2, 2, 4
-  mapA.setBlock new Block('blank')         , 2, 2, 5
-  mapA.setBlock new Block('blank')         , 2, 2, 6
+  mapA.setBlock Block.ofType('curve-straight'), 2, 2, 0
+  mapA.setBlock Block.ofType('blank')         , 2, 2, 1
+  mapA.setBlock Block.ofType('blank')         , 2, 2, 2
+  mapA.setBlock Block.ofType('blank')         , 2, 2, 3
+  mapA.setBlock Block.ofType('blank')         , 2, 2, 4
+  mapA.setBlock Block.ofType('blank')         , 2, 2, 5
+  mapA.setBlock Block.ofType('blank')         , 2, 2, 6
 
-  mapB.setBlock new Block('curve-straight'), 2, 2, 0
-  mapB.setBlock new Block('blank')         , 2, 2, 1
-  mapB.setBlock new Block('blank')         , 2, 2, 2
-  mapB.setBlock new Block('blank')         , 2, 2, 3
-  mapB.setBlock new Block('blank')         , 2, 2, 4
-  mapB.setBlock new Block('blank')         , 2, 2, 5
-  mapB.setBlock new Block('blank')         , 2, 2, 6
+  mapB.setBlock Block.ofType('curve-straight'), 2, 2, 0
+  mapB.setBlock Block.ofType('blank')         , 2, 2, 1
+  mapB.setBlock Block.ofType('blank')         , 2, 2, 2
+  mapB.setBlock Block.ofType('blank')         , 2, 2, 3
+  mapB.setBlock Block.ofType('blank')         , 2, 2, 4
+  mapB.setBlock Block.ofType('blank')         , 2, 2, 5
+  mapB.setBlock Block.ofType('blank')         , 2, 2, 6
 
   blocks = mapA.removeStack 2, 2
   deepEqual emptyMap, mapA, "map should be empty"
