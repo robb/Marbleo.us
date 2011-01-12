@@ -24,7 +24,10 @@ class Compressor
     return @encodeArray bytes
 
   decompress: (string, map) ->
-    bytes = @decodeArray string
+    try
+      bytes = @decodeArray string
+    catch e
+      throw e
 
     bytesIndex    = 0
     blockPosition = 0
@@ -35,9 +38,12 @@ class Compressor
                   bytes[bytesIndex + 3]
 
         blockPosition += gapSize
-        bytesIndex += Compressor.BytesPerBlock
+        bytesIndex    += Compressor.BytesPerBlock
 
-      block = @decodeBlock bytes[bytesIndex..bytesIndex + Compressor.BytesPerBlock]
+      try
+        block = @decodeBlock bytes[bytesIndex..bytesIndex + Compressor.BytesPerBlock]
+      catch e
+        throw e
 
       [x, remainder] = @quotientAndRemainder blockPosition, map.size * map.size
       [y, remainder] = @quotientAndRemainder remainder,     map.size
@@ -88,7 +94,10 @@ class Compressor
         index++
         continue
 
-      tmp = @decodeBytes string[index...index + 4]
+      try
+        tmp = @decodeBytes string[index...index + 4]
+      catch e
+        throw e
 
       bytes.push (tmp & 0xFF0000) >> 16
       bytes.push (tmp & 0x00FF00) >>  8
@@ -102,43 +111,60 @@ class Compressor
   # Compressor.BytesPerBlock
   encodeBlock: (block) ->
     bytes = new Array
-    bytes.push (block.properties.topRotation    / 90) << 4 |
-               (block.properties.middleRotation / 90) << 2 |
-               (block.properties.lowRotation    / 90)
 
-    bytes.push Compressor.CompressionTable[block.properties.top]    || 0x00
-    bytes.push Compressor.CompressionTable[block.properties.middle] || 0x00
-    bytes.push Compressor.CompressionTable[block.properties.low]    || 0x00
+    [topType, topRotation] = block.getProperty 'top'
+    [midType, midRotation] = block.getProperty 'middle'
+    [lowType, lowRotation] = block.getProperty 'low'
+
+    bytes.push (topRotation / 90) << 4 |
+               (midRotation / 90) << 2 |
+               (lowRotation / 90)
+
+    bytes.push Compressor.CompressionTable[topType] || 0x00
+    bytes.push Compressor.CompressionTable[midType] || 0x00
+    bytes.push Compressor.CompressionTable[lowType] || 0x00
 
     return bytes
 
   decodeBlock: (bytes) ->
-    properties = {}
-    rotations  = bytes[0]
-
-    properties.topRotation    = 90 * ((rotations & 0x30) >> 4)
-    properties.middleRotation = 90 * ((rotations & 0x0C) >> 2)
-    properties.lowRotation    = 90 *  (rotations & 0x03)
+    rotations   = bytes[0]
+    topRotation = 90 * ((rotations & 0x30) >> 4)
+    midRotation = 90 * ((rotations & 0x0C) >> 2)
+    lowRotation = 90 *  (rotations & 0x03)
 
     for type, code of Compressor.CompressionTable
-      properties.top    = type if code is bytes[1]
-      properties.middle = type if code is bytes[2]
-      properties.low    = type if code is bytes[3]
+      topType = type if code is bytes[1]
+      midType = type if code is bytes[2]
+      lowType = type if code is bytes[3]
 
+    properties =
+      'top':    [topType || null, topRotation],
+      'middle': [midType || null, midRotation],
+      'low':    [lowType || null, lowRotation]
     return new Block properties
 
   # We encode 3 bytes as four characters
   encodeBytes: (bytes) ->
-    return @encodeBits((bytes & 0xFC0000) >> 18) +
-           @encodeBits((bytes & 0x03F000) >> 12) +
-           @encodeBits((bytes & 0x000FC0) >>  6) +
-           @encodeBits(bytes & 0x00003F)
+    try
+      result = @encodeBits((bytes & 0xFC0000) >> 18) +
+               @encodeBits((bytes & 0x03F000) >> 12) +
+               @encodeBits((bytes & 0x000FC0) >>  6) +
+               @encodeBits(bytes & 0x00003F)
+    catch e
+      throw e
 
   decodeBytes: (string) ->
-    return (@decodeBits(string[0]) << 18) |
-           (@decodeBits(string[1]) << 12) |
-           (@decodeBits(string[2]) <<  6) |
-            @decodeBits(string[3])
+    if string.length isnt 4
+      throw new Error "Illegal chunk size, was #{string.length}"
+
+    try
+      result = (@decodeBits(string[0]) << 18) |
+               (@decodeBits(string[1]) << 12) |
+               (@decodeBits(string[2]) <<  6) |
+                @decodeBits(string[3])
+      return result
+    catch e
+      throw e
 
   #   Value Encoding  Value Encoding  Value Encoding  Value Encoding
   #       0 A            17 R            34 i            51 z
