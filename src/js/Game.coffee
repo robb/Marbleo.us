@@ -205,17 +205,21 @@ class Game
     mouseY = event.pageY - @mainCanvas.offset().top
     info = @renderer.resolveScreenCoordinates mouseX, mouseY
 
-    # If the user drags the stack onto another block, draw it there
-    if info.side is 'top' or info.side is 'floor'
+    [x, y, z]   = info.coordinates || [0, 0, 0] #XXX
+    targetBlock = @map.getBlock x, y, z
+    lowestBlock = @state.stack[0]
+
+    if info.side is 'floor' or
+       info.side is 'top'   and
+       @map.heightAt(x, y) + @state.stack.length < @map.size + 1 and
+       Block.canStack targetBlock, lowestBlock
       @hideDraggedCanvas event
 
-      [nX, nY, nZ] = info.coordinates
-      targetBlock = @map.getBlock nX, nY, nZ
-      targetZ = if info.side is 'top' then 1 else 0
-      for block in @state.stack
-        @map.setBlock block, nX, nY, targetZ++ + nZ
+      offset = if info.side is 'top' then 1 else 0
+      # for block in @state.stack
+      #   @map.setBlock block, x, y, targetZ++ + z
+      @map.setStack @state.stack, x, y, z + offset
 
-      lowestBlock = @state.stack[0]
       if info.side is 'top'
         # Set the low type and rotation to whatever the target block has on top
         [type, rotation] = targetBlock.getProperty 'top'

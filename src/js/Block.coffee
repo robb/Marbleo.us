@@ -1,4 +1,17 @@
 class Block
+  @canStack: (bottom, top) ->
+    [midType, midRotation] = top.getProperty 'middle'
+    [topType, topRotation] = bottom.getProperty 'top'
+
+    if topType
+      # Drops can only be placed on blocks without a groov on the top
+      if midType is 'drop-middle' or midType is 'drop-low'
+        return no
+      if midType is 'dive' or midType is 'exchange'
+        return no
+
+    return yes
+
   @ofType: (type, rotation = 0) ->
     throw new Error "Unknown type #{type}" unless Block.Types[type]
     return new Block Block.Types[type], rotation
