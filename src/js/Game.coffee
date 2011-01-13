@@ -40,17 +40,6 @@ class Game
 
       $(document).bind 'keydown', @keyDown
 
-      # Populate map
-      if DEBUG
-        for x in [0...@map.size]
-          for y in [0...@map.size]
-            for z in [0...@map.size]
-                @map.setBlock Block.ofType('double-straight'), x, y, z
-
-      if window.location.hash.length
-        compressor = new Compressor
-        compressor.decompress window.location.hash.slice(1), @map
-
       renderingLoop = =>
         @renderer.drawMap()
       setInterval renderingLoop, 20
