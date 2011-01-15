@@ -4,8 +4,8 @@ class Block
     [topType, topRotation] = bottom.getProperty 'top'
 
     if topType
-      # Drops can only be placed on blocks without a groov on the top
-      if midType is 'drop-middle' or midType is 'drop-low'
+      # Low drops can only be placed on blocks without a groov on the top
+      if midType is 'drop-low'
         return no
       if midType is 'dive' or midType is 'exchange'
         return no
@@ -47,7 +47,7 @@ class Block
        midType in   ['drop-middle', 'drop-low']
       throw new Error "Middle type drop requires top type crossing with hole, was #{topType}"
 
-    if lowType and midType in ['drop-middle', 'drop-low']
+    if lowType and midType is 'drop-low'
       throw new Error "Middle type #{midType} is incompatible with low type #{lowType}"
 
   setOpacity: (opacity) ->
