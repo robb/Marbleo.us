@@ -142,38 +142,44 @@ class Block
     'blank':
       {}
     'double-straight':
-      'top':    ['straight', 90]
-      'middle': ['straight', 90]
+      'top':    ['straight', 0]
+      'middle': ['straight', 0]
     'curve-straight':
-      'top':    ['curve',     0]
-      'middle': ['straight', 90]
-    'curve-straight-alt':
       'top':    ['curve',    270]
-      'middle': ['straight',  90]
+      'middle': ['straight',   0]
+    'curve-straight-alt':
+      'top':    ['curve',    180]
+      'middle': ['straight',   0]
+    'double-curve':
+      'top':    ['curve', 270]
+      'middle': ['curve',   0]
+    'double-curve-alt':
+      'top':    ['curve', 90]
+      'middle': ['curve',  0]
     'curve-exchange':
-      'top':    ['curve',      0]
-      'middle': ['straight', 270]
+      'top':    ['curve',    270]
+      'middle': ['exchange',   0]
     'curve-exchange-alt':
-      'top':    ['curve',        270]
+      'top':    ['curve',        180]
       'middle': ['exchange-alt',   0]
     'straight-exchange':
-      'top':    ['straight', 90]
+      'top':    ['straight',  0]
       'middle': ['exchange',  0]
     'straight-exchange-alt':
-      'top':    ['straight',     90]
-      'middle': ['exchange-alt',  0]
+      'top':    ['straight',       0]
+      'middle': ['exchange-alt',   0]
     'curve-dive':
-      'top':    ['curve',  0]
-      'middle': ['dive',  90]
+      'top':    ['curve', 270]
+      'middle': ['dive',    0]
     'curve-dive-alt':
-      'top':    ['curve', 90]
-      'middle': ['dive',  90]
+      'top':    ['curve', 0]
+      'middle': ['dive',  0]
     'crossing-straight':
-      'top':    ['crossing', 0]
-      'middle': ['straight', 0]
+      'top':    ['crossing', 270]
+      'middle': ['straight',   0]
     'crossing-hole':
-      'top':    ['crossing-hole',  0]
-      'middle': ['drop-middle',   90]
+      'top':    ['crossing-hole', 270]
+      'middle': ['drop-middle',     0]
     'crossing-hole-alt':
-      'top':    ['crossing-hole',  0]
-      'middle': ['drop-low',      90]
+      'top':    ['crossing-hole', 270]
+      'middle': ['drop-low',        0]

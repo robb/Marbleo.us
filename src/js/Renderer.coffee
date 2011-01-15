@@ -113,9 +113,12 @@ class Renderer
         for blockY in [@map.size - 1..0]
           [screenX, screenY] = @renderingCoordinatesForBlock blockX, blockY, 0
 
-          continue unless screenX <= x < (screenX + @settings.blockSize) and screenY <= y < (screenY + @settings.blockSize)
+          continue unless screenX <= x < (screenX + @settings.blockSize) and
+                          screenY <= y < (screenY + @settings.blockSize)
 
-          pixel = @getTexture('basic','floor-hitbox').getContext('2d').getImageData x - screenX, y - screenY, 1, 1
+          pixel = @getTexture('basic','floor-hitbox')
+                  .getContext('2d')
+                  .getImageData x - screenX, y - screenY, 1, 1
 
           if pixel.data[3] > 0
             return {
@@ -190,7 +193,7 @@ class Renderer
         [screenX, screenY] = @renderingCoordinatesForBlock x, y, 0
         @context.drawImage @getTexture('basic','floor'), screenX, screenY, @settings.blockSize, @settings.blockSize
 
-  drawBlock: (context, block, x, y) ->
+  drawBlock: (context, block, x = 0, y = 0) ->
     cache_key = block.toString()
 
     unless cached = @Cache[cache_key]
@@ -202,7 +205,7 @@ class Renderer
       cached.height = cached.width = @settings.blockSize
       buffer = cached.getContext "2d"
 
-      if block.selected
+      if block.selected or block.opacity isnt 1.0
         backside = @getTexture 'basic', 'backside'
         buffer.drawImage backside, 0, 0, @settings.blockSize, @settings.blockSize
 
@@ -218,6 +221,8 @@ class Renderer
 
       if block.selected
         buffer.globalAlpha = 0.3
+      else
+        buffer.globalAlpha = block.opacity || 1.0
 
       solid = @getTexture 'basic', 'solid'
       buffer.drawImage solid, 0, 0, @settings.blockSize, @settings.blockSize

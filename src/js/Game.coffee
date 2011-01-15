@@ -17,8 +17,8 @@ class Game
 
     @map = new Map @settings.mapSize
 
-    @state = {}
-    @state.type = 'normal'
+    window.state ?= {}
+    state.type = 'normal'
 
     @mainCanvas    = $(@settings.mainCanvasID)
     @draggedCanvas = $(@settings.draggedCanvasID)
@@ -44,6 +44,11 @@ class Game
         @renderer.drawMap()
       setInterval renderingLoop, 20
 
+      paletteSettings =
+        startDragCallback: @startDragWithBlocks
+
+      @palette = new Palette @renderer, paletteSettings
+
       return onload()
 
   selectBlock: (block) ->
@@ -54,14 +59,14 @@ class Game
 
   # Event Handler
   bodyDown: (event) =>
-    switch @state.type
+    switch state.type
       when 'normal'
         @selectBlock null
 
     return off
 
   bodyMove: (event) =>
-    switch @state.type
+    switch state.type
       when 'dragging'
         @draggingMove event
       else
@@ -70,7 +75,7 @@ class Game
     return off
 
   bodyUp: (event) =>
-    switch @state.type
+    switch state.type
       when 'dragging'
         @draggingUp event
 
@@ -80,20 +85,20 @@ class Game
     unless event.originalEvent.touches.length is 1
       return
 
-    switch @state.type
+    switch state.type
       when 'normal'
         info = @renderer.resolveScreenCoordinates event.pageX, event.pageY
         if info.block
-          @state.type  = 'down'
-          @state.downX = event.pageX
-          @state.downY = event.pageY
-          @state.info  = info
+          state.type  = 'down'
+          state.downX = event.pageX
+          state.downY = event.pageY
+          state.info  = info
           event.originalEvent.preventDefault()
         else
-          @state.type = 'normal'
+          state.type = 'normal'
 
   canvasTouchMove: (event) =>
-    if @state.type is 'normal'
+    if state.type is 'normal'
       return
 
     if event.originalEvent.touches.length is 1
@@ -102,42 +107,42 @@ class Game
       return
 
     event.originalEvent.preventDefault()
-    switch @state.type
+    switch state.type
       when 'down'
         # If the user moves more than @settings.draggingOffset pixels
         # from where the put the mouse down, start a drag operation
-        if Math.abs(@state.downX - event.pageX) > @settings.draggingOffset or
-           Math.abs(@state.downY - event.pageY) > @settings.draggingOffset
+        if Math.abs(state.downX - event.pageX) > @settings.draggingOffset or
+           Math.abs(state.downY - event.pageY) > @settings.draggingOffset
           @startDrag event
       when 'dragging'
         @draggingMove event
 
   canvasTouchEnd: (event) =>
-    switch @state.type
+    switch state.type
       when 'dragging'
         @draggingUp event
       when 'down'
-        @selectBlock @state.info.block
-        @state.type = 'normal'
+        @selectBlock state.info.block
+        state.type = 'normal'
       when 'normal'
         @selectBlock null
       else
-        console.log "Illegal state", @state.type if DEBUG
+        console.log "Illegal state", state.type if DEBUG
 
   canvasUp: (event) =>
-    switch @state.type
+    switch state.type
       when 'dragging'
         @draggingUp event
       when 'down'
         mouseX = event.pageX - @mainCanvas.offset().left
         mouseY = event.pageY - @mainCanvas.offset().top
-        if @state.info.block is @renderer.resolveScreenCoordinates(mouseX, mouseY).block
-          @selectBlock @state.info.block
-          @state.type = 'normal'
+        if state.info.block is @renderer.resolveScreenCoordinates(mouseX, mouseY).block
+          @selectBlock state.info.block
+          state.type = 'normal'
       when 'normal'
         @selectBlock null
       else
-        console.error "Illegal state", @state.type if DEBUG
+        console.error "Illegal state", state.type if DEBUG
 
     # Stop from bubbling
     return off
@@ -145,12 +150,12 @@ class Game
   canvasMove: (event) =>
     mouseX = event.pageX - @mainCanvas.offset().left
     mouseY = event.pageY - @mainCanvas.offset().top
-    switch @state.type
+    switch state.type
       when 'down'
         # If the user moves more than @settings.draggingOffset pixels
         # from where the put the mouse down, start a drag operation
-        if Math.abs(@state.downX - mouseX) > @settings.draggingOffset or
-           Math.abs(@state.downY - mouseY) > @settings.draggingOffset
+        if Math.abs(state.downX - mouseX) > @settings.draggingOffset or
+           Math.abs(state.downY - mouseY) > @settings.draggingOffset
           @startDrag event
       when 'dragging'
         @draggingMove event
@@ -164,18 +169,18 @@ class Game
     return off
 
   canvasDown: (event) =>
-    switch @state.type
+    switch state.type
       when 'normal'
         mouseX = event.pageX - @mainCanvas.offset().left
         mouseY = event.pageY - @mainCanvas.offset().top
         info = @renderer.resolveScreenCoordinates mouseX, mouseY
         if info.block
-          @state.type  = 'down'
-          @state.downX = mouseX
-          @state.downY = mouseY
-          @state.info  = info
+          state.type  = 'down'
+          state.downX = mouseX
+          state.downY = mouseY
+          state.info  = info
         else
-          @state.type = 'normal'
+          state.type = 'normal'
 
     # Stop from bubbling
     return off
@@ -196,18 +201,16 @@ class Game
 
     [x, y, z]   = info.coordinates || [0, 0, 0] #XXX
     targetBlock = @map.getBlock x, y, z
-    lowestBlock = @state.stack[0]
+    lowestBlock = state.stack[0]
 
     if info.side is 'floor' or
        info.side is 'top'   and
-       @map.heightAt(x, y) + @state.stack.length < @map.size + 1 and
+       @map.heightAt(x, y) + state.stack.length < @map.size + 1 and
        Block.canStack targetBlock, lowestBlock
       @hideDraggedCanvas event
 
       offset = if info.side is 'top' then 1 else 0
-      # for block in @state.stack
-      #   @map.setBlock block, x, y, targetZ++ + z
-      @map.setStack @state.stack, x, y, z + offset
+      @map.setStack state.stack, x, y, z + offset
 
       if info.side is 'top'
         # Set the low type and rotation to whatever the target block has on top
@@ -227,27 +230,37 @@ class Game
       @showDraggedCanvas event
 
   startDrag: (event) ->
-    $('body').css 'cursor', @settings.draggingCursor
+    [x, y, z] = state.info.coordinates
+    blocks = @map.removeStack(x, y, z)
 
-    @selectBlock null
-    [x, y, z] = @state.info.coordinates
-    @state.stack = @map.removeStack x, y, z
-    for block in @state.stack
-      block.setDragged yes
-
-    @renderer.drawDraggedBlocks @state.stack
-
-    [canvasX, canvasY] = @renderer.renderingCoordinatesForBlock x, y, z + @state.stack.length
+    [canvasX, canvasY] = @renderer.renderingCoordinatesForBlock x, y, z + blocks.length
     # Using bitwise-or 0 to convert Strings to ints
     marginTop   = @mainCanvas.css(  'margin-top').replace('px','') | 0 
     marginLeft  = @mainCanvas.css( 'margin-left').replace('px','') | 0
     paddingTop  = @mainCanvas.css( 'padding-top').replace('px','') | 0
     paddingLeft = @mainCanvas.css('padding-left').replace('px','') | 0
-    @state.mouseOffsetY = @state.downY - canvasY + paddingTop  + marginTop - @renderer.settings.blockSizeHalf
-    @state.mouseOffsetX = @state.downX - canvasX + paddingLeft + marginLeft
 
-    @state.type = 'dragging'
+    info =
+      mouseOffsetX: state.downX - canvasX + paddingLeft + marginLeft
+      mouseOffsetY: state.downY - canvasY + paddingTop  + marginTop - @renderer.settings.blockSizeHalf
+
+    @startDragWithBlocks blocks, info
+
     @renderer.drawMap yes # Redraw the map to update the hitmap
+
+  startDragWithBlocks: (blocks, info) =>
+      $('body').css 'cursor', @settings.draggingCursor
+
+      @selectBlock null
+      state.stack = blocks
+      for block in state.stack
+        block.setDragged yes
+
+      @renderer.drawDraggedBlocks state.stack
+
+      state.mouseOffsetX = info.mouseOffsetX
+      state.mouseOffsetY = info.mouseOffsetY
+      state.type = 'dragging'
 
   hideDraggedCanvas: (event) ->
     @draggedCanvas.css 'display', 'none'
@@ -256,18 +269,18 @@ class Game
     style =
       'display': 'block'
       'position': 'absolute'
-      'top':  event.pageY - @state.mouseOffsetY
-      'left': event.pageX - @state.mouseOffsetX
+      'top':  event.pageY - state.mouseOffsetY
+      'left': event.pageX - state.mouseOffsetX
     @draggedCanvas.css style
 
   draggingUp: (event) =>
-    @state.stack = null
+    state.stack = null
     @map.blocksEach (block, x, y, z) =>
       if block && block.dragged
         block.setDragged no
 
     # TODO: Take action based on position
-    @state.type = 'normal'
+    state.type = 'normal'
     $('body').css 'cursor', @settings.defaultCursor
 
     @hideDraggedCanvas event

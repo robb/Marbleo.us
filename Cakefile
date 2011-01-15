@@ -9,6 +9,7 @@ buildFiles = [
   "Renderer",
   "Compressor",
   "Game",
+  "Palette",
   "Main"
 ]
 
