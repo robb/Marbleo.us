@@ -118,12 +118,12 @@ class Block
 
   # All the supported components a block can be composed of
   @Components:
-    top:
+    'top':
       ['crossing',
        'crossing-hole',
        'curve',
        'straight']
-    middle:
+    'middle':
       ['crossing',
        'curve',
        'straight',
@@ -132,7 +132,7 @@ class Block
        'drop-low',
        'exchange-alt',
        'exchange']
-    low:
+    'low':
       ['crossing',
        'curve',
        'straight']
