@@ -39,24 +39,23 @@ task 'build', 'Build application from source files', ->
       throw err if err
 
   sys.puts 'Compiling CoffeeScript files'
-  exec 'mkdir bin/js'
-
-  appContents = new Array remaining = buildFiles.length
-  counter = 0
-  for file in buildFiles
-    fs.readFile "src/js/#{file}.coffee", 'utf8', (err, fileContents) ->
-      throw err if err
-      appContents[counter++] = fileContents
-      process() unless --remaining
-  process = ->
-    fs.writeFile 'bin/js/marbleous.coffee', appContents.join('\n\n'), 'utf8', (err) ->
-      throw err if err
-      exec 'coffee --compile bin/js/marbleous.coffee', (err, stdout, stderr) ->
+  exec 'mkdir bin/js', ->
+    appContents = new Array remaining = buildFiles.length
+    counter = 0
+    for file in buildFiles
+      fs.readFile "src/js/#{file}.coffee", 'utf8', (err, fileContents) ->
         throw err if err
-        sys.print stdout + stderr
-        fs.unlink 'bin/js/marbleous.coffee', (err) ->
+        appContents[counter++] = fileContents
+        process() unless --remaining
+    process = ->
+      fs.writeFile 'bin/js/marbleous.coffee', appContents.join('\n\n'), 'utf8', (err) ->
+        throw err if err
+        exec 'coffee --compile bin/js/marbleous.coffee', (err, stdout, stderr) ->
           throw err if err
-          sys.puts 'Done.'
+          sys.print stdout + stderr
+          fs.unlink 'bin/js/marbleous.coffee', (err) ->
+            throw err if err
+            sys.puts 'Done.'
 
 # TODO: Make this work on Simon's machine
 # TODO: Try to resolve marbleo.us.test before opening the browser,
