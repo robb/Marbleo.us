@@ -13,26 +13,46 @@
   %body
     #wrapper
       #container
+        #header
+          %h1
+            marbleo.us
+          %h2
+            an informatiCup 2011 project
+          %a.share.red.button Share your Map!
         #game
-          .sg-35
-            %canvas#main-canvas
-            #palette{:style => 'user-select: none'}
+          %canvas#main-canvas
+          #palette
         #info
           .how-to-play
-            .number 1
-            %p
-              Just select some blocks from the right.
-            .number 2
-            %p 
-              Drag ’em to the main stage
-            .number 3
-            %p
-              when you’re good to go, drop the marble on the field!
-              It’s that easy.
-
+            %ul
+              %li Drag blocks from the palette onto the map.
+              %li You can click a block to rotate it.
+              %li
+                Click
+                %a.share.inline{} Share your Map!
+                to send your friends what you have built.
           .about
             %p
-              Marbleo.us is a project for the GIS Super Informatik Cup
-              Which rocks. It was built by Simon Hohberg and Robert Böhnke
-              in winter 2010.
+              Marbleo.us was build by Simon Hohberg and
+              %a{:href => 'http://twitter.com/ceterum_censeo'} Robert Böhnke
+              for the Gesellschaft für Informatik informatiCup 2011
+          .whats-next
+            %p
+              Marbleo.us is an ongoing project and far from done. We hope that
+              soon you will be able to take a marble for a ride on your creation
+            %p
+              This project was built using
+              %a{:href => 'http://coffeescript.org'} CoffeeScript
+            
     %canvas#dragged-canvas{:style => "display: none"}
+    %canvas#dragged-canvas{:style => "display: none"}
+    #selector{:style => "display: none"}
+      %a.rotate.left{:href => 'javascript:void(0)'}
+      %a.rotate.right{:href => 'javascript:void(0)'}
+    #popup
+      %h1 Share your Map!
+      %input
+      %p
+        Send this URL around to let other have a look at what you’ve built.
+        Thanks for using marbleo.us!
+      %a.black.button#dismiss Dismiss

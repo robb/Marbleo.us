@@ -78,7 +78,7 @@ class Renderer
   # hit-testing
   #
   # Relative to the point of origin of the canvas
-  renderingCoordinatesForBlock: (x,y,z) ->
+  renderingCoordinatesForBlock: (x, y, z) ->
     screenX = (x + y) * @settings.blockSizeHalf
     screenY = @settings.canvasHeight \
               - 3 * @settings.blockSizeQuarter \

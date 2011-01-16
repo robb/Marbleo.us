@@ -1,19 +1,70 @@
 @import    grid
 @import default
 
+body
+  font-family: Georgia, serif
+  text-shadow: 1px 0px 0px #eee
+
+#info a
+  color: #ff3019
+  position: relative
+  
+  &:hover
+    color: darken(#ff3019, 10%)
+  &:active
+    color: #ff3019
+    top: 1px
+  &:visited
+    color: #cf0404
+
 #wrapper
   width: $width
   margin: 0 auto
 
-#palette
-  width: $width
-  height: 120px
+#header
+  h1, h2
+    display: inline
+    margin: 0
+    padding: 0
+    
+    vertical-align: baseline
 
+  h2
+    color: lightgrey
+    font-size: small
+    font-weight: normal
+
+.share.button
+  float: right
+
+#main-canvas
+  margin: -350px 136px 28px 136px
+
+  -moz-transition: margin-top 0.8s ease-in-out
+  -webkit-transition: margin-top 0.8s ease-in-out
+
+#selector
+  width: 101px
+
+  .rotate
+    display: inline-block
+    height: 80px
+    width:  47px
+    position: absolute
+    &.left
+      background: transparent url('/img/arrows.png')   0px 0 no-repeat
+      left:  -36px
+    &.right
+      right: -36px
+      background: transparent url('/img/arrows.png') -51px 0 no-repeat
+
+#palette
+  width: 100%
+  height: 120px
+  overflow-x: auto
   overflow-y: hidden
-  overflow-x: scroll
 
   white-space: nowrap
-
   text-align: left
 
   img
@@ -23,11 +74,46 @@
   padding-top: 16px
 
   .how-to-play
-    @include prepend(2)
-    @include col(9)
+    @include col(6)
+
+  .whats-next
+    @include prepend(1)
+    @include col(6)
 
   .about
-    @include prepend(2)
-    @include col(9)
-    @include append(2)
+    @include prepend(1)
+    @include col(6)
     @include last
+
+#popup
+  &.visible
+    display: block
+
+  display: none
+  width:  600px
+
+  position: absolute
+  top:  50%
+  left: 50%
+
+  color: white
+  text-shadow: 1px 1px 0px black
+
+  margin-top: -135px
+  margin-left: -300px
+
+  padding: 16px
+  -moz-border-radius:    16px
+  -webkit-border-radius: 16px
+
+  background: #ff3019
+  background: -moz-linear-gradient(top, #ff3019 0%, #cf0404 100%)
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ff3019), color-stop(100%,#cf0404))
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ff3019', endColorstr='#cf0404',GradientType=0)
+  
+  h1
+    margin: 0 0 16px 0
+    font-family: Lucida Grande, Helvetica, Arial, sans
+
+  input
+    width: 100%

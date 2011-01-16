@@ -3,6 +3,7 @@ class Game
     mapSize:         7
     mainCanvasID:    '#main-canvas'
     draggedCanvasID: '#dragged-canvas'
+    selectorID:      '#selector'
     defaultCursor:   'auto'
     dragCursor:      $.browser.webkit && '-webkit-grab' || $.browser.mozilla && '-moz-grab' || 'auto'
     draggingCursor:  $.browser.webkit && '-webkit-grabbing' || $.browser.mozilla && '-moz-grabbing' || 'auto'
@@ -22,6 +23,7 @@ class Game
 
     @mainCanvas    = $(@settings.mainCanvasID)
     @draggedCanvas = $(@settings.draggedCanvasID)
+    @selector      = $(@settings.selectorID)
 
     @renderer = new Renderer @map, =>
       @mainCanvas.bind    'mouseup',   @canvasUp
@@ -40,6 +42,30 @@ class Game
 
       $(document).bind 'keydown', @keyDown
 
+      @selector.children('.left').bind 'mousedown', (event) =>
+        [x, y, z] = state.info.coordinates
+        block      = @map.getBlock x, y, z
+        blockOnTop = @map.getBlock x, y, z + 1 if z + 1 < @map.size
+
+        block.rotate      no, yes, yes,  no
+        blockOnTop.rotate no,  no,  no, yes if blockOnTop
+
+        @map.setNeedsRedraw yes
+        event.preventDefault()
+        return off
+
+      @selector.children('.right').bind 'mousedown', (event) =>
+        [x, y, z] = state.info.coordinates
+        block      = @map.getBlock x, y, z
+        blockOnTop = @map.getBlock x, y, z + 1 if z + 1 < @map.size
+
+        block.rotate      yes, yes, yes,  no
+        blockOnTop.rotate yes,  no,  no, yes if blockOnTop
+
+        @map.setNeedsRedraw yes
+        event.preventDefault()
+        return off
+
       renderingLoop = =>
         @renderer.drawMap()
       setInterval renderingLoop, 20
@@ -57,12 +83,24 @@ class Game
     @selectedBlock.setSelected yes if @selectedBlock
     @map.setNeedsRedraw yes
 
+  displaySelector: (x = 0, y = 0) ->
+    @selector.css
+      'display': 'block'
+      'position': 'absolute'
+      'top':  @mainCanvas.offset().top  + y
+      'left': @mainCanvas.offset().left + x
+
+  hideSelector: ->
+    @selector.css
+      'display': 'none'
+
   # Event Handler
   bodyDown: (event) =>
     switch state.type
       when 'normal'
         @selectBlock null
-
+        @hideSelector()
+        return on
     return off
 
   bodyMove: (event) =>
@@ -123,9 +161,12 @@ class Game
         @draggingUp event
       when 'down'
         @selectBlock state.info.block
+        [screenX, screenY] = @renderer.renderingCoordinatesForBlock(state.info.coordinates...)
+        @displaySelector screenX, screenY
         state.type = 'normal'
       when 'normal'
         @selectBlock null
+        @hideSelector()
       else
         console.log "Illegal state", state.type if DEBUG
 
@@ -138,9 +179,12 @@ class Game
         mouseY = event.pageY - @mainCanvas.offset().top
         if state.info.block is @renderer.resolveScreenCoordinates(mouseX, mouseY).block
           @selectBlock state.info.block
+          [screenX, screenY] = @renderer.renderingCoordinatesForBlock(state.info.coordinates...)
+          @displaySelector screenX, screenY
           state.type = 'normal'
       when 'normal'
         @selectBlock null
+        @hideSelector()
       else
         console.error "Illegal state", state.type if DEBUG
 
@@ -252,6 +296,7 @@ class Game
       $('body').css 'cursor', @settings.draggingCursor
 
       @selectBlock null
+      @hideSelector()
       state.stack = blocks
       for block in state.stack
         block.setDragged yes
@@ -284,9 +329,18 @@ class Game
     $('body').css 'cursor', @settings.defaultCursor
 
     @hideDraggedCanvas event
+    @updateCanvasMargin()
 
     # Render the map again to make sure the hitmap is up to date
     @renderer.drawMap yes
+
+  updateCanvasMargin: ->
+    height = 0
+    @map.blocksEach (block, x, y, z) =>
+      return if block is null or block.dragged
+      height = z if z > height
+    @mainCanvas.css
+      'margin-top': -50 + (-5 + height) * @renderer.settings.blockSizeHalf
 
   normalizeCoordinates: (handler) ->
     return (event) ->
@@ -299,9 +353,9 @@ class Game
     switch event.keyCode
       when 65 # a
         @map.rotateCW()
+        @selectBlock null
+        @hideSelector()
       when 68 # d
         @map.rotateCCW()
-      when 80 # p
-        compressor = new Compressor
-        string = compressor.compress @map
-        window.location.replace('#' + string);
+        @selectBlock null
+        @hideSelector()

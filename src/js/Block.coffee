@@ -86,23 +86,23 @@ class Block
 
   rotateCW:  -> @rotate  true
   rotateCCW: -> @rotate false
-  rotate: (clockwise) ->
+  rotate: (clockwise, top = yes, middle = yes, low = yes) ->
     [topType, topRotation] = @properties['top']
     [midType, midRotation] = @properties['middle']
     [lowType, lowRotation] = @properties['low']
 
     if clockwise
       @setProperties {
-        'top':    [topType, (topRotation +  90) % 360],
-        'middle': [midType, (midRotation +  90) % 360],
-        'low':    [lowType, (lowRotation +  90) % 360]
+        'top':    [topType, (topRotation +  90) % 360] if top
+        'middle': [midType, (midRotation +  90) % 360] if middle
+        'low':    [lowType, (lowRotation +  90) % 360] if low
       }
     else
       # -90 % 360 in JavaScript returns -90, hence we go the other way ’round
       @setProperties {
-        'top':    [topType, (topRotation + 270) % 360],
-        'middle': [midType, (midRotation + 270) % 360],
-        'low':    [lowType, (lowRotation + 270) % 360]
+        'top':    [topType, (topRotation + 270) % 360] if top
+        'middle': [midType, (midRotation + 270) % 360] if middle
+        'low':    [lowType, (lowRotation + 270) % 360] if low
       }
 
   toString: ->
