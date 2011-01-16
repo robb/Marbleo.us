@@ -163,7 +163,9 @@ class Renderer
 
     @drawFloor()
 
-    @map.visibleBlocksEach (block, x, y, z) =>
+    @map.blocksEach (block, x, y, z) =>
+      return unless block
+
       [screenX, screenY] = @renderingCoordinatesForBlock x, y, z
       @drawBlock @context, block, screenX, screenY
 

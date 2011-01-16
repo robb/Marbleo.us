@@ -94,18 +94,6 @@ class Map
         y++
       x--
 
-  visibleBlocksEach: (functionToAppy) ->
-    @blocksEach (block, x, y, z) =>
-      return unless block
-      hidden = 0       <= (x - 1) and
-               (y + 1) <  @size   and
-               (z + 1) <  @size   and
-               @getBlock(x - 1,     y,     z) and
-               @getBlock(    x, y + 1,     z) and
-               @getBlock(    x,     y, z + 1)
-
-      functionToAppy block, x, y, z unless hidden
-
   rotateCW:  -> @rotate  true
   rotateCCW: -> @rotate false
   rotate: (clockwise) ->
