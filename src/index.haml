@@ -1,7 +1,8 @@
-%html
+!!!
+%html{ :xmlns => "http://www.w3.org/1999/xhtml", :lang => "en", "xml:lang" => "en"}
   %head
     %title Marbleo.us
-    %meta{:http_equiv => "Content-Type",
+    %meta{'http-equiv' => "Content-Type",
           :content => "text/html; charset=UTF-8"}
     %script{:type => "text/javascript",
             :src  => "http://code.jquery.com/jquery-1.4.4.min.js"}
@@ -47,7 +48,6 @@
               This project was built using
               %a{:href => 'http://coffeescript.org'} CoffeeScript
             
-    %canvas#dragged-canvas{:style => "display: none"}
     %canvas#dragged-canvas{:style => "display: none"}
     #selector{:style => "display: none"}
       %a.rotate.left{:href => 'javascript:void(0)'}

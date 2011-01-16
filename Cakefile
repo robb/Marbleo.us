@@ -20,7 +20,7 @@ task 'build', 'Build application from source files', ->
       for file in files
         continue unless file.match /haml$/
         newFile = file.replace /haml/g, 'html'
-        exec "haml src/#{file} bin/#{newFile}", (err) ->
+        exec "haml -f html5 src/#{file} bin/#{newFile}", (err) ->
           throw err if err
 
   sys.puts 'Compiling SASS files'
