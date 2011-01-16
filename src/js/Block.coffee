@@ -7,7 +7,9 @@ class Block
       # Low drops can only be placed on blocks without a groov on the top
       if midType is 'drop-low'
         return no
-      if midType is 'dive' or midType is 'exchange'
+      if midType is 'dive' or
+         midType is 'exchange' or
+         midType is 'exchange-alt'
         return no
 
     return yes
