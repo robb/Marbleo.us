@@ -26,12 +26,12 @@ class Game
     @selector      = $(@settings.selectorID)
 
     $('#game .left').bind 'mousedown', (event) =>
-      @map.rotateCW()
+      @map.rotateCCW()
       @selectBlock null
       @hideSelector()
 
     $('#game .right').bind 'mousedown', (event) =>
-      @map.rotateCCW()
+      @map.rotateCW()
       @selectBlock null
       @hideSelector()
 
