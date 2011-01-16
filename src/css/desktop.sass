@@ -43,6 +43,24 @@ body
   -moz-transition: margin-top 0.8s ease-in-out
   -webkit-transition: margin-top 0.8s ease-in-out
 
+#game
+  #canvas-wrapper
+    position: relative
+  .rotate
+    display: inline-block
+    height: 80px
+    width:  47px
+
+    position: absolute
+    bottom: 170px
+
+    &.left
+      background: transparent url('/img/arrows.png')   0px 0 no-repeat
+      left:  40px
+    &.right
+      right: 40px
+      background: transparent url('/img/arrows.png') -53px 0 no-repeat
+
 #selector
   width: 101px
 
@@ -56,7 +74,7 @@ body
       left:  -36px
     &.right
       right: -36px
-      background: transparent url('/img/arrows.png') -51px 0 no-repeat
+      background: transparent url('/img/arrows.png') -53px 0 no-repeat
 
 #palette
   width: 100%

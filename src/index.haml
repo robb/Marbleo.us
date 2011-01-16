@@ -20,7 +20,10 @@
             an informatiCup 2011 project
           %a.share.red.button Share your Map!
         #game
-          %canvas#main-canvas
+          #canvas-wrapper
+            %canvas#main-canvas
+            %a.rotate.left{:href => 'javascript:void(0)'}
+            %a.rotate.right{:href => 'javascript:void(0)'}
           #palette
         #info
           .how-to-play

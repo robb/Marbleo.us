@@ -25,6 +25,16 @@ class Game
     @draggedCanvas = $(@settings.draggedCanvasID)
     @selector      = $(@settings.selectorID)
 
+    $('#game .left').bind 'mousedown', (event) =>
+      @map.rotateCW()
+      @selectBlock null
+      @hideSelector()
+
+    $('#game .right').bind 'mousedown', (event) =>
+      @map.rotateCCW()
+      @selectBlock null
+      @hideSelector()
+
     @renderer = new Renderer @map, =>
       @mainCanvas.bind    'mouseup',   @canvasUp
       @mainCanvas.bind  'mousemove', @canvasMove
@@ -348,14 +358,3 @@ class Game
         event.pageX = event.originalEvent.touches[0].pageX
         event.pageY = event.originalEvent.touches[0].pageY
       return handler(event)
-
-  keyDown: (event) =>
-    switch event.keyCode
-      when 65 # a
-        @map.rotateCW()
-        @selectBlock null
-        @hideSelector()
-      when 68 # d
-        @map.rotateCCW()
-        @selectBlock null
-        @hideSelector()
