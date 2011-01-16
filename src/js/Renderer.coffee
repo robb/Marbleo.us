@@ -234,23 +234,8 @@ class Renderer
         if top_texture?
           buffer.drawImage top_texture, 0, 0, @settings.blockSize, @settings.blockSize
 
-        # FIXME: This operations are pretty expensive.
-        cutouts = Renderer.Cutouts[topType];
-        if cutouts?
-          buffer.globalCompositeOperation = 'destination-out'
-
-          for pos in cutouts
-            if (pos + topRotation) % 360 == 180
-              cutout180 = @getTexture 'basic', 'cutout', 180
-              buffer.drawImage cutout180, 0, 0, @settings.blockSize, @settings.blockSize
-            else if (pos + topRotation) % 360 == 270
-              cutout270 = @getTexture 'basic', 'cutout', 270
-              buffer.drawImage cutout270, 0, 0, @settings.blockSize, @settings.blockSize
-
-          buffer.globalCompositeOperation = 'source-over'
-
       midHoles = Renderer.MidHoles[midType]
-      if midHoles?
+      if midHoles
         for pos in midHoles
           if (pos + midRotation) % 360 == 0
             midHoleSouth = @getTexture 'basic', 'hole-middle', 0
@@ -261,7 +246,7 @@ class Renderer
             buffer.drawImage midHoleEast, 0, 0, @settings.blockSize, @settings.blockSize
 
       lowHoles = Renderer.LowHoles[midType]
-      if lowHoles?
+      if lowHoles
         for pos in lowHoles
           if (pos + midRotation) % 360 == 0
             lowHoleSouth = @getTexture 'basic', 'hole-low', 0
@@ -271,7 +256,31 @@ class Renderer
             lowHoleEast = @getTexture 'basic', 'hole-low', 90
             buffer.drawImage lowHoleEast, 0, 0, @settings.blockSize, @settings.blockSize
 
+      bottomHoles = Renderer.BottomHoles[lowType]
+      if bottomHoles
+        for pos in bottomHoles
+          if (pos + lowRotation) % 360 == 0
+            bottomHoleSouth = @getTexture 'basic', 'hole-bottom', 0
+            buffer.drawImage bottomHoleSouth, 0, 0, @settings.blockSize, @settings.blockSize
+
+          if (pos + lowRotation) % 360 == 90
+            bottomHoleEast = @getTexture 'basic', 'hole-bottom', 90
+            buffer.drawImage bottomHoleEast, 0, 0, @settings.blockSize, @settings.blockSize
+
       @drawOutline buffer, 0, 0
+
+      type = if topType is 'crossing-hole' then 'crossing' else topType
+      cutouts = @getTexture 'cutouts-top', type, topRotation
+      if cutouts
+        buffer.globalCompositeOperation = 'destination-out'
+        buffer.drawImage cutouts, 0, 0, @settings.blockSize, @settings.blockSize
+        buffer.globalCompositeOperation = 'source-over'
+
+      cutouts = @getTexture 'cutouts-bottom', lowType, lowRotation
+      if cutouts
+        buffer.globalCompositeOperation = 'destination-out'
+        buffer.drawImage cutouts, 0, 0, @settings.blockSize, @settings.blockSize
+        buffer.globalCompositeOperation = 'source-over'
 
     context.drawImage cached, x, y, @settings.blockSize, @settings.blockSize
 
@@ -310,8 +319,16 @@ class Renderer
       'outline':         1
       'hole-middle':     2
       'hole-low':        2
+      'hole-bottom':     2
       # TODO: Add cutouts for straights/crossings
-      'cutout':          2
+    'cutouts-top':
+      'crossing':        1
+      'curve':           4
+      'straight':        2
+    'cutouts-bottom':
+      'crossing':        1
+      'curve':           4
+      'straight':        2
     'top':
       'crossing':        1
       'crossing-hole':   1
@@ -350,3 +367,8 @@ class Renderer
     'drop-low':             [  0]
     'exchange':             [ 90]
     'exchange-alt':         [  0]
+
+  @BottomHoles:
+    'straight':          [0, 180]
+    'curve':             [0,  90]
+    'crossing': [0, 90, 180, 270]
