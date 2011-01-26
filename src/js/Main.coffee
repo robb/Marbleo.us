@@ -1,6 +1,7 @@
-# Set up game
 $(document).ready ->
   @game = new Game {}, =>
+    # If there is a something in the fragment, decode and put it into the
+    # game map
     if window.location.hash.length > 1
       try
         compressor = new Compressor
@@ -9,6 +10,7 @@ $(document).ready ->
       catch e
         console.error "Coudl not parse map correctly: #{e}" if DEBUG
 
+    # Setup share popup
     $('.share').bind 'click', =>
       compressor = new Compressor
       string = compressor.compress @game.map

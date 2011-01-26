@@ -1,3 +1,6 @@
+##
+# This class takes care of rendering blocks, stacks and maps.
+#
 class Renderer
   @defaultSettings:
     mainCanvasID:     '#main-canvas'
@@ -40,6 +43,13 @@ class Renderer
     textureFile.onload = onloadCallback
     textureFile.src = @settings.textureFile
 
+  ##
+  # Loads the textures from the texture file.
+  #
+  # The Renderer.TextureFileDescription hash describes the layout of the
+  # texture file. The texture file is split into a number of smaller canvases
+  # that can be accessed from the @textures object.
+  #
   setupTextures: (textureFile) ->
     textureOffset = 0
     for textureGroup, textureDescription of Renderer.TextureFileDescription
@@ -48,6 +58,7 @@ class Renderer
 
         @textures[textureGroup] ?= {}
         @textures[textureGroup][texture] = new Array rotationsCount
+        # Iterate over the avaible rotations
         for rotation in [0...rotationsCount]
           canvas = document.createElement 'canvas'
           canvas.width  = @settings.blockSize
@@ -67,12 +78,14 @@ class Renderer
           @textures[textureGroup][texture][rotation] = canvas
         textureOffset++
 
+  ##
   # Calculates the point of origin of the square that the textures get
   # rendered in.
   # Please note that this position lies not in the block in terms of
   # hit-testing
   #
   # Relative to the point of origin of the canvas
+  #
   renderingCoordinatesForBlock: (x, y, z) ->
     screenX = (x + y) * @settings.blockSizeHalf
     screenY = @settings.canvasHeight \
@@ -81,8 +94,10 @@ class Renderer
 
     [screenX, screenY]
 
+  ##
   # Returns either 'top', 'south', 'east', 'floor' or null depending on what
   # side  of a block (if any) is displayed at the given coordinates
+  #
   sideAtScreenCoordinates: (x, y) ->
     pixel = @hittestContext.getImageData x, y, 1, 1
     if pixel.data[0] > 0
@@ -96,8 +111,12 @@ class Renderer
     else
       return null
 
+  ##
+  # Returns information about the map contents at the given screen
+  # coordinates.
   # Please note that x and y must be relative to the point of origin of the
   # canvas
+  #
   resolveScreenCoordinates: (x, y) ->
     unless 0 < x < @settings.canvasWidth and 0 < y < @settings.canvasHeight
       return {}
@@ -140,6 +159,9 @@ class Renderer
     else
       return {}
 
+  ##
+  # Returns a texture from the texture cache.
+  #
   getTexture: (group, type, rotation) ->
     unless rotation
       return @textures[group][type][0] if Renderer.TextureFileDescription[group][type]?
@@ -148,6 +170,11 @@ class Renderer
     return null unless rotationCount?
     return @textures[group][type][rotation / 90 % rotationCount]
 
+  ##
+  # Updates both the onscreen map and the internal hitmap. If force is set to
+  # yes, the map will be drawn even if no drawing is required based on
+  # needsRedraw
+  #
   drawMap: (force = no) ->
     return if (@isDrawing or not @map.needsRedraw) and not force
     console.time "draw" if DEBUG
@@ -166,6 +193,7 @@ class Renderer
 
     @drawHitmap()
 
+    # Render the hitmap into the main canvas for debugging purposes
     if OVERLAY
       @context.globalAlpha = 0.4
       @context.drawImage @hittestCanvas, 0, 0, @settings.canvasWidth, @settings.canvasHeight
@@ -175,6 +203,12 @@ class Renderer
     @isDrawing = no
     console.timeEnd "draw" if DEBUG
 
+  ##
+  # Updates the internal hitmap.
+  #
+  # It is used for speedy lookup of visible blocks as well as the position of
+  # block sides.
+  #
   drawHitmap: ->
     @map.blocksEach (block, x, y, z) =>
       if z is 0
@@ -184,12 +218,20 @@ class Renderer
         [screenX, screenY] = @renderingCoordinatesForBlock x, y, z
         @hittestContext.drawImage @getTexture('basic','hitbox'), screenX, screenY, @settings.blockSize, @settings.blockSize
 
+  ##
+  # Draws the floor
+  #
   drawFloor: ->
     for x in [0...@map.size]
       for y in [0...@map.size]
         [screenX, screenY] = @renderingCoordinatesForBlock x, y, 0
         @context.drawImage @getTexture('basic','floor'), screenX, screenY, @settings.blockSize, @settings.blockSize
 
+  ##
+  # Draws a block into the given graphics context.
+  #
+  # The drawing operation is cached based on the Block.toString() method.
+  #
   drawBlock: (context, block, x = 0, y = 0) ->
     cache_key = block.toString()
 
@@ -202,15 +244,19 @@ class Renderer
       cached.height = cached.width = @settings.blockSize
       buffer = cached.getContext "2d"
 
+      # Render the inner contents of the block only if the block is not fully
+      # opaque.
       if block.selected or block.opacity isnt 1.0
         backside = @getTexture 'basic', 'backside'
         buffer.drawImage backside, 0, 0, @settings.blockSize, @settings.blockSize
 
+        # Render the low layer
         if lowType
           low_texture = @getTexture 'low', lowType, lowRotation
           if low_texture?
             buffer.drawImage low_texture, 0, 0, @settings.blockSize, @settings.blockSize
 
+        # Render the middle layer
         if midType
           mid_texture = @getTexture 'middle', midType, midRotation
           if mid_texture?
@@ -226,6 +272,7 @@ class Renderer
 
       buffer.globalAlpha = 1.0
 
+      # Render the top layer
       if topType
         top_texture = @getTexture 'top', topType, topRotation
         if top_texture?
@@ -233,6 +280,7 @@ class Renderer
           buffer.drawImage top_texture, 0, 0, @settings.blockSize, @settings.blockSize
           buffer.globalAlpha = 1.0
 
+      # Render the middle holes on the side of block
       midHoles = Renderer.MidHoles[midType]
       if midHoles
         for pos in midHoles
@@ -244,6 +292,7 @@ class Renderer
             midHoleEast = @getTexture 'basic', 'hole-middle', 90
             buffer.drawImage midHoleEast, 0, 0, @settings.blockSize, @settings.blockSize
 
+      # Render the lows holes on the side of block
       lowHoles = Renderer.LowHoles[midType]
       if lowHoles
         for pos in lowHoles
@@ -255,6 +304,8 @@ class Renderer
             lowHoleEast = @getTexture 'basic', 'hole-low', 90
             buffer.drawImage lowHoleEast, 0, 0, @settings.blockSize, @settings.blockSize
 
+      # Render the bottom holes that are formed if this block stands on top
+      # of another.
       bottomHoles = Renderer.BottomHoles[lowType]
       if bottomHoles
         for pos in bottomHoles
@@ -266,8 +317,10 @@ class Renderer
             bottomHoleEast = @getTexture 'basic', 'hole-bottom', 90
             buffer.drawImage bottomHoleEast, 0, 0, @settings.blockSize, @settings.blockSize
 
+      # Draw the outline
       @drawOutline buffer, 0, 0
 
+      # Remove transparent parts at the edges of the block.
       type = if topType is 'crossing-hole' then 'crossing' else topType
       cutouts = @getTexture 'cutouts-top', type, topRotation
       if cutouts
@@ -283,9 +336,13 @@ class Renderer
 
     context.drawImage cached, x, y, @settings.blockSize, @settings.blockSize
 
+  ##
+  # Draws a block outline in the given graphics context.
   drawOutline: (context, x, y) ->
     context.drawImage @getTexture('basic','outline'), x, y, @settings.blockSize, @settings.blockSize
 
+  ##
+  # Draws the stack of currently dragged blocks into the dragged canvas.
   drawDraggedBlocks: (stack) ->
     width  = @settings.blockSize
     height = if stack.length is 1
@@ -299,9 +356,12 @@ class Renderer
     for block, index in stack
       @drawBlock @draggedContext, block, 0, height - @settings.blockSize - (index) * @settings.blockSizeHalf
 
+  ##
+  # This hash descripes the make-up of the texture files.
+  # The file is split into multiple groups that consist of block types at
+  # their different rotations, each occupying one row in the file.
+  #
   @TextureFileDescription:
-    #texture group:
-    #  name: number of rotations/variations
     'basic':
       # This hitbox is used to detect which side of the block
       # is at a given pixel by looking up the color.
@@ -347,11 +407,15 @@ class Renderer
       'curve':           4
       'straight':        2
 
+  ##
+  # Defines which block types require top cutouts at what rotations.
   @Cutouts:
     'straight':          [0, 180]
     'curve':             [0,  90]
     'crossing': [0, 90, 180, 270]
 
+  ##
+  # Defines which block types require middle holes at what rotations.
   @MidHoles:
     'crossing': [0, 90, 180, 270]
     'curve':             [0,  90]
@@ -361,12 +425,16 @@ class Renderer
     'exchange':             [  0]
     'exchange-alt':         [ 90]
 
+  ##
+  # Defines which block types require low holes at what rotations.
   @LowHoles:
     'dive':                 [180]
     'drop-low':             [  0]
     'exchange':             [ 90]
     'exchange-alt':         [  0]
 
+  ##
+  # Defines which block types require bottom cutouts at what rotations.
   @BottomHoles:
     'straight':          [0, 180]
     'curve':             [0,  90]

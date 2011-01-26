@@ -1,4 +1,15 @@
+##
+# This class models a block.
+#
+# A block in the context of marbleo.us consists of 3 layers: 'top', 'middle'
+# and 'low'.
+# Each layer consists of a layer and a rotation that describe it, all three
+# layers together describe the block.
+#
 class Block
+  ##
+  # Determines wether a given block can be stacked on top of another one.
+  #
   @canStack: (bottom, top) ->
     [midType, midRotation] = top.getProperty 'middle'
     [topType, topRotation] = bottom.getProperty 'top'
@@ -14,10 +25,27 @@ class Block
 
     return yes
 
+  ##
+  # Given a type and an optional rotation, returns a block matching that
+  # description.
+  # See Block.Types for a list of all blocks supported by this method.
+  #
   @ofType: (type, rotation = 0) ->
     throw new Error "Unknown type #{type}" unless Block.Types[type]
     return new Block Block.Types[type], rotation
 
+  ##
+  # Creates a block given a description.
+  #
+  # Description is an object of the following layout:
+  #
+  # properties =
+  #   'top':    [topType, topRotation]
+  #   'middle': [topType, topRotation]
+  #   'low':    [topType, topRotation]
+  #
+  # Unspecified properties default to [null, 0].
+  #
   constructor: (description) ->
     @properties =
       'top':    [null, 0],
@@ -29,6 +57,12 @@ class Block
 
     @validate()
 
+  ##
+  # Validates the internal consistency of a block, as layers of certain types
+  # may not be combined in one block, e.g. a block that has a 'top' type of
+  # 'crossing-hole' cannot have a layer type that is not 'drop-low' or
+  # 'drop-middle'
+  #
   validate: (properties = @properties) ->
     for level, [type, rotation] of @properties
       if type and not (type in Block.Components[level])
@@ -52,19 +86,33 @@ class Block
     if lowType and midType is 'drop-low'
       throw new Error "Middle type #{midType} is incompatible with low type #{lowType}"
 
+  ##
+  # Sets the rendering opactiy of the block.
   setOpacity: (opacity) ->
     throw new Error "Illegal value for opacity" unless 0 <= opacity <= 1.0
     @opacity = opacity
 
+  ##
+  # Sets the selected state of the block.
   setSelected: (@selected) ->
+
+  ##
+  # Sets the dragged state of the block.
   setDragged: (@dragged) ->
 
+  ##
+  # Returns a size-two-array (i.e. a tuple) that contains the type and rotation
+  # of a given layer.
+  #
   getProperty: (property) ->
     unless property in ['top', 'middle', 'low']
       throw new Error "Unknown property #{property}"
 
     return @properties[property] # [type, rotation]
 
+  ##
+  # Sets a property to the given type and value.
+  #
   setProperty: (property, type, rotation) ->
     [oldType, oldRotation] = @getProperty property
 
@@ -75,6 +123,10 @@ class Block
     newProperties[property] = [type, rotation]
     @setProperties newProperties
 
+  ##
+  # Sets multiple properties of the block at once.
+  # See the constructor for the requirements to the properties object.
+  #
   setProperties: (properties) ->
     newProperties = {}
     for key, value of @properties
@@ -86,8 +138,20 @@ class Block
     for key, value of @properties
       @properties[key] = properties[key] || value
 
+  ##
+  # Rotates the block 90 degrees clockwise
   rotateCW:  -> @rotate  true
+
+  ##
+  # Rotates the block 90 degrees counter-clockwise
   rotateCCW: -> @rotate false
+
+  ##
+  # Rotates the block, the direction of the rotation can be specified.
+  #
+  # By default, the block will be rotated fully, however, additional parameters
+  # may constrain the rotation to any combination of layers.
+  #
   rotate: (clockwise, top = yes, middle = yes, low = yes) ->
     [topType, topRotation] = @properties['top']
     [midType, midRotation] = @properties['middle']
@@ -107,6 +171,11 @@ class Block
         'low':    [lowType, (lowRotation + 270) % 360] if low
       }
 
+  ##
+  # Generates a string that uniquely defines the block.
+  #
+  # May be used as a key for efficient caching of rendered blocks.
+  #
   toString: ->
     [topType, topRotation] = @properties['top']
     [midType, midRotation] = @properties['middle']
@@ -118,7 +187,8 @@ class Block
            "#{@opacity}#{@selected}"
 
 
-  # All the supported components a block can be composed of
+  ##
+  # All the supported components a block can be composed of, per layer.
   @Components:
     'top':
       ['crossing',
@@ -139,6 +209,7 @@ class Block
        'curve',
        'straight']
 
+  ##
   # All the types of blocks we support
   @Types:
     'blank':

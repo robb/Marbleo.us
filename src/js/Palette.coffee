@@ -1,5 +1,6 @@
+##
+# This class manages a palette of blocks to be placed on the map.
 class Palette
-
   @defaultSettings:
     paletteID:         '#palette'
     startDragCallback: (block) ->
@@ -13,6 +14,7 @@ class Palette
       @settings[key] = settings[key] || Palette.defaultSettings[key]
     $palette = $(@settings.paletteID)
 
+    # Each predifined block gets rendered into a seperate image tag.
     for type, description of Block.Types
       block = Block.ofType type
       block.setOpacity 0.4
@@ -29,6 +31,8 @@ class Palette
       $image.attr  'src', canvas.toDataURL()
 
       $palette.append $image
+
+      # Set up the event handlers
 
       callback = @settings.startDragCallback
       $image.bind 'mousedown', (event) ->
