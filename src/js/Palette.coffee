@@ -40,6 +40,18 @@ class Palette
 
         callback [block], info
 
+      $image.bind 'touchstart', (event) ->
+        if event.originalEvent.touches.length
+          info =
+            mouseOffsetX: event.originalEvent.touches[0].pageX - $(this).offset().left
+            mouseOffsetY: event.originalEvent.touches[0].pageY - $(this).offset().top
+
+          block = Block.ofType($(this).data('type'))
+
+          callback [block], info
+
+          event.preventDefault()
+
       renderer = @renderer
       $image.bind 'mousemove', (event) ->
         if state.type is 'normal'

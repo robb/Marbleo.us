@@ -25,24 +25,14 @@ class Game
     @draggedCanvas = $(@settings.draggedCanvasID)
     @selector      = $(@settings.selectorID)
 
-    $('#game .left').bind 'mousedown', (event) =>
-      @map.rotateCCW()
-      @selectBlock null
-      @hideSelector()
-
-    $('#game .right').bind 'mousedown', (event) =>
-      @map.rotateCW()
-      @selectBlock null
-      @hideSelector()
-
     @renderer = new Renderer @map, =>
       @mainCanvas.bind    'mouseup',   @canvasUp
       @mainCanvas.bind  'mousemove', @canvasMove
       @mainCanvas.bind  'mousedown', @canvasDown
 
-      @mainCanvas.bind 'touchstart', @normalizeCoordinates(@canvasTouchStart)
-      @mainCanvas.bind  'touchmove', @normalizeCoordinates( @canvasTouchMove)
-      @mainCanvas.bind   'touchend', @normalizeCoordinates(  @canvasTouchEnd)
+      @mainCanvas.bind 'touchstart', @normalizeCoordinates(@canvasDown)
+      @mainCanvas.bind  'touchmove', @normalizeCoordinates(@canvasMove)
+      @mainCanvas.bind   'touchend', @normalizeCoordinates(  @canvasUp)
 
       $body = $('body')
 
@@ -50,7 +40,20 @@ class Game
       $body.bind 'mousemove', @bodyMove
       $body.bind 'mousedown', @bodyDown
 
-      $(document).bind 'keydown', @keyDown
+      $body.bind 'touchstart', @normalizeCoordinates(@bodyDown)
+      $body.bind  'touchmove', @normalizeCoordinates(@bodyMove)
+      $body.bind   'touchend', @normalizeCoordinates(  @bodyUp)
+
+      # Bind event handlers to the rotation arrows
+      $('#game .left').bind 'mousedown', (event) =>
+        @map.rotateCCW()
+        @selectBlock null
+        @hideSelector()
+
+      $('#game .right').bind 'mousedown', (event) =>
+        @map.rotateCW()
+        @selectBlock null
+        @hideSelector()
 
       @selector.children('.left').bind 'mousedown', (event) =>
         [x, y, z] = state.info.coordinates
@@ -110,8 +113,6 @@ class Game
       when 'normal'
         @selectBlock null
         @hideSelector()
-        return on
-    return off
 
   bodyMove: (event) =>
     switch state.type
@@ -120,65 +121,12 @@ class Game
       else
         $('body').css 'cursor', @settings.defaultCursor
 
-    return off
-
   bodyUp: (event) =>
     switch state.type
       when 'dragging'
         @draggingUp event
 
     return off
-
-  canvasTouchStart: (event) =>
-    unless event.originalEvent.touches.length is 1
-      return
-
-    switch state.type
-      when 'normal'
-        info = @renderer.resolveScreenCoordinates event.pageX, event.pageY
-        if info.block
-          state.type  = 'down'
-          state.downX = event.pageX
-          state.downY = event.pageY
-          state.info  = info
-          event.originalEvent.preventDefault()
-        else
-          state.type = 'normal'
-
-  canvasTouchMove: (event) =>
-    if state.type is 'normal'
-      return
-
-    if event.originalEvent.touches.length is 1
-      event.originalEvent.preventDefault()
-    else
-      return
-
-    event.originalEvent.preventDefault()
-    switch state.type
-      when 'down'
-        # If the user moves more than @settings.draggingOffset pixels
-        # from where the put the mouse down, start a drag operation
-        if Math.abs(state.downX - event.pageX) > @settings.draggingOffset or
-           Math.abs(state.downY - event.pageY) > @settings.draggingOffset
-          @startDrag event
-      when 'dragging'
-        @draggingMove event
-
-  canvasTouchEnd: (event) =>
-    switch state.type
-      when 'dragging'
-        @draggingUp event
-      when 'down'
-        @selectBlock state.info.block
-        [screenX, screenY] = @renderer.renderingCoordinatesForBlock(state.info.coordinates...)
-        @displaySelector screenX, screenY
-        state.type = 'normal'
-      when 'normal'
-        @selectBlock null
-        @hideSelector()
-      else
-        console.log "Illegal state", state.type if DEBUG
 
   canvasUp: (event) =>
     switch state.type
@@ -214,13 +162,16 @@ class Game
       when 'dragging'
         @draggingMove event
       when 'normal'
-        if (side = @renderer.sideAtScreenCoordinates(mouseX, mouseY)) and side isnt 'floor'
-          $('body').css 'cursor', @settings.dragCursor
-        else
-          $('body').css 'cursor', @settings.defaultCursor
+        if event.type isnt 'touchmove'
+          # Set cursor dependent on contents at mouse position.
+          side = @renderer.sideAtScreenCoordinates(mouseX, mouseY)
+          if side and side isnt 'floor'
+            $('body').css 'cursor', @settings.dragCursor
+          else
+            $('body').css 'cursor', @settings.defaultCursor
 
-    # Stop from bubbling
-    return off
+    if @renderer.sideAtScreenCoordinates(mouseX, mouseY) isnt null
+      event.preventDefault()
 
   canvasDown: (event) =>
     switch state.type
@@ -233,11 +184,9 @@ class Game
           state.downX = mouseX
           state.downY = mouseY
           state.info  = info
-        else
-          state.type = 'normal'
+          event.preventDefault()
 
-    # Stop from bubbling
-    return off
+    return on
 
   draggingMove: (event) =>
     # Removing all dragged blocks as they may be drawn elsewhere
@@ -255,7 +204,7 @@ class Game
 
     [x, y, z]   = info.coordinates || [0, 0, 0] #XXX
     targetBlock = @map.getBlock x, y, z
-    lowestBlock = state.stack[0]
+    lowestBlock = state.stack && state.stack[0]
 
     if info.side is 'floor' or
        info.side is 'top'   and
@@ -288,11 +237,6 @@ class Game
     blocks = @map.removeStack(x, y, z)
 
     [canvasX, canvasY] = @renderer.renderingCoordinatesForBlock x, y, z + blocks.length
-    # Using bitwise-or 0 to convert Strings to ints
-    # marginTop   = @mainCanvas.css(  'margin-top').replace('px','') | 0 
-    # marginLeft  = @mainCanvas.css( 'margin-left').replace('px','') | 0
-    # paddingTop  = @mainCanvas.css( 'padding-top').replace('px','') | 0
-    # paddingLeft = @mainCanvas.css('padding-left').replace('px','') | 0
 
     info =
       mouseOffsetX: state.downX - canvasX
@@ -303,8 +247,6 @@ class Game
     @renderer.drawMap yes # Redraw the map to update the hitmap
 
   startDragWithBlocks: (blocks, info) =>
-      $('body').css 'cursor', @settings.draggingCursor
-
       @selectBlock null
       @hideSelector()
       state.stack = blocks
@@ -329,12 +271,11 @@ class Game
     @draggedCanvas.css style
 
   draggingUp: (event) =>
-    state.stack = null
+    state.stack = []
     @map.blocksEach (block, x, y, z) =>
       if block && block.dragged
         block.setDragged no
 
-    # TODO: Take action based on position
     state.type = 'normal'
     $('body').css 'cursor', @settings.defaultCursor
 
@@ -354,7 +295,7 @@ class Game
 
   normalizeCoordinates: (handler) ->
     return (event) ->
-      if event.originalEvent and event.originalEvent.touches and event.originalEvent.touches.length is 1
+      if event.originalEvent.touches and event.originalEvent.touches[0]
         event.pageX = event.originalEvent.touches[0].pageX
         event.pageY = event.originalEvent.touches[0].pageY
       return handler(event)
