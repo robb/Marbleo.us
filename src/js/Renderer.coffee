@@ -30,20 +30,15 @@ class Renderer
     # Load all textures from the texture file
     @textures = {}
 
+    @Cache = {}
+
     onloadCallback = =>
       @setupTextures(textureFile)
-      @setupCaches()
       return @onload()
 
     textureFile = new Image
     textureFile.onload = onloadCallback
     textureFile.src = @settings.textureFile
-
-  # Sets up multiple caches to accelerate the rendering of the blocks and
-  # block columns
-  setupCaches: ->
-    ## @constant ###
-    @Cache = {}
 
   setupTextures: (textureFile) ->
     textureOffset = 0
