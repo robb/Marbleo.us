@@ -102,11 +102,11 @@ body {
   position: absolute;
   bottom: 170px; }
   #game .rotate.left {
-    background: transparent url("/img/arrows.png") 0px 0 no-repeat;
+    background: transparent url("../img/arrows.png") 0px 0 no-repeat;
     left: 40px; }
   #game .rotate.right {
     right: 40px;
-    background: transparent url("/img/arrows.png") -53px 0 no-repeat; }
+    background: transparent url("../img/arrows.png") -53px 0 no-repeat; }
 
 #selector {
   width: 101px; }
@@ -116,11 +116,11 @@ body {
     width: 47px;
     position: absolute; }
     #selector .rotate.left {
-      background: transparent url("/img/arrows.png") 0px 0 no-repeat;
+      background: transparent url("../img/arrows.png") 0px 0 no-repeat;
       left: -36px; }
     #selector .rotate.right {
       right: -36px;
-      background: transparent url("/img/arrows.png") -53px 0 no-repeat; }
+      background: transparent url("../img/arrows.png") -53px 0 no-repeat; }
 
 #palette {
   width: 100%;
