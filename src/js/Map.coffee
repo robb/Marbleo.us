@@ -1,8 +1,6 @@
-##
 # This class models a map.
 #
 # A map in the context of marbleo.us is a three-dimensional grid of blocks.
-#
 class Map
   constructor: (size) ->
     throw new Error "Size must be between 1 and 255" unless 1 < size < 255
@@ -18,34 +16,26 @@ class Map
     @rotation = 0
     @setNeedsRedraw yes
 
-  ##
   # Sets the block at the given coordinates to the given block.
-  #
   setBlock: (block, x, y, z) ->
     @validateCoordinates x, y, z
     [x, y] = @applyRotation x, y if @rotation
     @grid[x + y * @size + z * @size * @size] = block
     @setNeedsRedraw yes
 
-  ##
   # Returns the block at the given coordinates.
-  #
   getBlock: (x, y, z) ->
     @validateCoordinates x, y, z
     [x, y] = @applyRotation x, y if @rotation
     return @grid[x + y * @size + z * @size * @size]
 
-  ##
   # Returns the block at the given coordinates and removes it from the map.
-  #
   removeBlock: (x, y, z) ->
     block = @getBlock x, y, z
     @setBlock null, x, y, z
     return block
 
-  ##
   # Returns the height of the block stack at the given coordinates.
-  #
   heightAt: (x, y) ->
     @validateCoordinates x, y, 0
 
@@ -54,9 +44,7 @@ class Map
       height++
     return height
 
-  ##
   # Returns all blocks at the given coordinates.
-  #
   getStack: (x, y, z = 0) ->
     @validateCoordinates x, y, z
 
@@ -67,9 +55,7 @@ class Map
       blocks.push @getBlock x, y, currentZ
     return blocks
 
-  ##
   # Blaces a stack of blocks at the given coordinates
-  #
   setStack: (blocks, x, y, z = 0) ->
     @validateCoordinates x, y, z
     unless blocks.length - 1 + z < @size
@@ -78,37 +64,29 @@ class Map
     for block in blocks
       @setBlock block, x, y, z++
 
-  ##
   # Returns the stack at the given coordinates and removes it from the map.
-  #
   removeStack: (x, y, z = 0) ->
     stack = @getStack x, y, z
     for currentZ in [z...z + stack.length]
       @setBlock null, x, y, currentZ
     return stack
 
-  ##
   # Validates the map.
   # TODO: Currently only checks for floating blocks. Validate block stacks
   #       regarding matching low and top properties.
-  #
   validate: ->
     @blocksEach (block, x, y, z) =>
       if block and z > 0 and not @getBlock x, y, z - 1
         throw new Error "Encountered floating block at #{x}:#{y}:#{z}"
 
-  ##
   # Makes sure that the given coordinates are within the bounds of the map.
-  ä
   validateCoordinates: (x, y, z) ->
     throw new Error "Index out of bounds #{x}:#{y}:#{z}" unless 0 <= x < @size and
                                                                 0 <= y < @size and
                                                                 0 <= z < @size
 
-  ##
   # Given a pair of coordinates, transforms the coordinates based on the
   # rotation of the map.
-  #
   applyRotation: (x, y) ->
     switch @rotation
       when  90 then return [@size - 1 - y,             x]
@@ -117,14 +95,10 @@ class Map
       else
         return [x, y]
 
-  ##
   # Sets the needs redraw state of the block.
-  #
   setNeedsRedraw: (@needsRedraw) ->
 
-  ##
   # Iterates over all positions of the map, applies the given function.
-  #
   blocksEach: (functionToApply) ->
     x = @size - 1
     while x + 1
@@ -137,11 +111,9 @@ class Map
         y++
       x--
 
-  ##
   # Rotates the map 90 degrees clockwise
   rotateCW:  -> @rotate  true
 
-  ##
   # Rotates the map 90 degrees counter-clockwise
   rotateCCW: -> @rotate false
 

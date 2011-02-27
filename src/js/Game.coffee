@@ -1,7 +1,5 @@
-##
 # This class handles the game logic, it defines the event handlers and
 # controls the rendering process.
-#
 class Game
   @defaultSettings:
     mapSize:         7
@@ -15,10 +13,8 @@ class Game
     # TODO: Consider increasing this value for touch-based devices
     draggingOffset: 10
 
-  ##
   # Creates a new game using the given settings, then calls the onload
   # callback.
-  #
   constructor: (settings, onload) ->
     @settings = {}
     for key, value of Game.defaultSettings
@@ -101,20 +97,16 @@ class Game
 
       return onload()
 
-  ##
   # Selects a given block.
   # The selected block will be rendered semi-transparently.
-  #
   selectBlock: (block) ->
     @selectedBlock.setSelected no  if @selectedBlock
     @selectedBlock = block 
     @selectedBlock.setSelected yes if @selectedBlock
     @map.setNeedsRedraw yes
 
-  ##
   # Display the selector overlay at the given screen coordinates.
   # It provides means to rotate the currently selected block.
-  #
   displaySelector: (x = 0, y = 0) ->
     @selector.css
       'display': 'block'
@@ -122,32 +114,27 @@ class Game
       'top':  @mainCanvas.offset().top  + y
       'left': @mainCanvas.offset().left + x
 
-  ##
   # Hides the selector overlay.
-  #
   hideSelector: ->
     @selector.css
       'display': 'none'
 
-  ##
   # Default mouseDown event handler for events outside the main canvas.
+  #
   # If the user mouse-downs anywhere without being in a drag operation,
   # deselect the current block (if it exists).
-  #
   bodyDown: (event) =>
     switch state.type
       when 'normal'
         @selectBlock null
         @hideSelector()
 
-  ##
   # Default mouseMove event handler for events outside the main canvas.
   #
   # As we are drawing the currently dragged block on an indepented canvas
   # under the current mouse position, mouse movements during a dragging operation
   # will not be caught by the canvas.
   # Therefore we have to handle the dragging at this position.
-  #
   bodyMove: (event) =>
     switch state.type
       when 'dragging'
@@ -155,9 +142,7 @@ class Game
       else
         $('body').css 'cursor', @settings.defaultCursor
 
-  ##
   # Default mouseUp event handler for events outside the main canvas.
-  #
   bodyUp: (event) =>
     switch state.type
       when 'dragging'
@@ -165,9 +150,7 @@ class Game
 
     return off
 
-  ##
   # Default event handler for mouseUp events inside the main canvas.
-  #
   canvasUp: (event) =>
     switch state.type
       # If the user is dragging, end the current dragging operation
@@ -194,15 +177,13 @@ class Game
     # Stop from bubbling
     return off
 
-  ##
   # Default event handler for mouseMove events inside the main canvas.
-  #
   canvasMove: (event) =>
     mouseX = event.pageX - @mainCanvas.offset().left
     mouseY = event.pageY - @mainCanvas.offset().top
     switch state.type
       when 'down'
-        # If the user moves more than @settings.draggingOffset pixels
+        # If the user moves more than `@settings.draggingOffset` pixels
         # from where the put the mouse down, start a drag operation
         if Math.abs(state.downX - mouseX) > @settings.draggingOffset or
            Math.abs(state.downY - mouseY) > @settings.draggingOffset
@@ -224,18 +205,16 @@ class Game
     if @renderer.sideAtScreenCoordinates(mouseX, mouseY) isnt null
       event.preventDefault()
 
-  ##
   # Default event handler for mouseDown events inside the main canvas.
-  #
   canvasDown: (event) =>
     switch state.type
       when 'normal'
         mouseX = event.pageX - @mainCanvas.offset().left
         mouseY = event.pageY - @mainCanvas.offset().top
         info = @renderer.resolveScreenCoordinates mouseX, mouseY
+
         # If the user mouse-downed on a block, save the location and block
         # to detect drag or selection operations.
-
         if info.block
           state.type  = 'down'
           state.downX = mouseX
@@ -245,9 +224,7 @@ class Game
 
     return on
 
-  ##
   # This method handles the process of dragging operation.
-  #
   draggingMove: (event) =>
     # Removing all dragged blocks as they may be drawn elsewhere
     # FIXME: This is only necessary if the position or state of the dragged
@@ -295,9 +272,7 @@ class Game
     else
       @showDraggedCanvas event
 
-  ##
   # Starts a drag operation using with a given event.
-  #
   startDrag: (event) ->
     [x, y, z] = state.info.coordinates
     blocks = @map.removeStack(x, y, z)
@@ -312,10 +287,8 @@ class Game
 
     @renderer.drawMap yes # Redraw the map to update the hitmap
 
-  ##
   # Starts a drag operation using a given stack of blocks.
   # Info must contain the mouse offsets relative to the block.
-  #
   startDragWithBlocks: (blocks, info) =>
       @selectBlock null
       @hideSelector()
@@ -329,15 +302,11 @@ class Game
       state.mouseOffsetY = info.mouseOffsetY
       state.type = 'dragging'
 
-  ##
   # Hides the dragged blocks.
-  #
   hideDraggedCanvas: (event) ->
     @draggedCanvas.css 'display', 'none'
 
-  ##
   # Shows the dragged blocks and moves them to the mouse posiiton.
-  #
   showDraggedCanvas: (event) ->
     style =
       'display': 'block'
@@ -346,9 +315,7 @@ class Game
       'left': event.pageX - state.mouseOffsetX
     @draggedCanvas.css style
 
-  ##
   # Ends a dragging operation.
-  #
   draggingUp: (event) =>
     state.stack = []
     @map.blocksEach (block, x, y, z) =>
@@ -364,9 +331,7 @@ class Game
     # Render the map again to make sure the hitmap is up to date
     @renderer.drawMap yes
 
-  ##
-  # Sets the 'margin-top' of the main canvas based on the highest block stack.
-  #
+  # Sets the `margin-top` of the main canvas based on the highest block stack.
   updateCanvasMargin: ->
     height = 0
     @map.blocksEach (block, x, y, z) =>
