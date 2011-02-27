@@ -8,7 +8,7 @@ class Renderer
     blockSizeQuarter: Math.floor(Math.floor(101 / 2) / 2)
     canvasHeight:     7 * 101
     canvasWidth:      7 * 101
-    textureFile:      '/img/textures.png'
+    textureFile:      'img/textures.png'
     textureBlockSize: 101
 
   constructor: (@map, @onload, @settings = {}) ->
