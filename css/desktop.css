@@ -1,0 +1,176 @@
+/* Grid
+
+/*
+  Choose a grid width, the number of columns and the margin between columns.
+  The result of the following equation has to be an integer, not a fraction:
+  
+  (width - (columns - 1) * col_margin) / columns = N
+*/
+/* total with of page */
+/* number of columns */
+/* margin between columns */
+/* math magic */
+/* create row div */
+/* create a column div */
+/* make an element span n columns */
+/* the last column in a row needs this */
+/* prepend n blank columns  */
+/* append n blank columns */
+body {
+  font-family: Georgia, serif;
+  overflow-y: scroll; }
+
+.button {
+  font-family: Lucida Grande, Helvetica, Arial, sans;
+  background: black;
+  display: inline-block;
+  padding: 5px 10px 6px;
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  text-shadow: 0 -1px 1px rgba(0, 0, 0, 0.25);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+  cursor: pointer; }
+  .button.red {
+    background: #ff3019;
+    background: -moz-linear-gradient(top, #ff3019 0%, #cf0404 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #ff3019), color-stop(100%, #cf0404));
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='$hi', endColorstr='$low',GradientType=0); }
+    .button.red:hover {
+      background: #e51700;
+      background: -moz-linear-gradient(top, #e51700 0%, #9d0303 100%);
+      background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #e51700), color-stop(100%, #9d0303));
+      filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='$hi', endColorstr='$low',GradientType=0); }
+    .button.red:active {
+      background: #cf0404;
+      background: -moz-linear-gradient(top, #cf0404 0%, #ff3019 100%);
+      background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #cf0404), color-stop(100%, #ff3019));
+      filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='$hi', endColorstr='$low',GradientType=0); }
+
+#info {
+  color: black; }
+  #info .number {
+    font-family: "Neue Helvetica", Helvetica, sans; }
+
+body {
+  font-family: Georgia, serif;
+  text-shadow: 1px 0px 0px #eeeeee; }
+
+#info a {
+  color: #ff3019;
+  position: relative; }
+  #info a:hover {
+    color: #e51700; }
+  #info a:active {
+    color: #ff3019;
+    top: 1px; }
+  #info a:visited {
+    color: #cf0404; }
+
+#wrapper {
+  width: 960px;
+  margin: 0 auto; }
+
+#header h1, #header h2 {
+  display: inline;
+  margin: 0;
+  padding: 0;
+  vertical-align: baseline; }
+#header h2 {
+  color: lightgrey;
+  font-size: small;
+  font-weight: normal; }
+
+.share.button {
+  float: right; }
+
+#main-canvas {
+  margin: -350px 136px 28px 136px;
+  -moz-transition: margin-top 0.8s ease-in-out;
+  -webkit-transition: margin-top 0.8s ease-in-out; }
+
+#game #canvas-wrapper {
+  position: relative; }
+#game .rotate {
+  display: inline-block;
+  height: 80px;
+  width: 47px;
+  position: absolute;
+  bottom: 170px; }
+  #game .rotate.left {
+    background: transparent url("/img/arrows.png") 0px 0 no-repeat;
+    left: 40px; }
+  #game .rotate.right {
+    right: 40px;
+    background: transparent url("/img/arrows.png") -53px 0 no-repeat; }
+
+#selector {
+  width: 101px; }
+  #selector .rotate {
+    display: inline-block;
+    height: 80px;
+    width: 47px;
+    position: absolute; }
+    #selector .rotate.left {
+      background: transparent url("/img/arrows.png") 0px 0 no-repeat;
+      left: -36px; }
+    #selector .rotate.right {
+      right: -36px;
+      background: transparent url("/img/arrows.png") -53px 0 no-repeat; }
+
+#palette {
+  width: 100%;
+  height: 120px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+  text-align: left; }
+  #palette img {
+    margin: 0 8px; }
+
+#info {
+  padding-top: 16px; }
+  #info .how-to-play {
+    float: left;
+    width: 276.8px;
+    margin-right: 16px; }
+  #info .whats-next {
+    margin-left: 48.8px;
+    float: left;
+    width: 276.8px;
+    margin-right: 16px; }
+  #info .about {
+    margin-left: 48.8px;
+    float: left;
+    width: 276.8px;
+    margin-right: 16px;
+    margin-right: 0; }
+
+#popup {
+  display: none;
+  width: 600px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  color: white;
+  text-shadow: 1px 1px 0px black;
+  margin-top: -135px;
+  margin-left: -300px;
+  padding: 16px;
+  -moz-border-radius: 16px;
+  -webkit-border-radius: 16px;
+  background: #ff3019;
+  background: -moz-linear-gradient(top, #ff3019 0%, #cf0404 100%);
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #ff3019), color-stop(100%, #cf0404));
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff3019', endColorstr='#cf0404',GradientType=0); }
+  #popup.visible {
+    display: block; }
+  #popup h1 {
+    margin: 0 0 16px 0;
+    font-family: Lucida Grande, Helvetica, Arial, sans; }
+  #popup input {
+    width: 100%; }

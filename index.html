@@ -1,1 +1,77 @@
-My GitHub Page
+<!DOCTYPE html>
+<html lang='en' xml:lang='en' xmlns='http://www.w3.org/1999/xhtml'>
+  <head>
+    <title>Marbleo.us</title>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type'>
+    <script src='http://code.jquery.com/jquery-1.4.4.min.js' type='text/javascript'></script>
+    <script src='/js/marbleous.js' type='text/javascript'></script>
+    <link href='/css/desktop.css' rel='stylesheet'>
+  </head>
+  <body>
+    <div id='wrapper'>
+      <div id='container'>
+        <div id='header'>
+          <h1>
+            marbleo.us
+          </h1>
+          <h2>
+            an informatiCup 2011 project
+          </h2>
+          <a class='share red button'>Share your Map!</a>
+        </div>
+        <div id='game'>
+          <div id='canvas-wrapper'>
+            <canvas id='main-canvas'></canvas>
+            <a class='rotate left' href='javascript:void(0)'></a>
+            <a class='rotate right' href='javascript:void(0)'></a>
+          </div>
+          <div id='palette'></div>
+        </div>
+        <div id='info'>
+          <div class='how-to-play'>
+            <ul>
+              <li>Drag blocks from the palette onto the map.</li>
+              <li>You can click a block to rotate it.</li>
+              <li>
+                Click
+                <a class='share inline'>Share your Map!</a>
+                to send your friends what you have built.
+              </li>
+            </ul>
+          </div>
+          <div class='about'>
+            <p>
+              Marbleo.us was build by Simon Hohberg and
+              <a href='http://twitter.com/ceterum_censeo'>Robert Böhnke</a>
+              for the Gesellschaft für Informatik informatiCup 2011
+            </p>
+          </div>
+          <div class='whats-next'>
+            <p>
+              Marbleo.us is an ongoing project and far from done. We hope that
+              soon you will be able to take a marble for a ride on your creation
+            </p>
+            <p>
+              This project was built using
+              <a href='http://coffeescript.org'>CoffeeScript</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <canvas id='dragged-canvas' style='display: none'></canvas>
+    <div id='selector' style='display: none'>
+      <a class='rotate left' href='javascript:void(0)'></a>
+      <a class='rotate right' href='javascript:void(0)'></a>
+    </div>
+    <div id='popup'>
+      <h1>Share your Map!</h1>
+      <input>
+      <p>
+        Send this URL around to let other have a look at what you’ve built.
+        Thanks for using marbleo.us!
+      </p>
+      <a class='black button' id='dismiss'>Dismiss</a>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,18 @@
+/* Grid
+
+/*
+  Choose a grid width, the number of columns and the margin between columns.
+  The result of the following equation has to be an integer, not a fraction:
+  
+  (width - (columns - 1) * col_margin) / columns = N
+*/
+/* total with of page */
+/* number of columns */
+/* margin between columns */
+/* math magic */
+/* create row div */
+/* create a column div */
+/* make an element span n columns */
+/* the last column in a row needs this */
+/* prepend n blank columns  */
+/* append n blank columns */
