@@ -11,7 +11,7 @@ class Game
     draggingCursor:  $.browser.webkit && '-webkit-grabbing' || $.browser.mozilla && '-moz-grabbing' || 'auto'
     # The user must move atleast this amount of pixels to trigger a drag
     # TODO: Consider increasing this value for touch-based devices
-    draggingOffset: 10
+    draggingOffset:  10
 
   # Creates a new game using the given settings, then calls the onload
   # callback.
@@ -61,30 +61,22 @@ class Game
         @selectBlock null
         @hideSelector()
 
-      @selector.children('.left').bind 'mousedown', (event) =>
-        [x, y, z] = state.info.coordinates
-        block      = @map.getBlock x, y, z
-        blockOnTop = @map.getBlock x, y, z + 1 if z + 1 < @map.size
+      selectorRotate = (clockwise) =>
+        (event) =>
+          [x, y, z] = state.info.coordinates
+          block      = @map.getBlock x, y, z
+          blockOnTop = @map.getBlock x, y, z + 1 if z + 1 < @map.size
 
-        # Do not rotate the lowest layer of the block
-        block.rotate      no, yes, yes,  no
-        blockOnTop.rotate no,  no,  no, yes if blockOnTop
+          # Do not rotate the lowest layer of the block
+          block.rotate      clockwise, yes, yes,  no
+          blockOnTop.rotate clockwise,  no,  no, yes if blockOnTop
 
-        @map.setNeedsRedraw yes
-        event.preventDefault()
-        return off
+          @map.setNeedsRedraw yes
+          event.preventDefault()
+          return off
 
-      @selector.children('.right').bind 'mousedown', (event) =>
-        [x, y, z] = state.info.coordinates
-        block      = @map.getBlock x, y, z
-        blockOnTop = @map.getBlock x, y, z + 1 if z + 1 < @map.size
-
-        block.rotate      yes, yes, yes,  no
-        blockOnTop.rotate yes,  no,  no, yes if blockOnTop
-
-        @map.setNeedsRedraw yes
-        event.preventDefault()
-        return off
+      @selector.children('.left').bind  'mousedown', selectorRotate  no
+      @selector.children('.right').bind 'mousedown', selectorRotate yes
 
       renderingLoop = =>
         @renderer.drawMap()

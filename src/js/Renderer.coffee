@@ -92,14 +92,14 @@ class Renderer
     pixel = @hittestContext.getImageData x, y, 1, 1
     if pixel.data[0] > 0
       return 'south'
-    else if pixel.data[1] > 0
+    if pixel.data[1] > 0
       return 'east'
-    else if pixel.data[2] > 0
+    if pixel.data[2] > 0
       return 'top'
-    else if pixel.data[3] > 0
+    if pixel.data[3] > 0
       return 'floor'
-    else
-      return null
+
+    return null
 
   # Returns information about the map contents at the given screen
   # coordinates.
