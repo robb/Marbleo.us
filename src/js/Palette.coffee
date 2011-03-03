@@ -9,9 +9,7 @@ class Palette
     draggingCursor:    null
 
   constructor: (@renderer, settings = {}) ->
-    @settings = {}
-    for key, value of Palette.defaultSettings
-      @settings[key] = settings[key] || Palette.defaultSettings[key]
+    $.extend @settings = {}, Palette.defaultSettings, settings
     $palette = $(@settings.paletteID)
 
     # Each predifined block gets rendered into a seperate image tag.

@@ -15,10 +15,8 @@ class Game
 
   # Creates a new game using the given settings, then calls the onload
   # callback.
-  constructor: (settings, onload) ->
-    @settings = {}
-    for key, value of Game.defaultSettings
-      @settings[key] = settings[key] || Game.defaultSettings[key]
+  constructor: (settings = {}, onload) ->
+    $.extend @settings = {}, Game.defaultSettings, settings
 
     @map = new Map @settings.mapSize
 

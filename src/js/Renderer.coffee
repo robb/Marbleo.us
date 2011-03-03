@@ -12,8 +12,7 @@ class Renderer
     textureBlockSize: 101
 
   constructor: (@map, @onload, @settings = {}) ->
-    for key, value of Renderer.defaultSettings
-      @settings[key] = @settings[key] || Renderer.defaultSettings[key]
+    $.extend @settings = {}, Renderer.defaultSettings, settings
 
     @canvas = $(@settings.mainCanvasID)
     @canvas.attr  'width', @settings.canvasWidth
