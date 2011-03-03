@@ -139,8 +139,6 @@ class Game
     switch state.type
       when 'dragging'
         @draggingMove event
-      else
-        $('body').css 'cursor', @settings.defaultCursor
 
   # Default mouseUp event handler for events outside the main canvas.
   bodyUp: (event) =>
@@ -242,6 +240,8 @@ class Game
     [x, y, z]   = info.coordinates || [0, 0, 0] #XXX
     targetBlock = @map.getBlock x, y, z
     lowestBlock = state.stack && state.stack[0]
+
+    $('body').css 'cursor', @settings.draggingCursor
 
     # If the user moved the blocks onto the floor on the top of another block,
     # stack them there.
