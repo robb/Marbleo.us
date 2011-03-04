@@ -18,8 +18,8 @@ class Palette
       block.setOpacity 0.4
 
       canvas = document.createElement 'canvas'
-      canvas.width  = @renderer.settings.blockSize
-      canvas.height = @renderer.settings.blockSize
+      canvas.width  = @renderer.settings.textureSize
+      canvas.height = @renderer.settings.textureSize
       context = canvas.getContext '2d'
 
       @renderer.drawBlock context, block

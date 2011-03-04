@@ -271,7 +271,7 @@ class Game
 
     info =
       mouseOffsetX: state.downX - canvasX
-      mouseOffsetY: state.downY - canvasY - @renderer.settings.blockSizeHalf
+      mouseOffsetY: state.downY - canvasY - @renderer.settings.textureSizeHalf
 
     @startDragWithBlocks blocks, info
 
@@ -328,7 +328,7 @@ class Game
       return if block is null or block.dragged
       height = z if z > height
     @mainCanvas.css
-      'margin-top': -50 + (-5 + height) * @renderer.settings.blockSizeHalf
+      'margin-top': -50 + (-5 + height) * @renderer.settings.textureSizeHalf
 
   normalizeCoordinates: (handler) ->
     return (event) ->
