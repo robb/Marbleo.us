@@ -74,3 +74,25 @@ test 'Stack operation: removeStack', ->
 
   mapA.setStack blocks, 2, 2
   deepEqual mapB, mapA, "original map should be restored"
+
+test 'Block coordinates comply with map coordinates', ->
+  size = 5
+  map = new Map size
+
+  map.setBlock Block.ofType('blank'), 0, 0, 0
+  map.setBlock Block.ofType('blank'), 0, 0, 1
+  map.setBlock Block.ofType('blank'), 0, 0, 2
+
+  for x in [0...size]
+    for y in [0...size]
+      for z in [0...size]
+        continue unless block = map.getBlock x, y, z
+        deepEqual [x, y, z], block.getCoordinates()
+
+  map.rotateCW()
+
+  for x in [0...size]
+    for y in [0...size]
+      for z in [0...size]
+        continue unless block = map.getBlock x, y, z
+        deepEqual [x, y, z], block.getCoordinates()

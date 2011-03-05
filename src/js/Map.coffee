@@ -26,6 +26,8 @@ class Map extends EventEmitter
   # Sets the block at the given coordinates to the given block.
   setBlock: (block, x, y, z, silent = no) ->
     @validateCoordinates x, y, z
+    block.setCoordinates x, y, z if block
+
     [x, y] = @applyRotation x, y if @rotation
     position = x + y * @size + z * @size * @size
 
@@ -46,9 +48,10 @@ class Map extends EventEmitter
     block = @getBlock x, y, z
     @setBlock null, x, y, z, yes
 
-    @emit 'change' unless silent
-
     block?.removeListener 'change', @blockDidChangeListener
+    block?.setCoordinates null, null, null
+
+    @emit 'change' unless silent
 
     return block
 
@@ -98,7 +101,8 @@ class Map extends EventEmitter
   # TODO: Currently only checks for floating blocks. Validate block stacks
   #       regarding matching low and top properties.
   validate: ->
-    @blocksEach (block, x, y, z) =>
+    @blocksEach (block) =>
+      [x, y, z] = block.getCoordinates()
       if block and z > 0 and not @getBlock x, y, z - 1
         throw new Error "Encountered floating block at #{x}:#{y}:#{z}"
 
@@ -118,7 +122,7 @@ class Map extends EventEmitter
       else
         return [x, y]
 
-  # Iterates over all positions of the map, applies the given function.
+  # Iterates over all block on the map, applies the given function.
   blocksEach: (functionToApply) ->
     x = @size - 1
     while x + 1
@@ -126,7 +130,19 @@ class Map extends EventEmitter
       while y < @size
         z = 0
         while z < @size
-          functionToApply @getBlock(x, y, z), x, y, z
+          functionToApply block if block = @getBlock(x, y, z)
+          z++
+        y++
+      x--
+
+  coordinatesEach: (functionToApply) ->
+    x = @size - 1
+    while x + 1
+      y = 0
+      while y < @size
+        z = 0
+        while z < @size
+          functionToApply(x, y, z)
           z++
         y++
       x--
@@ -144,6 +160,19 @@ class Map extends EventEmitter
       @rotation = (@rotation + 270) % 360
 
     for block in @grid
-      block.rotate clockwise if block
+      if block
+        block.rotate clockwise, yes, yes, yes, yes
+        [x, y, z] = block.getCoordinates()
+        if clockwise
+          [x, y] = [            y, @size - 1 - x]
+        else
+          [x, y] = [@size - 1 - y,             x]
+        block.setCoordinates x, y, z
 
     @emit 'change' unless silent
+
+  getPath: ->
+    if @needsRedraw or not @path?
+      @path = Path.forMap @
+    else
+      @path

@@ -1,16 +1,8 @@
 ##
 # This class manages a palette of blocks to be placed on the map.
 class Palette
-  @defaultSettings:
-    paletteID:         '#palette'
-    startDragCallback: (block) ->
-    defaultCursor:     null
-    dragCursor:        null
-    draggingCursor:    null
-
-  constructor: (@renderer, settings = {}) ->
-    $.extend @settings = {}, Palette.defaultSettings, settings
-    $palette = $(@settings.paletteID)
+  constructor: (@renderer, @startDragCallback = ->) ->
+    $palette = $(Settings.paletteID)
 
     # Each predifined block gets rendered into a seperate image tag.
     for type, description of Block.Types
@@ -18,8 +10,8 @@ class Palette
       block.setOpacity 0.4
 
       canvas = document.createElement 'canvas'
-      canvas.width  = @renderer.settings.textureSize
-      canvas.height = @renderer.settings.textureSize
+      canvas.width  = Settings.textureSize
+      canvas.height = Settings.textureSize
       context = canvas.getContext '2d'
 
       @renderer.drawBlock context, block
@@ -32,7 +24,7 @@ class Palette
 
       # Set up the event handlers
 
-      callback = @settings.startDragCallback
+      callback = @startDragCallback
       $image.bind 'mousedown', (event) ->
         info =
           mouseOffsetX: event.pageX - $(this).offset().left
@@ -61,8 +53,8 @@ class Palette
           y = event.pageY - $(this).offset().top
           pixel = renderer.getTexture('basic','hitbox').getContext('2d').getImageData x, y, 1, 1
           if pixel.data[3] > 0
-            $('body').css 'cursor', ($.browser.webkit && '-webkit-grab' || $.browser.mozilla && '-moz-grab' || 'auto')
+            $('body').css 'cursor', Settings.dragCursor
           else
-            $('body').css 'cursor', 'auto'
+            $('body').css 'cursor', Settings.defaultCursor
 
           return off

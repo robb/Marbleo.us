@@ -1,34 +1,25 @@
 # This class handles the game logic, it defines the event handlers and
 # controls the rendering process.
 class Game
-  @defaultSettings:
-    mapSize:         7
-    mainCanvasID:    '#main-canvas'
-    draggedCanvasID: '#dragged-canvas'
-    selectorID:      '#selector'
-    defaultCursor:   'auto'
-    dragCursor:      $.browser.webkit && '-webkit-grab' || $.browser.mozilla && '-moz-grab' || 'auto'
-    draggingCursor:  $.browser.webkit && '-webkit-grabbing' || $.browser.mozilla && '-moz-grabbing' || 'auto'
-    # The user must move atleast this amount of pixels to trigger a drag
-    # TODO: Consider increasing this value for touch-based devices
-    draggingOffset:  10
-
   # Creates a new game using the given settings, then calls the onload
   # callback.
-  constructor: (settings = {}, onload) ->
-    $.extend @settings = {}, Game.defaultSettings, settings
-
-    @map = new Map @settings.mapSize
+  constructor: (onload) ->
+    @map = new Map Settings.mapSize
 
     window.state ?= {}
     state.type = 'normal'
 
-    @mainCanvas    = $(@settings.mainCanvasID)
-    @draggedCanvas = $(@settings.draggedCanvasID)
-    @selector      = $(@settings.selectorID)
+    @marbleRunning = no
+
+    @mainCanvas    = $(Settings.mainCanvasID)
+    @draggedCanvas = $(Settings.draggedCanvasID)
+    @selector      = $(Settings.selectorID)
+
+    @marble   = new Marble
+    @animator = new Animator @map, @marble
 
     # Set up the renderer
-    @renderer = new Renderer @map, =>
+    @renderer = new Renderer @map, @marble, =>
       # Set up event handlers
       @mainCanvas.bind    'mouseup',   @canvasUp
       @mainCanvas.bind  'mousemove', @canvasMove
@@ -48,16 +39,36 @@ class Game
       $body.bind  'touchmove', @normalizeCoordinates(@bodyMove)
       $body.bind   'touchend', @normalizeCoordinates(  @bodyUp)
 
-      # Bind event handlers to the rotation arrows
-      $('#game .left').bind 'mousedown', (event) =>
-        @map.rotateCCW()
-        @selectBlock null
-        @hideSelector()
+      rotateEverything = (clockwise) =>
+        (event) =>
+          if clockwise then @map.rotateCW() else @map.rotateCCW()
+          @selectBlock null
+          @hideSelector()
 
-      $('#game .right').bind 'mousedown', (event) =>
-        @map.rotateCW()
-        @selectBlock null
-        @hideSelector()
+          rotateCoordinates = (x, y, z) ->
+            if clockwise
+              [y, (Settings.blockSize - 1) * Settings.mapSize - x, z]
+            else
+              [(Settings.blockSize - 1) * Settings.mapSize - y, x, z]
+
+          [x, y, z] = @marble.getCoordinates()
+          @marble.setCoordinates rotateCoordinates(x, y, z)...
+
+          [vX, vY, vZ] = @marble.getVelocities()
+          if clockwise
+            @marble.setVelocities vY, -vX, vZ
+          else
+            @marble.setVelocities -vY, vX, vZ
+
+          if @marble.targetNode
+            targetCoordinates  = rotateCoordinates @marble.targetNode.getCoordinates()...
+            @marble.targetNode = @map.getPath().nodeAt targetCoordinates...
+            lastCoordinates    = rotateCoordinates @marble.lastNode.getCoordinates()...
+            @marble.lastNode   = @map.getPath().nodeAt lastCoordinates...
+
+      # Bind event handlers to the rotation arrows
+      $('#game .left').bind 'mousedown', rotateEverything(false)
+      $('#game .right').bind 'mousedown', rotateEverything(true)
 
       selectorRotate = (clockwise) =>
         (event) =>
@@ -75,15 +86,21 @@ class Game
       @selector.children('.left').bind  'mousedown', selectorRotate  no
       @selector.children('.right').bind 'mousedown', selectorRotate yes
 
+      $('.run').bind 'click', @prepareRun
+
       listener = =>
         @renderer.drawMap()
 
       @map.addListener 'change', listener
+      @animator.addListener 'marble:moved', listener
 
-      # Create palette
-      paletteSettings =
-        startDragCallback: @startDragWithBlocks
-      @palette = new Palette @renderer, paletteSettings
+      animatorLoop = =>
+        @animator.animate()
+        setTimeout animatorLoop, 20
+
+      setTimeout animatorLoop, 20
+
+      @palette = new Palette @renderer, @startDragWithBlocks
 
       onload()
 
@@ -170,10 +187,10 @@ class Game
     mouseY = event.pageY - @mainCanvas.offset().top
     switch state.type
       when 'down'
-        # If the user moves more than `@settings.draggingOffset` pixels
+        # If the user moves more than `Settings.draggingOffset` pixels
         # from where the put the mouse down, start a drag operation
-        if Math.abs(state.downX - mouseX) > @settings.draggingOffset or
-           Math.abs(state.downY - mouseY) > @settings.draggingOffset
+        if Math.abs(state.downX - mouseX) > Settings.draggingOffset or
+           Math.abs(state.downY - mouseY) > Settings.draggingOffset
           @startDrag event
       when 'dragging'
         # This catches events if the dragged blocks are rendered in the main
@@ -185,9 +202,9 @@ class Game
           # Set cursor dependent on contents at mouse position.
           side = @renderer.sideAtScreenCoordinates(mouseX, mouseY)
           if side and side isnt 'floor'
-            $('body').css 'cursor', @settings.dragCursor
+            @mainCanvas.css 'cursor', Settings.dragCursor
           else
-            $('body').css 'cursor', @settings.defaultCursor
+            @mainCanvas.css 'cursor', Settings.defaultCursor
 
     if @renderer.sideAtScreenCoordinates(mouseX, mouseY) isnt null
       event.preventDefault()
@@ -216,10 +233,8 @@ class Game
     # Removing all dragged blocks as they may be drawn elsewhere
     # FIXME: This is only necessary if the position or state of the dragged
     #        blocks actually changed
-    @map.blocksEach (block, x, y, z) =>
-      changed = no
-      if block && block.dragged
-        changed = yes if @map.removeBlock x, y, z, yes
+    @map.blocksEach (block) =>
+      @map.removeBlock block.getCoordinates()..., yes if block.dragged
 
     mouseX = event.pageX - @mainCanvas.offset().left
     mouseY = event.pageY - @mainCanvas.offset().top
@@ -229,7 +244,7 @@ class Game
     targetBlock = @map.getBlock x, y, z
     lowestBlock = state.stack && state.stack[0]
 
-    $('body').css 'cursor', @settings.draggingCursor
+    $('body').css 'cursor', Settings.draggingCursor
 
     # If the user moved the blocks onto the floor or onto the top of another block,
     # stack them there.
@@ -269,7 +284,7 @@ class Game
 
     info =
       mouseOffsetX: state.downX - canvasX
-      mouseOffsetY: state.downY - canvasY - @renderer.settings.textureSizeHalf
+      mouseOffsetY: state.downY - canvasY - Settings.textureSizeHalf
 
     @startDragWithBlocks blocks, info
 
@@ -304,13 +319,13 @@ class Game
   # Ends a dragging operation.
   draggingUp: (event) =>
     state.stack = []
-    @map.blocksEach (block, x, y, z) =>
-      if block && block.dragged
-        block.setDragged no, yes
+
+    @map.blocksEach (block) =>
+      block.setDragged no if block.dragged
     @map.forceUpdate()
 
     state.type = 'normal'
-    $('body').css 'cursor', @settings.defaultCursor
+    $('body').css 'cursor', Settings.defaultCursor
 
     @hideDraggedCanvas event
     @updateCanvasMargin()
@@ -318,11 +333,13 @@ class Game
   # Sets the `margin-top` of the main canvas based on the highest block stack.
   updateCanvasMargin: ->
     height = 0
-    @map.blocksEach (block, x, y, z) =>
-      return if block is null or block.dragged
+    @map.blocksEach (block) =>
+      return if block.dragged
+
+      [x, y, z] = block.getCoordinates()
       height = z if z > height
     @mainCanvas.css
-      'margin-top': -50 + (-5 + height) * @renderer.settings.textureSizeHalf
+      'margin-top': -50 + (-5 + height) * Settings.textureSizeHalf
 
   normalizeCoordinates: (handler) ->
     return (event) ->
@@ -330,3 +347,36 @@ class Game
         event.pageX = event.originalEvent.touches[0].pageX
         event.pageY = event.originalEvent.touches[0].pageY
       return handler(event)
+
+  prepareRun: (event) =>
+    $('.inserter').remove()
+
+    @map.blocksEach (block) =>
+      [topType, topRotation] = block.getProperty 'top'
+      return if topType isnt 'crossing-hole'
+
+      [x, y, z] = block.getCoordinates()
+
+      #return if @map.getBlock x, y, z + 1
+
+      [screenX, screenY] = @renderer.renderingCoordinatesForBlock block.getCoordinates()...
+
+      $inserter = $('<div class="inserter">Drop Marble here!</div>')
+      $inserter.css
+        top:  @mainCanvas.offset().top  + screenY
+        left: @mainCanvas.offset().left + screenX
+
+      $inserter.bind 'click', =>
+        x *= (Settings.blockSize - 1)
+        y *= (Settings.blockSize - 1)
+        z *= (Settings.blockSize - 1)
+        x += (Settings.blockSize) / 2
+        y += (Settings.blockSize) / 2
+        z += Settings.blockSize * 3
+
+        @marble.setVelocities  0, 0, 0
+        @marble.setCoordinates x, y, z
+        @marble.isOnTrack = no
+        $('.inserter').remove()
+
+      $('body').append $inserter

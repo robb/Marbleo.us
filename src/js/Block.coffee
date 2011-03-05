@@ -50,6 +50,15 @@ class Block extends EventEmitter
     @validate()
     @setMaxListeners 1
 
+  setCoordinates: (x, y, z) ->
+    throw new Error "Illegal coordinates #{x}:#{y}:#{z}" if x < 0 or
+                                                            y < 0 or
+                                                            z < 0
+
+    @coordinates = [x, y, z]
+
+  getCoordinates: -> @coordinates
+
   # Validates the internal consistency of a block, as layers of certain types
   # may not be combined in one block, e.g. a block that has a `top` type of
   # `crossing-hole` cannot have a layer type that is not `drop-low` or
@@ -197,6 +206,10 @@ class Block extends EventEmitter
   @Types:
     'blank':
       {}
+    'single-straight':
+      'top':    ['straight', 0]
+    'single-curve':
+      'top':    ['curve',    270]
     'double-straight':
       'top':    ['straight', 0]
       'middle': ['straight', 0]

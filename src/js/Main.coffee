@@ -1,5 +1,5 @@
 $(document).ready ->
-  @game = new Game {}, =>
+  @game = new Game =>
     # If there is a something in the fragment, decode and put it into the
     # game map
     if window.location.hash.length > 1

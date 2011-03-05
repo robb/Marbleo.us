@@ -1,3 +1,9 @@
+@mixin gradient($a, $b)
+  background: $a
+  background: -moz-linear-gradient(top, $a 0%, $b 100%)
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,$a), color-stop(100%,$b))
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='$a', endColorstr='$b',GradientType=0)
+
 body
   font-family: Georgia, serif
   overflow-y: scroll
@@ -22,32 +28,35 @@ body
 
   cursor: pointer
 
+  &:active
+    position: relative
+    top: 1px
+    -moz-box-shadow:    0 0px 1px rgba(0,0,0,0.5)
+    -webkit-box-shadow: 0 0px 1px rgba(0,0,0,0.5)
+
   &.red
     $hi:  #ff3019
     $low: #cf0404
 
-    background: $hi
-    background: -moz-linear-gradient(top, $hi 0%, $low 100%)
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,$hi), color-stop(100%,$low))
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='$hi', endColorstr='$low',GradientType=0)
+    @include gradient($hi, $low)
 
     &:hover
-      $hi:  darken($hi, 10%)
-      $low: darken($low, 10%)
-
-      background: $hi
-      background: -moz-linear-gradient(top, $hi 0%, $low 100%)
-      background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,$hi), color-stop(100%,$low))
-      filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='$hi', endColorstr='$low',GradientType=0)
+      @include gradient(darken($hi, 10%), darken($low, 10%))
 
     &:active
-      $hi:  #cf0404
-      $low: #ff3019
+      @include gradient($low, $hi)
 
-      background: $hi
-      background: -moz-linear-gradient(top, $hi 0%, $low 100%)
-      background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,$hi), color-stop(100%,$low))
-      filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='$hi', endColorstr='$low',GradientType=0)
+  &.green
+    $hi:  #19ff30
+    $low: #04cf04
+
+    @include gradient($hi, $low)
+
+    &:hover
+      @include gradient(darken($hi, 10%), darken($low, 10%))
+
+    &:active
+      @include gradient($low, $hi)
 
 #info
   color: black
