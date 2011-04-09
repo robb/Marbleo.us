@@ -1,7 +1,7 @@
 # This class models a map.
 #
 # A map in the context of marbleo.us is a three-dimensional grid of blocks.
-class Map
+class Map extends EventEmitter
   constructor: (size) ->
     throw new Error "Size must be between 1 and 255" unless 1 < size < 255
     ### @constant ###
@@ -14,14 +14,26 @@ class Map
       @grid[x] = null
 
     @rotation = 0
-    @setNeedsRedraw yes
+
+    @emit 'change'
+
+  forceUpdate: ->
+    @emit 'change'
+
+  blockDidChangeListener: =>
+    @emit 'change'
 
   # Sets the block at the given coordinates to the given block.
-  setBlock: (block, x, y, z) ->
+  setBlock: (block, x, y, z, silent = no) ->
     @validateCoordinates x, y, z
     [x, y] = @applyRotation x, y if @rotation
-    @grid[x + y * @size + z * @size * @size] = block
-    @setNeedsRedraw yes
+    position = x + y * @size + z * @size * @size
+
+    @grid[position]?.removeListener 'change', @blockDidChangeListener
+    @grid[position] = block
+    @grid[position]?.addListener 'change', @blockDidChangeListener
+
+    @emit 'change' unless silent
 
   # Returns the block at the given coordinates.
   getBlock: (x, y, z) ->
@@ -30,9 +42,14 @@ class Map
     return @grid[x + y * @size + z * @size * @size]
 
   # Returns the block at the given coordinates and removes it from the map.
-  removeBlock: (x, y, z) ->
+  removeBlock: (x, y, z, silent = no) ->
     block = @getBlock x, y, z
-    @setBlock null, x, y, z
+    @setBlock null, x, y, z, yes
+
+    @emit 'change' unless silent
+
+    block?.removeListener 'change', @blockDidChangeListener
+
     return block
 
   # Returns the height of the block stack at the given coordinates.
@@ -56,19 +73,25 @@ class Map
     return blocks
 
   # Blaces a stack of blocks at the given coordinates
-  setStack: (blocks, x, y, z = 0) ->
+  setStack: (blocks, x, y, z = 0, silent = no) ->
     @validateCoordinates x, y, z
     unless blocks.length - 1 + z < @size
       throw new Error "Cannot place stack, height out of bounds"
 
     for block in blocks
-      @setBlock block, x, y, z++
+      @setBlock block, x, y, z++, yes
+
+    @emit 'change' unless silent
 
   # Returns the stack at the given coordinates and removes it from the map.
-  removeStack: (x, y, z = 0) ->
+  removeStack: (x, y, z = 0, silent = no) ->
     stack = @getStack x, y, z
+
     for currentZ in [z...z + stack.length]
-      @setBlock null, x, y, currentZ
+      @setBlock null, x, y, z++, yes
+
+    @emit 'change' unless silent
+
     return stack
 
   # Validates the map.
@@ -95,9 +118,6 @@ class Map
       else
         return [x, y]
 
-  # Sets the needs redraw state of the block.
-  setNeedsRedraw: (@needsRedraw) ->
-
   # Iterates over all positions of the map, applies the given function.
   blocksEach: (functionToApply) ->
     x = @size - 1
@@ -112,12 +132,12 @@ class Map
       x--
 
   # Rotates the map 90 degrees clockwise
-  rotateCW:  -> @rotate  true
+  rotateCW: -> @rotate true
 
   # Rotates the map 90 degrees counter-clockwise
   rotateCCW: -> @rotate false
 
-  rotate: (clockwise) ->
+  rotate: (clockwise, silent = no) ->
     if clockwise
       @rotation = (@rotation +  90) % 360
     else
@@ -125,4 +145,5 @@ class Map
 
     for block in @grid
       block.rotate clockwise if block
-    @setNeedsRedraw yes
+
+    @emit 'change' unless silent

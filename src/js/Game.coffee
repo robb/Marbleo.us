@@ -69,23 +69,23 @@ class Game
           block.rotate      clockwise, yes, yes,  no
           blockOnTop.rotate clockwise,  no,  no, yes if blockOnTop
 
-          @map.setNeedsRedraw yes
           event.preventDefault()
           return off
 
       @selector.children('.left').bind  'mousedown', selectorRotate  no
       @selector.children('.right').bind 'mousedown', selectorRotate yes
 
-      renderingLoop = =>
+      listener = =>
         @renderer.drawMap()
-      setInterval renderingLoop, 20
+
+      @map.addListener 'change', listener
 
       # Create palette
       paletteSettings =
         startDragCallback: @startDragWithBlocks
       @palette = new Palette @renderer, paletteSettings
 
-      return onload()
+      onload()
 
   # Selects a given block.
   # The selected block will be rendered semi-transparently.
@@ -93,7 +93,6 @@ class Game
     @selectedBlock.setSelected no  if @selectedBlock
     @selectedBlock = block 
     @selectedBlock.setSelected yes if @selectedBlock
-    @map.setNeedsRedraw yes
 
   # Display the selector overlay at the given screen coordinates.
   # It provides means to rotate the currently selected block.
@@ -220,8 +219,7 @@ class Game
     @map.blocksEach (block, x, y, z) =>
       changed = no
       if block && block.dragged
-        changed = yes if @map.removeBlock x, y, z
-      @map.setNeedsRedraw yes if changed
+        changed = yes if @map.removeBlock x, y, z, yes
 
     mouseX = event.pageX - @mainCanvas.offset().left
     mouseY = event.pageY - @mainCanvas.offset().top
@@ -233,7 +231,7 @@ class Game
 
     $('body').css 'cursor', @settings.draggingCursor
 
-    # If the user moved the blocks onto the floor on the top of another block,
+    # If the user moved the blocks onto the floor or onto the top of another block,
     # stack them there.
     if info.side is 'floor' or
        info.side is 'top'   and
@@ -241,26 +239,26 @@ class Game
        Block.canStack targetBlock, lowestBlock
       @hideDraggedCanvas event
 
+      if lowestBlock
+        if info.side is 'top'
+          # Set the low type and rotation of the lowest block to whatever the
+          # target block has on top
+          [type, rotation] = targetBlock.getProperty 'top'
+
+          type = (type is 'crossing-hole') && 'crossing' || type
+
+          lowestBlock.setProperty 'low', type, rotation, yes
+        else
+          # Set the low type of the to nothing
+          lowestBlock.setProperty 'low', null, 0, yes
+
       offset = if info.side is 'top' then 1 else 0
       @map.setStack state.stack, x, y, z + offset
-
-      if info.side is 'top'
-        # Set the low type and rotation of the lowest block to whatever the
-        # target block has on top
-        [type, rotation] = targetBlock.getProperty 'top'
-
-        type = (type is 'crossing-hole') && 'crossing' || type
-
-        lowestBlock.setProperty 'low', type, rotation
-      else
-        # Set the low type of the to nothing
-        lowestBlock.setProperty 'low', null, 0
-
-      @map.setNeedsRedraw yes
 
     # otherwise, display the dragged canvas and move it to the mouse position
     else
       @showDraggedCanvas event
+      @map.forceUpdate()
 
   # Starts a drag operation using with a given event.
   startDrag: (event) ->
@@ -274,8 +272,6 @@ class Game
       mouseOffsetY: state.downY - canvasY - @renderer.settings.textureSizeHalf
 
     @startDragWithBlocks blocks, info
-
-    @renderer.drawMap yes # Redraw the map to update the hitmap
 
   # Starts a drag operation using a given stack of blocks.
   # Info must contain the mouse offsets relative to the block.
@@ -310,16 +306,14 @@ class Game
     state.stack = []
     @map.blocksEach (block, x, y, z) =>
       if block && block.dragged
-        block.setDragged no
+        block.setDragged no, yes
+    @map.forceUpdate()
 
     state.type = 'normal'
     $('body').css 'cursor', @settings.defaultCursor
 
     @hideDraggedCanvas event
     @updateCanvasMargin()
-
-    # Render the map again to make sure the hitmap is up to date
-    @renderer.drawMap yes
 
   # Sets the `margin-top` of the main canvas based on the highest block stack.
   updateCanvasMargin: ->

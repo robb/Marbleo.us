@@ -4,7 +4,7 @@
 # Each layer consists of a layer and a rotation that describe it, all three
 # layers together describe the block.
 #
-class Block
+class Block extends EventEmitter
   # Determines wether a given block can be stacked on top of another one.
   @canStack: (bottom, top) ->
     [midType, midRotation] = top.getProperty 'middle'
@@ -48,6 +48,7 @@ class Block
       @properties[key] = description[key] || value
 
     @validate()
+    @setMaxListeners 1
 
   # Validates the internal consistency of a block, as layers of certain types
   # may not be combined in one block, e.g. a block that has a `top` type of
@@ -78,12 +79,15 @@ class Block
       throw new Error "Middle type #{midType} is incompatible with low type #{lowType}"
 
   # Sets the rendering opactiy of the block.
-  setOpacity: (opacity) ->
+  setOpacity: (opacity, silent = no) ->
     throw new Error "Illegal value for opacity" unless 0 <= opacity <= 1.0
     @opacity = opacity
 
+    @emit 'change' unless silent
+
   # Sets the selected state of the block.
-  setSelected: (@selected) ->
+  setSelected: (@selected, silent = no) ->
+    @emit 'change' unless silent
 
   # Sets the dragged state of the block.
   setDragged: (@dragged) ->
@@ -97,7 +101,7 @@ class Block
     return @properties[property] # [type, rotation]
 
   # Sets a property to the given type and value.
-  setProperty: (property, type, rotation) ->
+  setProperty: (property, type, rotation, silent = no) ->
     [oldType, oldRotation] = @getProperty property
 
     newProperties = {}
@@ -105,11 +109,13 @@ class Block
     if rotation is null then rotation = oldRotation
 
     newProperties[property] = [type, rotation]
-    @setProperties newProperties
+    @setProperties newProperties, no
+
+    @emit 'change' unless silent
 
   # Sets multiple properties of the block at once.
   # See the constructor for the requirements to the properties object.
-  setProperties: (properties) ->
+  setProperties: (properties, silent) ->
     newProperties = {}
     for key, value of @properties
       newProperties[key] = properties[key] || value
@@ -119,6 +125,8 @@ class Block
 
     for key, value of @properties
       @properties[key] = properties[key] || value
+
+    @emit 'change' unless silent
 
   # Rotates the block 90 degrees clockwise
   rotateCW:  -> @rotate  true
@@ -130,7 +138,7 @@ class Block
   #
   # By default, the block will be rotated fully, however, additional parameters
   # may constrain the rotation to any combination of layers.
-  rotate: (clockwise, top = yes, middle = yes, low = yes) ->
+  rotate: (clockwise, top = yes, middle = yes, low = yes, silent = no) ->
     [topType, topRotation] = @properties['top']
     [midType, midRotation] = @properties['middle']
     [lowType, lowRotation] = @properties['low']
@@ -148,6 +156,8 @@ class Block
         'middle': [midType, (midRotation + 270) % 360] if middle
         'low':    [lowType, (lowRotation + 270) % 360] if low
       }
+
+    @emit 'change' unless silent
 
   # Generates a string that uniquely defines the block.
   # May be used as a key for efficient caching of rendered blocks.

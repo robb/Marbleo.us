@@ -159,7 +159,8 @@ class Renderer
   # If force is set to `yes`, the map will be drawn even if no drawing is
   # required based on `needsRedraw`
   drawMap: (force = no) ->
-    return if (@isDrawing or not @map.needsRedraw) and not force
+    if @isDrawing is yes and force is no
+      return
     console.time "draw" if DEBUG
     @isDrawing = yes
 
@@ -182,7 +183,6 @@ class Renderer
       @context.drawImage @hittestCanvas, 0, 0, @settings.canvasWidth, @settings.canvasHeight
       @context.globalAlpha = 1.0
 
-    @map.setNeedsRedraw no
     @isDrawing = no
     console.timeEnd "draw" if DEBUG
 
