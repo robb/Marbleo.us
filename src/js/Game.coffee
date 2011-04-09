@@ -41,30 +41,13 @@ class Game
 
       rotateEverything = (clockwise) =>
         (event) =>
-          if clockwise then @map.rotateCW() else @map.rotateCCW()
           @selectBlock null
           @hideSelector()
-
-          rotateCoordinates = (x, y, z) ->
-            if clockwise
-              [y, (Settings.blockSize - 1) * Settings.mapSize - x, z]
-            else
-              [(Settings.blockSize - 1) * Settings.mapSize - y, x, z]
-
-          [x, y, z] = @marble.getCoordinates()
-          @marble.setCoordinates rotateCoordinates(x, y, z)...
-
-          [vX, vY, vZ] = @marble.getVelocities()
+          
           if clockwise
-            @marble.setVelocities vY, -vX, vZ
+            @map.rotateCW()
           else
-            @marble.setVelocities -vY, vX, vZ
-
-          if @marble.targetNode
-            targetCoordinates  = rotateCoordinates @marble.targetNode.getCoordinates()...
-            @marble.targetNode = @map.getPath().nodeAt targetCoordinates...
-            lastCoordinates    = rotateCoordinates @marble.lastNode.getCoordinates()...
-            @marble.lastNode   = @map.getPath().nodeAt lastCoordinates...
+            @map.rotateCCW()
 
       # Bind event handlers to the rotation arrows
       $('#game .left').bind 'mousedown', rotateEverything(false)
@@ -92,6 +75,8 @@ class Game
         @renderer.drawMap()
 
       @map.addListener 'didChange', listener
+      @map.addListener 'didRotate', listener
+
       @animator.addListener 'marble:moved', listener
 
       animatorLoop = =>

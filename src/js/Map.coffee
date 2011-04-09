@@ -169,10 +169,4 @@ class Map extends EventEmitter
           [x, y] = [@size - 1 - y,             x]
         block.setCoordinates x, y, z
 
-
-  getPath: ->
-    if @needsRedraw or not @path?
-      @path = Path.forMap @
-    else
-      @path
-    @emit 'didChange' unless silent
+    @emit 'didRotate', clockwise unless silent

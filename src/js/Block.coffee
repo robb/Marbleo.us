@@ -157,14 +157,14 @@ class Block extends EventEmitter
         'top':    [topType, (topRotation +  90) % 360] if top
         'middle': [midType, (midRotation +  90) % 360] if middle
         'low':    [lowType, (lowRotation +  90) % 360] if low
-      }
+      }, yes
     else
       # `-90 % 360` in JavaScript returns -90, hence we go the other way ’round
       @setProperties {
         'top':    [topType, (topRotation + 270) % 360] if top
         'middle': [midType, (midRotation + 270) % 360] if middle
         'low':    [lowType, (lowRotation + 270) % 360] if low
-      }
+      }, yes
 
     @emit 'didChange' unless silent
 

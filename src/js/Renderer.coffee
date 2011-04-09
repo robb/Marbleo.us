@@ -159,8 +159,8 @@ class Renderer
   # If force is set to `yes`, the map will be drawn even if no drawing is
   # required based on `needsRedraw`
   drawMap: (force = no) ->
-    if @isDrawing is yes and force is no
-      return
+#    if @isDrawing is yes and force is no
+#      return
 
     console.time "draw" if DEBUG
     @isDrawing = yes
@@ -199,11 +199,11 @@ class Renderer
 
     # Draw the path nodes into the main canvas for debugging purposes.
     if POINT_DEBUG
-      for node in @map.getPath().getNodes()
-        @drawNode @context, node
+        for node in Path.forMap(@map).getNodes()
+          @drawNode @context, node
 
-      if @marble.targetNode
-        @drawNode @context, @marble.targetNode, 'green'
+        if @marble.targetNode
+          @drawNode @context, @marble.targetNode, 'green'
 
     if !marbleDrawn or POINT_DEBUG
       @drawMarble @context, @marble

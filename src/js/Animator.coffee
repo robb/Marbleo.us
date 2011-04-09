@@ -3,6 +3,43 @@
 # whereas the Renderer is more concerned with its 2d representation.
 class Animator extends EventEmitter
   constructor: (@map, @marble) ->
+    @map.addListener 'didChange', @updatePath
+    @map.addListener 'didRotate', @handleRotation
+
+    @updatePath()
+
+  updatePath: =>
+    @path = Path.forMap @map
+
+  handleRotation: (clockwise) =>
+    rotateCoordinates = (x, y, z) ->
+      if clockwise
+        [y, (Settings.blockSize - 1) * Settings.mapSize - x, z]
+      else
+        [(Settings.blockSize - 1) * Settings.mapSize - y, x, z]
+
+    [x, y, z] = @marble.getCoordinates()
+    @marble.setCoordinates rotateCoordinates(x, y, z)...
+
+    @path = Path.forMap @map
+
+    if @marble.isOnTrack
+      newTargetNode = @path.nodeAt rotateCoordinates(@marble.targetNode.getCoordinates()...)...
+      newLastNode   = @path.nodeAt rotateCoordinates(@marble.lastNode.getCoordinates()...)...
+
+      if newTargetNode and newLastNode
+        @marble.targetNode = newTargetNode
+        @marble.lastNode   = newLastNode
+      else
+        @marble.isOnTrack  = no
+        @marble.targetNode = null
+        @marble.lastNode   = null
+    else
+      [vX, vY, vZ] = @marble.getVelocities()
+      if clockwise
+        @marble.setVelocities vY, -vX, vZ
+      else
+        @marble.setVelocities -vY, vX, vZ
 
   blockAtWorldCoordinates: (x, y, z) ->
     bX = Math.floor(x / Settings.blockSize)
@@ -104,8 +141,8 @@ class Animator extends EventEmitter
 
                 console.log "Targeting node at ", [nX, nY, nZ], "from ", [pX, pY, pZ]
 
-                @marble.targetNode = @map.getPath().nodeAt(neighbour.getCoordinates()...)
-                @marble.lastNode   = @map.getPath().nodeAt(node.getCoordinates()...)
+                @marble.targetNode = @path.nodeAt neighbour.getCoordinates()...
+                @marble.lastNode   = @path.nodeAt node.getCoordinates()...
 
                 @marble.isOnTrack = yes
                 return
