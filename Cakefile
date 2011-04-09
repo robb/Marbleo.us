@@ -4,6 +4,7 @@ fs     = require 'fs'
 
 buildFiles = [
   "Constants",
+  "EventEmitter",
   "Block",
   "Map",
   "Renderer",
