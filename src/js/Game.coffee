@@ -91,7 +91,7 @@ class Game
       listener = =>
         @renderer.drawMap()
 
-      @map.addListener 'change', listener
+      @map.addListener 'didChange', listener
       @animator.addListener 'marble:moved', listener
 
       animatorLoop = =>

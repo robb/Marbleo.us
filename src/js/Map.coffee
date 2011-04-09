@@ -15,13 +15,13 @@ class Map extends EventEmitter
 
     @rotation = 0
 
-    @emit 'change'
+    @emit 'didChange'
 
   forceUpdate: ->
-    @emit 'change'
+    @emit 'didChange'
 
   blockDidChangeListener: =>
-    @emit 'change'
+    @emit 'didChange'
 
   # Sets the block at the given coordinates to the given block.
   setBlock: (block, x, y, z, silent = no) ->
@@ -31,11 +31,11 @@ class Map extends EventEmitter
     [x, y] = @applyRotation x, y if @rotation
     position = x + y * @size + z * @size * @size
 
-    @grid[position]?.removeListener 'change', @blockDidChangeListener
+    @grid[position]?.removeListener 'didChange', @blockDidChangeListener
     @grid[position] = block
-    @grid[position]?.addListener 'change', @blockDidChangeListener
+    @grid[position]?.addListener 'didChange', @blockDidChangeListener
 
-    @emit 'change' unless silent
+    @emit 'didChange' unless silent
 
   # Returns the block at the given coordinates.
   getBlock: (x, y, z) ->
@@ -48,10 +48,10 @@ class Map extends EventEmitter
     block = @getBlock x, y, z
     @setBlock null, x, y, z, yes
 
-    block?.removeListener 'change', @blockDidChangeListener
+    block?.removeListener 'didChange', @blockDidChangeListener
     block?.setCoordinates null, null, null
 
-    @emit 'change' unless silent
+    @emit 'didChange' unless silent
 
     return block
 
@@ -84,7 +84,7 @@ class Map extends EventEmitter
     for block in blocks
       @setBlock block, x, y, z++, yes
 
-    @emit 'change' unless silent
+    @emit 'didChange' unless silent
 
   # Returns the stack at the given coordinates and removes it from the map.
   removeStack: (x, y, z = 0, silent = no) ->
@@ -93,7 +93,7 @@ class Map extends EventEmitter
     for currentZ in [z...z + stack.length]
       @setBlock null, x, y, z++, yes
 
-    @emit 'change' unless silent
+    @emit 'didChange' unless silent
 
     return stack
 
@@ -169,10 +169,10 @@ class Map extends EventEmitter
           [x, y] = [@size - 1 - y,             x]
         block.setCoordinates x, y, z
 
-    @emit 'change' unless silent
 
   getPath: ->
     if @needsRedraw or not @path?
       @path = Path.forMap @
     else
       @path
+    @emit 'didChange' unless silent

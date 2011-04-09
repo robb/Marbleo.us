@@ -92,11 +92,11 @@ class Block extends EventEmitter
     throw new Error "Illegal value for opacity" unless 0 <= opacity <= 1.0
     @opacity = opacity
 
-    @emit 'change' unless silent
+    @emit 'didChange' unless silent
 
   # Sets the selected state of the block.
   setSelected: (@selected, silent = no) ->
-    @emit 'change' unless silent
+    @emit 'didChange' unless silent
 
   # Sets the dragged state of the block.
   setDragged: (@dragged) ->
@@ -120,7 +120,7 @@ class Block extends EventEmitter
     newProperties[property] = [type, rotation]
     @setProperties newProperties, no
 
-    @emit 'change' unless silent
+    @emit 'didChange' unless silent
 
   # Sets multiple properties of the block at once.
   # See the constructor for the requirements to the properties object.
@@ -135,7 +135,7 @@ class Block extends EventEmitter
     for key, value of @properties
       @properties[key] = properties[key] || value
 
-    @emit 'change' unless silent
+    @emit 'didChange' unless silent
 
   # Rotates the block 90 degrees clockwise
   rotateCW:  -> @rotate  true
@@ -166,7 +166,7 @@ class Block extends EventEmitter
         'low':    [lowType, (lowRotation + 270) % 360] if low
       }
 
-    @emit 'change' unless silent
+    @emit 'didChange' unless silent
 
   # Generates a string that uniquely defines the block.
   # May be used as a key for efficient caching of rendered blocks.
