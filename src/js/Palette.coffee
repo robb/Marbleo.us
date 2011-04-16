@@ -16,6 +16,8 @@ class Palette
 
       @renderer.drawBlock context, block
 
+      @textureStore = @renderer.getTextureStore()
+
       $image = $('<img>')
       $image.data 'type', type
       $image.attr  'src', canvas.toDataURL()
@@ -46,12 +48,12 @@ class Palette
 
           event.preventDefault()
 
-      renderer = @renderer
+      textureStore = @textureStore
       $image.bind 'mousemove', (event) ->
         if state.type is 'normal'
           x = event.pageX - $(this).offset().left
           y = event.pageY - $(this).offset().top
-          pixel = renderer.getTexture('basic','hitbox').getContext('2d').getImageData x, y, 1, 1
+          pixel = textureStore.getTexture('basic','hitbox').getContext('2d').getImageData x, y, 1, 1
           if pixel.data[3] > 0
             $('body').css 'cursor', Settings.dragCursor
           else

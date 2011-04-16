@@ -19,7 +19,7 @@ class Game
     @animator = new Animator @map, @marble
 
     # Set up the renderer
-    @renderer = new Renderer @map, @marble, =>
+    @renderer = new Renderer @animator, @map, @marble, =>
       # Set up event handlers
       @mainCanvas.bind    'mouseup',   @canvasUp
       @mainCanvas.bind  'mousemove', @canvasMove
@@ -71,21 +71,13 @@ class Game
 
       $('.run').bind 'click', @prepareRun
 
-      listener = =>
-        @renderer.drawMap()
-
-      @map.addListener 'didChange', listener
-      @map.addListener 'didRotate', listener
-
-      @animator.addListener 'marble:moved', listener
+      @palette = new Palette @renderer, @startDragWithBlocks
 
       animatorLoop = =>
         @animator.animate()
         setTimeout animatorLoop, 20
 
       setTimeout animatorLoop, 20
-
-      @palette = new Palette @renderer, @startDragWithBlocks
 
       onload()
 
@@ -152,7 +144,7 @@ class Game
         mouseY = event.pageY - @mainCanvas.offset().top
         if state.info.block is @renderer.resolveScreenCoordinates(mouseX, mouseY).block
           @selectBlock state.info.block
-          [screenX, screenY] = @renderer.renderingCoordinatesForBlock(state.info.coordinates...)
+          [screenX, screenY] = @renderer.renderingCoordinatesForBlock state.info.block
           @displaySelector screenX, screenY
           state.type = 'normal'
       # Deselect the currently selected blocks if it exists and the user releases
@@ -218,8 +210,13 @@ class Game
     # Removing all dragged blocks as they may be drawn elsewhere
     # FIXME: This is only necessary if the position or state of the dragged
     #        blocks actually changed
+    changed = no
     @map.blocksEach (block) =>
-      @map.removeBlock block.getCoordinates()..., yes if block.dragged
+      if block.dragged
+        @map.removeBlock block.getCoordinates()..., yes
+        changed = yes
+
+    @map.forceUpdate() if changed
 
     mouseX = event.pageX - @mainCanvas.offset().left
     mouseY = event.pageY - @mainCanvas.offset().top
@@ -258,14 +255,13 @@ class Game
     # otherwise, display the dragged canvas and move it to the mouse position
     else
       @showDraggedCanvas event
-      @map.forceUpdate()
 
   # Starts a drag operation using with a given event.
   startDrag: (event) ->
     [x, y, z] = state.info.coordinates
     blocks = @map.removeStack(x, y, z)
 
-    [canvasX, canvasY] = @renderer.renderingCoordinatesForBlock x, y, z + blocks.length
+    [canvasX, canvasY] = @renderer.renderingCoordinatesForBlock blocks[blocks.length - 1]
 
     info =
       mouseOffsetX: state.downX - canvasX
@@ -344,7 +340,7 @@ class Game
 
       #return if @map.getBlock x, y, z + 1
 
-      [screenX, screenY] = @renderer.renderingCoordinatesForBlock block.getCoordinates()...
+      [screenX, screenY] = @renderer.renderingCoordinatesForBlock block
 
       $inserter = $('<div class="inserter">Drop Marble here!</div>')
       $inserter.css

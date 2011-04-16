@@ -11,6 +11,18 @@ class Animator extends EventEmitter
   updatePath: =>
     @path = Path.forMap @map
 
+    if @marble.isOnTrack
+      newTargetNode = @path.nodeAt @marble.targetNode.getCoordinates()...
+      newLastNode   = @path.nodeAt @marble.lastNode.getCoordinates()...
+
+    if newTargetNode and newLastNode
+      @marble.targetNode = newTargetNode
+      @marble.lastNode   = newLastNode
+    else
+      @marble.isOnTrack  = no
+      @marble.targetNode = null
+      @marble.lastNode   = null
+
   handleRotation: (clockwise) =>
     rotateCoordinates = (x, y, z) ->
       if clockwise
