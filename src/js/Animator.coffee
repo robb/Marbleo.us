@@ -123,9 +123,9 @@ class Animator extends EventEmitter
 
                 # If the direction of the path is not aligned with the current
                 # velocities, swap nodes to avoid making a U-turn.
-                if SIGNUM(pX - nX) isnt 0 and SIGNUM(pX - nX) is  SIGNUM(vX) or
-                   SIGNUM(pY - nY) isnt 0 and SIGNUM(pY - nY) is  SIGNUM(vY) or
-                   SIGNUM(pZ - nZ) isnt 0 and SIGNUM(pZ - nZ) is -SIGNUM(vZ)
+                if SIGNUM(pX - nX) isnt 0 and SIGNUM(pX - nX) is SIGNUM(vX) or
+                   SIGNUM(pY - nY) isnt 0 and SIGNUM(pY - nY) is SIGNUM(vY) or
+                   SIGNUM(pZ - nZ) isnt 0 and SIGNUM(pZ - nZ) is SIGNUM(vZ)
                   [node, neighbour] = [neighbour, node]
 
                 # We don’t want the marble to lose speed when diving into
