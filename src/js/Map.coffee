@@ -15,12 +15,13 @@ class Map extends EventEmitter
 
     @rotation = 0
 
+    map = @
+    @blockDidChangeListener = ->
+      map.emit 'didChange'
+
     @emit 'didChange'
 
   forceUpdate: ->
-    @emit 'didChange'
-
-  blockDidChangeListener: =>
     @emit 'didChange'
 
   # Sets the block at the given coordinates to the given block.
