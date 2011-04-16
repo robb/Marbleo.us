@@ -274,6 +274,14 @@ class Animator extends EventEmitter
 
         [bX, bY, bZ] = block.getCoordinates()
 
+        if @marble.currentBlock
+          [cX, cY, cZ] = @marble.currentBlock.getCoordinates()
+
+          if bX is cX and
+             bY is cY and
+             bZ is cZ + 1
+            return
+
         # Check if the marble and the block potentially hit by comparing their
         # coordinates. If two of these match, the marble and the block are aligned
         # on one axis.
