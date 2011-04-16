@@ -151,7 +151,9 @@ class Animator extends EventEmitter
 
     # # Movement on track
     if @marble.isOnTrack
-      @marble.currentBlock = @blockAtWorldCoordinates mX, mY, mZ
+
+      @marble.currentBlock = @blockAtWorldCoordinates(mX, mY, mZ) or
+                             @marble.currentBlock
 
       [tX, tY, tZ] = @marble.targetNode.getCoordinates()
       [lX, lY, lZ] = @marble.lastNode.getCoordinates()
@@ -163,13 +165,13 @@ class Animator extends EventEmitter
 
       # Check if the marble would collide with the next block
       if distance < @marble.radius and
-         @marble.targetNode.getNeighbours().length is 1
-
+         @marble.targetNode.getNeighbours().length is 1 and
+         @marble.targetNode.getNeighbours()[0] is @marble.lastNode
         [bX, bY, bZ] = @marble.currentBlock.getCoordinates()
 
         nextBlock = @map.getBlock bX + SIGNUM(tX - lX),
                                   bY + SIGNUM(tY - lY),
-                                  bZ
+                                  bZ + SIGNUM(tZ - lZ)
 
         if nextBlock
           console.log nextBlock
