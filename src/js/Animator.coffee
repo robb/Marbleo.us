@@ -14,9 +14,9 @@ class Animator extends EventEmitter
   handleRotation: (clockwise) =>
     rotateCoordinates = (x, y, z) ->
       if clockwise
-        [y, (Settings.blockSize - 1) * Settings.mapSize - x, z]
+        [y, Settings.blockSize * Settings.mapSize - x, z]
       else
-        [(Settings.blockSize - 1) * Settings.mapSize - y, x, z]
+        [Settings.blockSize * Settings.mapSize - y, x, z]
 
     [x, y, z] = @marble.getCoordinates()
     @marble.setCoordinates rotateCoordinates(x, y, z)...
@@ -42,9 +42,9 @@ class Animator extends EventEmitter
         @marble.setVelocities -vY, vX, vZ
 
   blockAtWorldCoordinates: (x, y, z) ->
-    bX = Math.floor(x / Settings.blockSize)
-    bY = Math.floor(y / Settings.blockSize)
-    bZ = Math.floor(z / Settings.blockSize)
+    bX = Math.floor(x / (Settings.blockSize + 1))
+    bY = Math.floor(y / (Settings.blockSize + 1))
+    bZ = Math.floor(z / (Settings.blockSize + 1))
 
     if 0 <= bX < @map.size and
        0 <= bY < @map.size and

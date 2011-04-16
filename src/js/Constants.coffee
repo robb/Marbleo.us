@@ -33,7 +33,7 @@ Settings =
   blockDampening:     0.3
   groundDampening:    0.3
   friction:           0.995
-  blockSize:          51
+  blockSize:          50
 
 # # Global helper methods
 # I wish CoffeeScript would support macros.

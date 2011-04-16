@@ -352,11 +352,11 @@ class Game
         left: @mainCanvas.offset().left + screenX
 
       $inserter.bind 'click', =>
-        x *= (Settings.blockSize - 1)
-        y *= (Settings.blockSize - 1)
-        z *= (Settings.blockSize - 1)
-        x += (Settings.blockSize) / 2
-        y += (Settings.blockSize) / 2
+        x *= Settings.blockSize
+        y *= Settings.blockSize
+        z *= Settings.blockSize
+        x += Settings.blockSize / 2
+        y += Settings.blockSize / 2
         z += Settings.blockSize * 3
 
         @marble.setVelocities  0, 0, 0

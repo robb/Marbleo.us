@@ -8,9 +8,9 @@ class Path
 
     rotateNodeCoordinates = (rotation, x, y, z) ->
       switch rotation
-        when  90 then return [                         y, Settings.blockSize - 1 - x, z]
-        when 180 then return [Settings.blockSize - 1 - x, Settings.blockSize - 1 - y, z]
-        when 270 then return [Settings.blockSize - 1 - y,                          x, z]
+        when  90 then return [                     y, Settings.blockSize - x, z]
+        when 180 then return [Settings.blockSize - x, Settings.blockSize - y, z]
+        when 270 then return [Settings.blockSize - y,                      x, z]
         else
           return [x, y, z]
 
@@ -18,15 +18,15 @@ class Path
     nodesForDescription = (description, rotation) ->
       currentNodes = {}
       for nodeID, [x, y, z, neighbours...] of description
-        x *= Settings.blockSize - 1
-        y *= Settings.blockSize - 1
-        z *= Settings.blockSize - 1
+        x *= Settings.blockSize
+        y *= Settings.blockSize
+        z *= Settings.blockSize
 
         [x, y, z] = rotateNodeCoordinates rotation, x, y, z
 
-        x += (Settings.blockSize - 1) * bX
-        y += (Settings.blockSize - 1) * bY
-        z += (Settings.blockSize - 1) * bZ
+        x += Settings.blockSize * bX
+        y += Settings.blockSize * bY
+        z += Settings.blockSize * bZ
 
         currentNodes[nodeID] = new PathNode x, y, z
 
@@ -83,9 +83,9 @@ class Path
     rotateNode: (node) ->
       [x, y, z] = node.getCoordinates()
       if clockwise
-        [x, y] = [Settings.mapSize * Settings.lockSize - 1 - y, x]
+        [x, y] = [Settings.mapSize * Settings.blockSize - y, x]
       else
-        [x, y] = [y, Settings.mapSize * Settings.lockSize - 1 - x]
+        [x, y] = [y, Settings.mapSize * Settings.blockSize - x]
       node.setCoordinates x, y, z
 
     for coordinates, node of @nodes
