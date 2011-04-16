@@ -169,13 +169,16 @@ class Animator extends EventEmitter
          @marble.targetNode.getNeighbours()[0] is @marble.lastNode
         [bX, bY, bZ] = @marble.currentBlock.getCoordinates()
 
-        nextBlock = @map.getBlock bX + SIGNUM(tX - lX),
-                                  bY + SIGNUM(tY - lY),
-                                  bZ + SIGNUM(tZ - lZ)
+        nX = bX + SIGNUM(tX - lX)
+        nY = bY + SIGNUM(tY - lY)
+        nZ = bZ + SIGNUM(tZ - lZ)
+
+        if 0 <= nX < @map.size and
+           0 <= nY < @map.size and
+           0 <= nZ < @map.size
+          nextBlock = @map.getBlock nX, nY, nZ
 
         if nextBlock
-          console.log nextBlock
-
           [@marble.targetNode, @marble.lastNode] = [@marble.lastNode, @marble.targetNode]
           @marble.setTrackSpeed @marble.getTrackSpeed() * Settings.blockDampening
           [tX, tY, tZ] = @marble.targetNode.getCoordinates()
