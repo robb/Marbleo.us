@@ -129,8 +129,9 @@ class Animator extends EventEmitter
                   [node, neighbour] = [neighbour, node]
 
                 # We don’t want the marble to lose speed when diving into
-                # a vertical hole.
-                unless pX - nX is 0 and pY - nY is 0
+                # a crossing-hole.
+                [topType, topRotation] = block.getProperty 'top'
+                unless topType is 'crossing-hole'
                   vX = vX * SIGNUM(pX - nX)
                   vY = vY * SIGNUM(pY - nY)
                   vZ = vZ * SIGNUM(pZ - nZ)
