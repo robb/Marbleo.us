@@ -140,8 +140,6 @@ class Animator extends EventEmitter
 
                 @marble.currentBlock = block
 
-                console.log "Targeting node at ", [nX, nY, nZ], "from ", [pX, pY, pZ]
-
                 @marble.targetNode = @path.nodeAt neighbour.getCoordinates()...
                 @marble.lastNode   = @path.nodeAt node.getCoordinates()...
 
@@ -231,17 +229,13 @@ class Animator extends EventEmitter
 
         # find next target node
         for neighbour in @marble.targetNode.getNeighbours()
-          console.log "Trying #{neighbour}"
           unless neighbour is @marble.lastNode
             next = neighbour
 
         if next
-          console.log "next found"
           @marble.lastNode   = @marble.targetNode
           @marble.targetNode = next
         else
-          console.log "No next block found, last was at #{mX}:#{mY}:#{mZ}"
-
           # construct new velocity vector based on last two nodes
           dX = tX - lX
           dY = tY - lY
