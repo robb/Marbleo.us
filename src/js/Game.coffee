@@ -265,7 +265,7 @@ class Game
 
     info =
       mouseOffsetX: state.downX - canvasX
-      mouseOffsetY: state.downY - canvasY - Settings.textureSizeHalf
+      mouseOffsetY: state.downY - canvasY# - Settings.textureSizeHalf
 
     @startDragWithBlocks blocks, info
 
