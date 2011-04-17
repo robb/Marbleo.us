@@ -1,0 +1,130 @@
+<!DOCTYPE html>  <html> <head>   <title>EventEmitter.coffee</title>   <meta http-equiv="content-type" content="text/html; charset=UTF-8">   <link rel="stylesheet" media="all" href="docco.css" /> </head> <body>   <div id="container">     <div id="background"></div>            <div id="jump_to">         Jump To &hellip;         <div id="jump_wrapper">           <div id="jump_page">                                           <a class="source" href="Animator.html">                 Animator.coffee               </a>                                           <a class="source" href="Block.html">                 Block.coffee               </a>                                           <a class="source" href="Compressor.html">                 Compressor.coffee               </a>                                           <a class="source" href="Constants.html">                 Constants.coffee               </a>                                           <a class="source" href="EventEmitter.html">                 EventEmitter.coffee               </a>                                           <a class="source" href="Game.html">                 Game.coffee               </a>                                           <a class="source" href="HitTestLayer.html">                 HitTestLayer.coffee               </a>                                           <a class="source" href="Layer.html">                 Layer.coffee               </a>                                           <a class="source" href="Main.html">                 Main.coffee               </a>                                           <a class="source" href="Map.html">                 Map.coffee               </a>                                           <a class="source" href="MapLayer.html">                 MapLayer.coffee               </a>                                           <a class="source" href="Marble.html">                 Marble.coffee               </a>                                           <a class="source" href="Palette.html">                 Palette.coffee               </a>                                           <a class="source" href="Path.html">                 Path.coffee               </a>                                           <a class="source" href="Renderer.html">                 Renderer.coffee               </a>                                           <a class="source" href="TextureStore.html">                 TextureStore.coffee               </a>                                           <a class="source" href="VisibilityLayer.html">                 VisibilityLayer.coffee               </a>                        </div>         </div>       </div>          <table cellpadding="0" cellspacing="0">       <thead>         <tr>           <th class="docs">             <h1>               EventEmitter.coffee             </h1>           </th>           <th class="code">           </th>         </tr>       </thead>       <tbody>                               <tr id="section-1">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-1">&#182;</a>               </div>               <p>A class with the ability to fire listeners based on arbitrary events.</p>
+
+<p>Based of the node.js class of the same name which can be found at
+https://github.com/joyent/node/blob/bfa9db9dd6a13af475f256bb1d95118ac38f8590/lib/events.js</p>             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-2">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-2">&#182;</a>               </div>               <p>Helper method</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">isArray = </span><span class="nb">Array</span><span class="p">.</span><span class="nx">isArray</span> <span class="o">or</span> <span class="nf">(o) -&gt;</span>
+            <span class="nb">Object</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">toString</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">o</span><span class="p">)</span> <span class="o">is</span> <span class="s1">&#39;[object Array]&#39;</span>
+
+<span class="nv">defaultMaxListeners = </span><span class="mi">10</span>
+<span class="k">class</span> <span class="nx">EventEmitter</span>
+  <span class="nv">setMaxListeners: </span><span class="nf">(n) -&gt;</span>
+    <span class="vi">@events = </span><span class="p">{}</span> <span class="nx">unless</span> <span class="nx">@events</span>
+    <span class="vi">@events.maxListeners = </span><span class="nx">n</span>
+
+  <span class="nv">getMaxListeners: </span><span class="o">-&gt;</span>
+    <span class="vi">@events = </span><span class="p">{}</span> <span class="nx">unless</span> <span class="nx">@events</span>
+    <span class="nx">@events</span><span class="p">.</span><span class="nx">maxListeners</span>
+
+  <span class="nv">emit: </span><span class="nf">(type, parameters...) -&gt;</span>
+    <span class="k">if</span> <span class="nx">type</span> <span class="o">is</span> <span class="s1">&#39;error&#39;</span>
+      <span class="k">if</span> <span class="o">!</span><span class="nx">@events</span> <span class="o">or</span> <span class="o">!</span><span class="nx">@events</span><span class="p">.</span><span class="nx">error</span> <span class="o">or</span>
+         <span class="nx">isArray</span><span class="p">(</span><span class="nx">@events</span><span class="p">.</span><span class="nx">error</span><span class="p">)</span> <span class="o">and</span> <span class="o">!</span><span class="nx">@events</span><span class="p">.</span><span class="nx">error</span><span class="p">.</span><span class="nx">length</span>
+        <span class="k">if</span> <span class="nx">parameters</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">instanceof</span> <span class="nb">Error</span>
+          <span class="k">throw</span> <span class="k">new</span> <span class="nx">parameters</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span>
+          <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span> <span class="s2">&quot;Uncaught, unspecified &#39;error&#39; event.&quot;</span>
+      <span class="k">return</span> <span class="kc">false</span>
+
+    <span class="nv">handler = </span><span class="nx">@events</span><span class="o">?</span><span class="p">[</span><span class="nx">type</span><span class="p">]</span>
+    <span class="k">return</span> <span class="kc">false</span> <span class="nx">unless</span> <span class="nx">handler</span>
+
+    <span class="k">if</span> <span class="k">typeof</span> <span class="nx">handler</span> <span class="o">is</span> <span class="s1">&#39;function&#39;</span>
+      <span class="k">switch</span> <span class="nx">arguments</span><span class="p">.</span><span class="nx">length</span>
+        <span class="k">when</span> <span class="mi">1</span>
+          <span class="nx">handler</span><span class="p">.</span><span class="nx">call</span> <span class="err">@</span>
+        <span class="k">when</span> <span class="mi">2</span>
+          <span class="nx">handler</span><span class="p">.</span><span class="nx">call</span> <span class="err">@</span><span class="p">,</span> <span class="nx">parameters</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">when</span> <span class="mi">3</span>
+          <span class="nx">handler</span><span class="p">.</span><span class="nx">call</span> <span class="err">@</span><span class="p">,</span> <span class="nx">parameters</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nx">parameters</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">else</span>
+          <span class="nx">handler</span><span class="p">.</span><span class="nx">apply</span> <span class="err">@</span><span class="p">,</span> <span class="nx">parameters</span>
+
+      <span class="kc">true</span>
+
+    <span class="k">else</span> <span class="k">if</span> <span class="nx">isArray</span><span class="p">(</span><span class="nx">handler</span><span class="p">)</span>
+      <span class="nx">listener</span><span class="p">.</span><span class="nx">apply</span> <span class="err">@</span><span class="p">,</span> <span class="nx">parameters</span> <span class="k">for</span> <span class="nx">listener</span> <span class="k">in</span> <span class="nx">handler</span><span class="p">.</span><span class="nx">slice</span><span class="p">()</span>
+
+      <span class="kc">true</span>
+
+    <span class="k">else</span>
+      <span class="kc">false</span>
+
+  <span class="nv">addListener: </span><span class="nf">(type, listener) -&gt;</span>
+    <span class="nx">unless</span> <span class="k">typeof</span> <span class="nx">listener</span> <span class="o">is</span> <span class="s1">&#39;function&#39;</span>
+      <span class="k">throw</span> <span class="s2">&quot;addListener only takes instances of Function&quot;</span>
+
+    <span class="vi">@events = </span><span class="p">{}</span> <span class="nx">unless</span> <span class="nx">@events</span></pre></div>             </td>           </tr>                               <tr id="section-3">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-3">&#182;</a>               </div>               <p>To avoid recursion in the case that <code>type is "newListeners"</code>, before
+adding it to the listeners, first emit "newListeners".</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nx">@emit</span> <span class="s1">&#39;newListener&#39;</span><span class="p">,</span> <span class="nx">type</span><span class="p">,</span> <span class="nx">listener</span>
+
+    <span class="nx">unless</span> <span class="nx">@events</span><span class="p">[</span><span class="nx">type</span><span class="p">]</span>
+      <span class="nx">@events</span><span class="p">[</span><span class="nx">type</span><span class="p">]</span> <span class="o">=</span> <span class="nx">listener</span>
+    <span class="k">else</span> <span class="k">if</span> <span class="nx">isArray</span> <span class="nx">@events</span><span class="p">[</span><span class="nx">type</span><span class="p">]</span>
+      <span class="nx">unless</span> <span class="nx">@events</span><span class="p">[</span><span class="nx">type</span><span class="p">].</span><span class="nx">warned</span>
+        <span class="k">if</span> <span class="nx">@events</span><span class="p">.</span><span class="nx">maxListeners</span><span class="o">?</span>
+          <span class="nv">m = </span><span class="nx">@events</span><span class="p">.</span><span class="nx">maxListeners</span>
+        <span class="k">else</span>
+          <span class="nv">m = </span><span class="nx">defaultMaxListeners</span>
+
+      <span class="k">if</span> <span class="nx">m</span> <span class="o">and</span> <span class="nx">m</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="o">and</span> <span class="nx">@events</span><span class="p">[</span><span class="nx">type</span><span class="p">].</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="nx">m</span>
+        <span class="nx">@events</span><span class="p">[</span><span class="nx">type</span><span class="p">].</span><span class="nv">warned = </span><span class="kc">yes</span>
+        <span class="k">if</span> <span class="nx">DEBUG</span>
+          <span class="nx">console</span><span class="p">.</span><span class="nx">error</span> <span class="s2">&quot;Possible EventEmitter memory leak detected.&quot;</span>
+          <span class="nx">console</span><span class="p">.</span><span class="nx">trace</span><span class="p">()</span>
+
+      <span class="nx">@events</span><span class="p">[</span><span class="nx">type</span><span class="p">].</span><span class="nx">push</span> <span class="nx">listener</span>
+    <span class="k">else</span>
+      <span class="nx">@events</span><span class="p">[</span><span class="nx">type</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="nx">@events</span><span class="p">[</span><span class="nx">type</span><span class="p">],</span> <span class="nx">listener</span><span class="p">]</span>
+
+    <span class="err">@</span>
+
+  <span class="nv">once: </span><span class="nf">(type, listener) -&gt;</span>
+    <span class="nx">unless</span> <span class="k">typeof</span> <span class="nx">listener</span> <span class="o">is</span> <span class="s1">&#39;function&#39;</span>
+      <span class="k">throw</span> <span class="s2">&quot;once only takes instances of Function&quot;</span>
+
+    <span class="nv">g = </span><span class="o">=&gt;</span>
+      <span class="nx">@removeListener</span><span class="p">(</span><span class="nx">type</span><span class="p">,</span> <span class="nx">g</span><span class="p">)</span>
+      <span class="nx">listener</span><span class="p">.</span><span class="nx">apply</span> <span class="err">@</span><span class="p">,</span> <span class="nx">arguments</span>
+
+    <span class="nv">g.listener = </span><span class="nx">listener</span>
+    <span class="nx">@addListener</span> <span class="nx">type</span><span class="p">,</span> <span class="nx">g</span>
+
+    <span class="err">@</span>
+
+  <span class="nv">removeListener: </span><span class="nf">(type, listener) -&gt;</span>
+    <span class="nx">unless</span> <span class="k">typeof</span> <span class="nx">listener</span> <span class="o">is</span> <span class="s1">&#39;function&#39;</span>
+      <span class="k">throw</span> <span class="s2">&quot;removeListener only takes instances of Function&quot;</span>
+
+    <span class="k">return</span> <span class="err">@</span> <span class="nx">unless</span> <span class="nx">@events</span><span class="o">?</span><span class="p">[</span><span class="nx">type</span><span class="p">]</span>
+
+    <span class="nv">list = </span><span class="nx">@events</span><span class="p">[</span><span class="nx">type</span><span class="p">]</span>
+    
+    <span class="k">if</span> <span class="nx">isArray</span> <span class="nx">list</span>
+      <span class="nv">position = </span><span class="o">-</span><span class="mi">1</span>
+      <span class="k">for</span> <span class="nx">i</span> <span class="k">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">..</span><span class="nx">list</span><span class="p">.</span><span class="nx">length</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nx">list</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">is</span> <span class="nx">listener</span> <span class="o">or</span> <span class="nx">list</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span><span class="o">?</span><span class="p">.</span><span class="nx">listener</span> <span class="o">is</span> <span class="nx">listener</span>
+          <span class="nv">position = </span><span class="nx">i</span>
+          <span class="k">break</span>
+
+      <span class="k">return</span> <span class="err">@</span> <span class="k">if</span> <span class="nx">position</span> <span class="o">&lt;</span> <span class="mi">0</span>
+      <span class="nx">list</span><span class="p">.</span><span class="nx">splice</span><span class="p">(</span><span class="nx">position</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+      <span class="k">if</span> <span class="nx">list</span><span class="p">.</span><span class="nx">length</span> <span class="o">is</span> <span class="mi">0</span>
+        <span class="k">delete</span> <span class="nx">@events</span><span class="p">[</span><span class="nx">type</span><span class="p">]</span>
+
+    <span class="k">else</span> <span class="k">if</span> <span class="nx">list</span> <span class="o">is</span> <span class="nx">listener</span> <span class="o">or</span> <span class="nx">list</span><span class="o">?</span><span class="p">.</span><span class="nx">listener</span> <span class="o">is</span> <span class="nx">listener</span>
+      <span class="k">delete</span> <span class="nx">@events</span><span class="p">[</span><span class="nx">type</span><span class="p">]</span>
+
+    <span class="err">@</span>
+
+  <span class="nv">removeAllListeners: </span><span class="nf">(type) -&gt;</span>
+    <span class="k">if</span> <span class="nx">type</span> <span class="o">and</span> <span class="nx">@events</span><span class="o">?</span><span class="p">[</span><span class="nx">type</span><span class="p">]</span>
+      <span class="nx">@events</span><span class="p">[</span><span class="nx">type</span><span class="p">]</span> <span class="o">=</span> <span class="kc">null</span>
+
+    <span class="err">@</span>
+
+  <span class="nv">listeners: </span><span class="nf">(type) -&gt;</span>
+    <span class="vi">@events = </span><span class="p">{}</span> <span class="nx">unless</span> <span class="nx">@events</span>
+    <span class="nx">@events</span><span class="p">[</span><span class="nx">type</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span> <span class="nx">unless</span> <span class="nx">@events</span><span class="p">[</span><span class="nx">type</span><span class="p">]</span>
+    <span class="nx">@events</span><span class="p">[</span><span class="nx">type</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="nx">@events</span><span class="p">[</span><span class="nx">type</span><span class="p">]]</span> <span class="nx">unless</span> <span class="nx">isArray</span> <span class="nx">@events</span><span class="p">[</span><span class="nx">type</span><span class="p">]</span>
+
+    <span class="nx">@events</span><span class="p">[</span><span class="nx">type</span><span class="p">]</span>
+
+</pre></div>             </td>           </tr>                </tbody>     </table>   </div> </body> </html> 

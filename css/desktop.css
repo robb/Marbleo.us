@@ -24,41 +24,192 @@ body {
   font-family: Lucida Grande, Helvetica, Arial, sans;
   background: black;
   display: inline-block;
-  padding: 5px 10px 6px;
+  padding: 0.219em 0.438em;
+  margin-top: 0.438em;
+  margin-right: 0.438em;
   color: white;
   text-decoration: none;
   font-weight: bold;
-  -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
   -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
   -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
   text-shadow: 0 -1px 1px rgba(0, 0, 0, 0.25);
   border-bottom: 1px solid rgba(0, 0, 0, 0.25);
   cursor: pointer; }
+  .button:active {
+    position: relative;
+    top: 1px;
+    -moz-box-shadow: 0 0px 1px rgba(0, 0, 0, 0.5);
+    -webkit-box-shadow: 0 0px 1px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 0px 1px rgba(0, 0, 0, 0.5); }
   .button.red {
     background: #ff3019;
     background: -moz-linear-gradient(top, #ff3019 0%, #cf0404 100%);
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #ff3019), color-stop(100%, #cf0404));
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='$hi', endColorstr='$low',GradientType=0); }
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #ff3019), color-stop(100%, #cf0404)); }
     .button.red:hover {
       background: #e51700;
       background: -moz-linear-gradient(top, #e51700 0%, #9d0303 100%);
-      background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #e51700), color-stop(100%, #9d0303));
-      filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='$hi', endColorstr='$low',GradientType=0); }
+      background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #e51700), color-stop(100%, #9d0303)); }
     .button.red:active {
       background: #cf0404;
       background: -moz-linear-gradient(top, #cf0404 0%, #ff3019 100%);
-      background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #cf0404), color-stop(100%, #ff3019));
-      filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='$hi', endColorstr='$low',GradientType=0); }
+      background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #cf0404), color-stop(100%, #ff3019)); }
+  .button.green {
+    background: #19ff30;
+    background: -moz-linear-gradient(top, #19ff30 0%, #04cf04 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #19ff30), color-stop(100%, #04cf04)); }
+    .button.green:hover {
+      background: #00e517;
+      background: -moz-linear-gradient(top, #00e517 0%, #039d03 100%);
+      background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #00e517), color-stop(100%, #039d03)); }
+    .button.green:active {
+      background: #04cf04;
+      background: -moz-linear-gradient(top, #04cf04 0%, #19ff30 100%);
+      background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #04cf04), color-stop(100%, #19ff30)); }
+  .button.inactive {
+    background: #cccccc;
+    background: -moz-linear-gradient(top, #cccccc 0%, #888888 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #cccccc), color-stop(100%, #888888));
+    -webkit-transition: all 2s ease-in-out; }
+    .button.inactive:hover {
+      background: #b3b3b3;
+      background: -moz-linear-gradient(top, #b3b3b3 0%, #6f6f6f 100%);
+      background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #b3b3b3), color-stop(100%, #6f6f6f)); }
+    .button.inactive:active {
+      background: #888888;
+      background: -moz-linear-gradient(top, #888888 0%, #cccccc 100%);
+      background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #888888), color-stop(100%, #cccccc)); }
 
 #info {
   color: black; }
   #info .number {
     font-family: "Neue Helvetica", Helvetica, sans; }
 
+/* 
+html5doctor.com Reset Stylesheet
+v1.6.1
+Last Updated: 2010-09-17
+Author: Richard Clark - http://richclarkdesign.com 
+Twitter: @rich_clark
+*/
+html, body, div, span, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+abbr, address, cite, code,
+del, dfn, em, img, ins, kbd, q, samp,
+small, strong, sub, sup, var,
+b, i,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section, summary,
+time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  font-size: 100%;
+  vertical-align: baseline;
+  background: transparent; }
+
 body {
-  font-family: Georgia, serif;
-  text-shadow: 1px 0px 0px #eeeeee; }
+  line-height: 1; }
+
+article, aside, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section {
+  display: block; }
+
+nav ul {
+  list-style: none; }
+
+blockquote, q {
+  quotes: none; }
+
+blockquote:before, blockquote:after,
+q:before, q:after {
+  content: '';
+  content: none; }
+
+a {
+  margin: 0;
+  padding: 0;
+  font-size: 100%;
+  vertical-align: baseline;
+  background: transparent; }
+
+/* change colours to suit your needs */
+ins {
+  background-color: #ff9;
+  color: #000;
+  text-decoration: none; }
+
+/* change colours to suit your needs */
+mark {
+  background-color: #ff9;
+  color: #000;
+  font-style: italic;
+  font-weight: bold; }
+
+del {
+  text-decoration: line-through; }
+
+abbr[title], dfn[title] {
+  border-bottom: 1px dotted;
+  cursor: help; }
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0; }
+
+/* change border colour to suit your needs */
+hr {
+  display: block;
+  height: 1px;
+  border: 0;
+  border-top: 1px solid #cccccc;
+  margin: 1em 0;
+  padding: 0; }
+
+input, select {
+  vertical-align: middle; }
+
+h1, h2, h3, h4 {
+  font-weight: bold; }
+
+h1 {
+  margin-top: 0.482em;
+  margin-bottom: 0.321em;
+  line-height: 1.606em;
+  font-size: 218.0%;
+  font-weight: normal; }
+
+h2 {
+  margin-top: 0.534em;
+  margin-bottom: 0.534em;
+  line-height: 1.067em;
+  font-size: 164%;
+  font-weight: normal; }
+
+h3 {
+  margin-top: 0.603em;
+  margin-bottom: 0.603em;
+  line-height: 1.207em;
+  font-size: 145%;
+  font-weight: normal; }
+
+h4 {
+  margin-top: 2.966em;
+  margin-bottom: 0em;
+  line-height: 1.483em;
+  font-size: 118%; }
+
+body {
+  font: 0.945em "Georgia", serif;
+  color: #222222;
+  line-height: 1.75em; }
 
 #info a {
   color: #ff3019;
@@ -75,17 +226,20 @@ body {
   width: 960px;
   margin: 0 auto; }
 
-#header h1, #header h2 {
-  display: inline;
-  margin: 0;
-  padding: 0;
-  vertical-align: baseline; }
-#header h2 {
-  color: lightgrey;
-  font-size: small;
-  font-weight: normal; }
+#header {
+  position: relative;
+  z-index: 9999; }
+  #header h1, #header h2 {
+    display: inline;
+    margin: 0;
+    padding: 0;
+    vertical-align: baseline; }
+  #header h2 {
+    color: lightgrey;
+    font-size: small;
+    font-weight: normal; }
 
-.share.button {
+.buttons {
   float: right; }
 
 #main-canvas {
@@ -107,6 +261,13 @@ body {
   #game .rotate.right {
     right: 40px;
     background: transparent url("../img/arrows.png") -53px 0 no-repeat; }
+
+.inserter {
+  position: absolute;
+  display: block;
+  background: transparent url("../img/drop.png") no-repeat;
+  width: 50px;
+  height: 50px; }
 
 #selector {
   width: 101px; }
@@ -130,10 +291,10 @@ body {
   white-space: nowrap;
   text-align: left; }
   #palette img {
-    margin: 0 8px; }
+    margin: 0 0.875em; }
 
 #info {
-  padding-top: 16px; }
+  padding-top: 1.75em; }
   #info .how-to-play {
     float: left;
     width: 276.8px;
@@ -150,27 +311,40 @@ body {
     margin-right: 16px;
     margin-right: 0; }
 
-#popup {
+.popup {
+  background: #cccccc;
   display: none;
-  width: 600px;
+  width: 28em;
   position: absolute;
-  top: 50%;
+  top: 150px;
   left: 50%;
-  color: white;
-  text-shadow: 1px 1px 0px black;
-  margin-top: -135px;
-  margin-left: -300px;
-  padding: 16px;
-  -moz-border-radius: 16px;
-  -webkit-border-radius: 16px;
-  background: #ff3019;
-  background: -moz-linear-gradient(top, #ff3019 0%, #cf0404 100%);
-  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #ff3019), color-stop(100%, #cf0404));
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff3019', endColorstr='#cf0404',GradientType=0); }
-  #popup.visible {
+  margin-left: -15.75em;
+  padding: 1.75em;
+  -webkit-border-radius: 1.75em;
+  -moz-border-radius: 1.75em;
+  border-radius: 1.75em; }
+  .popup.visible {
     display: block; }
-  #popup h1 {
+  .popup h1 {
     margin: 0 0 16px 0;
     font-family: Lucida Grande, Helvetica, Arial, sans; }
-  #popup input {
+
+#share {
+  color: white;
+  text-shadow: 1px 1px 0px black;
+  background: #ff3019;
+  background: -moz-linear-gradient(top, #ff3019 0%, #cf0404 100%);
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #ff3019), color-stop(100%, #cf0404)); }
+  #share input {
     width: 100%; }
+
+#warning {
+  color: white;
+  text-shadow: 1px 1px 0px black;
+  background: #888888;
+  background: -moz-linear-gradient(top, #888888 0%, #555555 100%);
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #888888), color-stop(100%, #555555)); }
+  #warning .blocks {
+    text-align: center; }
+    #warning .blocks img {
+      padding: 0.875em; }
