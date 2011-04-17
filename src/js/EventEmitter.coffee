@@ -69,12 +69,14 @@ class EventEmitter
           m = @events.maxListeners
         else
           m = defaultMaxListeners
-      
+
       if m and m > 0 and @events[type].length > m
         @events[type].warned = yes
         if DEBUG
           console.error "Possible EventEmitter memory leak detected."
-          console.trace
+          console.trace()
+
+      @events[type].push listener
     else
       @events[type] = [@events[type], listener]
 
