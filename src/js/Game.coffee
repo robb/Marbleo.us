@@ -210,13 +210,11 @@ class Game
     # Removing all dragged blocks as they may be drawn elsewhere
     # FIXME: This is only necessary if the position or state of the dragged
     #        blocks actually changed
-    changed = no
+    didRemoveBlocks = no
     @map.blocksEach (block) =>
       if block.dragged
         @map.removeBlock block.getCoordinates()..., yes
-        changed = yes
-
-    @map.forceUpdate() if changed
+        didRemoveBlocks = yes
 
     mouseX = event.pageX - @mainCanvas.offset().left
     mouseY = event.pageY - @mainCanvas.offset().top
@@ -254,6 +252,7 @@ class Game
 
     # otherwise, display the dragged canvas and move it to the mouse position
     else
+      @map.forceUpdate() if didRemoveBlocks
       @showDraggedCanvas event
 
   # Starts a drag operation using with a given event.
