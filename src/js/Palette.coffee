@@ -36,6 +36,8 @@ class Palette
 
         callback [block], info
 
+        event.preventDefault()
+
       $image.bind 'touchstart', (event) ->
         if event.originalEvent.touches.length
           info =
