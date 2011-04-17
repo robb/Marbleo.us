@@ -272,17 +272,17 @@ class Game
   # Starts a drag operation using a given stack of blocks.
   # Info must contain the mouse offsets relative to the block.
   startDragWithBlocks: (blocks, info) =>
-      @selectBlock null
-      @hideSelector()
-      state.stack = blocks
-      for block in state.stack
-        block.setDragged yes
+    @selectBlock null
+    @hideSelector()
+    state.stack = blocks
+    for block in state.stack
+      block.setDragged yes
 
-      @renderer.drawDraggedBlocks state.stack
+    @renderer.drawDraggedBlocks state.stack
 
-      state.mouseOffsetX = info.mouseOffsetX
-      state.mouseOffsetY = info.mouseOffsetY
-      state.type = 'dragging'
+    state.mouseOffsetX = info.mouseOffsetX
+    state.mouseOffsetY = info.mouseOffsetY
+    state.type = 'dragging'
 
   # Hides the dragged blocks.
   hideDraggedCanvas: (event) ->
