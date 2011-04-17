@@ -10,14 +10,18 @@ $(document).ready ->
       catch e
         console.error "Coudl not parse map correctly: #{e}" if DEBUG
 
+    @game.updateButton()
+
     # Setup share popup
-    $('.share').bind 'click', =>
+    $('.button.share').bind 'click', =>
+      $('.popup').removeClass 'visible'
+
       compressor = new Compressor
       string = compressor.compress @game.map
       window.location.replace('#' + string);
 
-      $('#popup input').val window.location
+      $('#share input').val window.location
 
-      $('#popup').addClass 'visible'
-      $('#popup #dismiss').bind 'click', =>
-        $('#popup').removeClass 'visible'
+      $('#share').addClass 'visible'
+      $('#share .dismiss').bind 'click', =>
+        $('#share').removeClass 'visible'

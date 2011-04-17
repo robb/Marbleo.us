@@ -1,8 +1,4 @@
-@mixin gradient($a, $b)
-  background: $a
-  background: -moz-linear-gradient(top, $a 0%, $b 100%)
-  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,$a), color-stop(100%,$b))
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='$a', endColorstr='$b',GradientType=0)
+@import mixins
 
 body
   font-family: Georgia, serif
@@ -13,16 +9,22 @@ body
 
   background: black
   display: inline-block
-  padding: 5px 10px 6px
+
+  padding: ($vertical-rhythm / 8) ($vertical-rhythm / 4)
+
+  margin-top:   $vertical-rhythm / 4
+  margin-right: $vertical-rhythm / 4
+
   color: #fff
   text-decoration: none
   font-weight: bold
 
-  -moz-border-radius:    5px
-  -webkit-border-radius: 5px
+  @include border-radius(5px)
 
   -moz-box-shadow:    0 1px 3px rgba(0,0,0,0.5)
   -webkit-box-shadow: 0 1px 3px rgba(0,0,0,0.5)
+  box-shadow:         0 1px 3px rgba(0,0,0,0.5)
+
   text-shadow:        0 -1px 1px rgba(0,0,0,0.25)
   border-bottom:      1px solid rgba(0,0,0,0.25)
 
@@ -33,6 +35,7 @@ body
     top: 1px
     -moz-box-shadow:    0 0px 1px rgba(0,0,0,0.5)
     -webkit-box-shadow: 0 0px 1px rgba(0,0,0,0.5)
+    box-shadow: 0 0px 1px rgba(0,0,0,0.5)
 
   &.red
     $hi:  #ff3019
@@ -57,6 +60,20 @@ body
 
     &:active
       @include gradient($low, $hi)
+
+  &.inactive
+    $hi:  #CCC
+    $low: #888
+
+    @include gradient($hi, $low)
+
+    &:hover
+      @include gradient(darken($hi, 10%), darken($low, 10%))
+
+    &:active
+      @include gradient($low, $hi)
+
+    -webkit-transition: all 2s ease-in-out
 
 #info
   color: black

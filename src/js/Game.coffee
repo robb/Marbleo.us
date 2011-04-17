@@ -69,6 +69,8 @@ class Game
       @selector.children('.left').bind  'mousedown', selectorRotate  no
       @selector.children('.right').bind 'mousedown', selectorRotate yes
 
+      @map.addListener 'didChange', @updateButton
+
       $('.run').bind 'click', @prepareRun
 
       @palette = new Palette @renderer, @startDragWithBlocks
@@ -328,35 +330,54 @@ class Game
         event.pageY = event.originalEvent.touches[0].pageY
       return handler(event)
 
+  updateButton: =>
+    found = no
+    @map.blocksEach (block) =>
+      return if found
+
+      found = block.getProperty('top')[0] is 'crossing-hole'
+
+    $('.run').toggleClass 'inactive', !found
+    $('.inserter').remove()
+
   prepareRun: (event) =>
     $('.inserter').remove()
 
-    @map.blocksEach (block) =>
-      [topType, topRotation] = block.getProperty 'top'
-      return if topType isnt 'crossing-hole'
+    $('.popup').removeClass 'visible'
+    @updateButton()
 
-      [x, y, z] = block.getCoordinates()
+    if $('.run').hasClass 'inactive'
+      $('#warning').addClass 'visible'
+      $('#warning .dismiss').bind 'click', =>
+        $('#warning').removeClass 'visible'
+    else
+      @map.blocksEach (block) =>
+        [topType, topRotation] = block.getProperty 'top'
+        return if topType isnt 'crossing-hole'
 
-      #return if @map.getBlock x, y, z + 1
+        [x, y, z] = block.getCoordinates()
 
-      [screenX, screenY] = @renderer.renderingCoordinatesForBlock block
+        #return if @map.getBlock x, y, z + 1
 
-      $inserter = $('<div class="inserter">Drop Marble here!</div>')
-      $inserter.css
-        top:  @mainCanvas.offset().top  + screenY
-        left: @mainCanvas.offset().left + screenX
+        [screenX, screenY] = @renderer.renderingCoordinatesForBlock block
 
-      $inserter.bind 'click', =>
-        x *= Settings.blockSize
-        y *= Settings.blockSize
-        z *= Settings.blockSize
-        x += Settings.blockSize / 2
-        y += Settings.blockSize / 2
-        z += Settings.blockSize * 3
+        $inserter = $('<div class="inserter" alt="Drop marble here!"></div>')
 
-        @marble.setVelocities  0, 0, 0
-        @marble.setCoordinates x, y, z
-        @marble.isOnTrack = no
-        $('.inserter').remove()
+        $inserter.css
+          top:  @mainCanvas.offset().top  + screenY - Settings.textureSizeQuarter
+          left: @mainCanvas.offset().left + screenX + Settings.textureSizeQuarter
 
-      $('body').append $inserter
+        $inserter.bind 'click', =>
+          x *= Settings.blockSize
+          y *= Settings.blockSize
+          z *= Settings.blockSize
+          x += Settings.blockSize / 2
+          y += Settings.blockSize / 2
+          z += Settings.blockSize * 3
+
+          @marble.setVelocities  0, 0, 0
+          @marble.setCoordinates x, y, z
+          @marble.isOnTrack = no
+          $('.inserter').remove()
+
+        $('body').append $inserter

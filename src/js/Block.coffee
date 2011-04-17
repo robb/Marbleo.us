@@ -206,10 +206,12 @@ class Block extends EventEmitter
   @Types:
     'blank':
       {}
-    'single-straight':
-      'top':    ['straight', 0]
-    'single-curve':
-      'top':    ['curve',    270]
+    'crossing-hole':
+      'top':    ['crossing-hole', 270]
+      'middle': ['drop-middle',     0]
+    'crossing-hole-alt':
+      'top':    ['crossing-hole', 270]
+      'middle': ['drop-low',        0]
     'double-straight':
       'top':    ['straight', 0]
       'middle': ['straight', 0]
@@ -246,9 +248,3 @@ class Block extends EventEmitter
     'crossing-straight':
       'top':    ['crossing', 270]
       'middle': ['straight',   0]
-    'crossing-hole':
-      'top':    ['crossing-hole', 270]
-      'middle': ['drop-middle',     0]
-    'crossing-hole-alt':
-      'top':    ['crossing-hole', 270]
-      'middle': ['drop-low',        0]

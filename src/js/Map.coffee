@@ -7,6 +7,8 @@ class Map extends EventEmitter
     ### @constant ###
     @size = size
 
+    @setMaxListeners 2
+
     ### @constant ###
     # initialize grid
     @grid = new Array Math.pow(@size, 3)
