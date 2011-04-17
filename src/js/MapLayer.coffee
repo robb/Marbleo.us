@@ -41,19 +41,19 @@ class MapLayer extends Layer
       # opaque.
       if block.selected or block.opacity isnt 1.0
         backside = @getTexture 'basic', 'backside'
-        buffer.drawImage backside, 0, 0, Settings.textureSize, Settings.textureSize
+        buffer.drawImage backside, 0, 0
 
         # Render the low layer
         if lowType
           low_texture = @getTexture 'low', lowType, lowRotation
           if low_texture?
-            buffer.drawImage low_texture, 0, 0, Settings.textureSize, Settings.textureSize
+            buffer.drawImage low_texture, 0, 0
 
         # Render the middle layer
         if midType
           mid_texture = @getTexture 'middle', midType, midRotation
           if mid_texture?
-            buffer.drawImage mid_texture, 0, 0, Settings.textureSize, Settings.textureSize
+            buffer.drawImage mid_texture, 0, 0
 
       if block.selected
         buffer.globalAlpha = 0.3
@@ -61,7 +61,7 @@ class MapLayer extends Layer
         buffer.globalAlpha = block.opacity || 1.0
 
       solid = @getTexture 'basic', 'solid'
-      buffer.drawImage solid, 0, 0, Settings.textureSize, Settings.textureSize
+      buffer.drawImage solid, 0, 0
 
       buffer.globalAlpha = 1.0
 
@@ -70,7 +70,7 @@ class MapLayer extends Layer
         top_texture = @getTexture 'top', topType, topRotation
         if top_texture?
           buffer.globalAlpha = 0.6 if block.selected
-          buffer.drawImage top_texture, 0, 0, Settings.textureSize, Settings.textureSize
+          buffer.drawImage top_texture, 0, 0
           buffer.globalAlpha = 1.0
 
       # Render the middle holes on the side of block
@@ -79,11 +79,11 @@ class MapLayer extends Layer
         for pos in midHoles
           if (pos + midRotation) % 360 == 0
             midHoleSouth = @getTexture 'basic', 'hole-middle', 0
-            buffer.drawImage midHoleSouth, 0, 0, Settings.textureSize, Settings.textureSize
+            buffer.drawImage midHoleSouth, 0, 0
 
           if (pos + midRotation) % 360 == 90
             midHoleEast = @getTexture 'basic', 'hole-middle', 90
-            buffer.drawImage midHoleEast, 0, 0, Settings.textureSize, Settings.textureSize
+            buffer.drawImage midHoleEast, 0, 0
 
       # Render the lows holes on the side of block
       lowHoles = MapLayer.LowHoles[midType]
@@ -91,11 +91,11 @@ class MapLayer extends Layer
         for pos in lowHoles
           if (pos + midRotation) % 360 == 0
             lowHoleSouth = @getTexture 'basic', 'hole-low', 0
-            buffer.drawImage lowHoleSouth, 0, 0, Settings.textureSize, Settings.textureSize
+            buffer.drawImage lowHoleSouth, 0, 0
 
           if (pos + midRotation) % 360 == 90
             lowHoleEast = @getTexture 'basic', 'hole-low', 90
-            buffer.drawImage lowHoleEast, 0, 0, Settings.textureSize, Settings.textureSize
+            buffer.drawImage lowHoleEast, 0, 0
 
       # Render the bottom holes that are formed if this block stands on top
       # of another.
@@ -104,11 +104,11 @@ class MapLayer extends Layer
         for pos in bottomHoles
           if (pos + lowRotation) % 360 == 0
             bottomHoleSouth = @getTexture 'basic', 'hole-bottom', 0
-            buffer.drawImage bottomHoleSouth, 0, 0, Settings.textureSize, Settings.textureSize
+            buffer.drawImage bottomHoleSouth, 0, 0
 
           if (pos + lowRotation) % 360 == 90
             bottomHoleEast = @getTexture 'basic', 'hole-bottom', 90
-            buffer.drawImage bottomHoleEast, 0, 0, Settings.textureSize, Settings.textureSize
+            buffer.drawImage bottomHoleEast, 0, 0
 
       # Draw the outline
       @drawOutline buffer, 0, 0
@@ -118,20 +118,20 @@ class MapLayer extends Layer
       cutouts = @getTexture 'cutouts-top', type, topRotation
       if cutouts
         buffer.globalCompositeOperation = 'destination-out'
-        buffer.drawImage cutouts, 0, 0, Settings.textureSize, Settings.textureSize
+        buffer.drawImage cutouts, 0, 0
         buffer.globalCompositeOperation = 'source-over'
 
       cutouts = @getTexture 'cutouts-bottom', lowType, lowRotation
       if cutouts
         buffer.globalCompositeOperation = 'destination-out'
-        buffer.drawImage cutouts, 0, 0, Settings.textureSize, Settings.textureSize
+        buffer.drawImage cutouts, 0, 0
         buffer.globalCompositeOperation = 'source-over'
 
-    context.drawImage cached, x, y, Settings.textureSize, Settings.textureSize
+    context.drawImage cached, x, y
 
   # Draws a block outline in the given graphics context.
   drawOutline: (context, x, y) ->
-    context.drawImage @getTexture('basic','outline'), x, y, Settings.textureSize, Settings.textureSize
+    context.drawImage @getTexture('basic','outline'), x, y
 
   # Defines which block types require top cutouts at what rotations.
   @Cutouts:

@@ -45,7 +45,7 @@ class VisibilityLayer extends Layer
 
       hitbox = @getTexture 'basic', 'hitbox'
       buffer.globalCompositeOperation = 'source-over'
-      buffer.drawImage hitbox, 0, 0, Settings.textureSize, Settings.textureSize
+      buffer.drawImage hitbox, 0, 0
 
       # Remove transparent parts at the edges of the block.
       type = if topType is 'crossing-hole' then 'crossing' else topType
@@ -54,14 +54,14 @@ class VisibilityLayer extends Layer
 
       buffer.globalCompositeOperation = 'destination-out'
       if cutouts
-        buffer.drawImage cutouts, 0, 0, Settings.textureSize, Settings.textureSize
+        buffer.drawImage cutouts, 0, 0
 
       cutouts = @getTexture 'cutouts-bottom', lowType, lowRotation
       if cutouts
-        buffer.drawImage cutouts, 0, 0, Settings.textureSize, Settings.textureSize
+        buffer.drawImage cutouts, 0, 0
 
     context.globalCompositeOperation = 'source-over'
-    context.drawImage cached, x, y, Settings.textureSize, Settings.textureSize
+    context.drawImage cached, x, y
 
   drawTopMask: (context, block, x, y) ->
     [topType, topRotation] = block.getProperty 'top'
