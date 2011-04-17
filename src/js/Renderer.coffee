@@ -59,7 +59,7 @@ class Renderer
       [x, y] = @renderingCoordinatesForMarble marble
 
       context.beginPath()
-      context.arc x, y, marble.radius, 0, Math.PI * 2
+      context.arc x, y, marble.radius, 0, Math.PI * 2, yes
       context.closePath()
       context.fill()
 
