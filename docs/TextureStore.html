@@ -1,0 +1,94 @@
+<!DOCTYPE html>  <html> <head>   <title>TextureStore.coffee</title>   <meta http-equiv="content-type" content="text/html; charset=UTF-8">   <link rel="stylesheet" media="all" href="docco.css" /> </head> <body>   <div id="container">     <div id="background"></div>            <div id="jump_to">         Jump To &hellip;         <div id="jump_wrapper">           <div id="jump_page">                                           <a class="source" href="Animator.html">                 Animator.coffee               </a>                                           <a class="source" href="Block.html">                 Block.coffee               </a>                                           <a class="source" href="Compressor.html">                 Compressor.coffee               </a>                                           <a class="source" href="Constants.html">                 Constants.coffee               </a>                                           <a class="source" href="EventEmitter.html">                 EventEmitter.coffee               </a>                                           <a class="source" href="Game.html">                 Game.coffee               </a>                                           <a class="source" href="HitTestLayer.html">                 HitTestLayer.coffee               </a>                                           <a class="source" href="Layer.html">                 Layer.coffee               </a>                                           <a class="source" href="Main.html">                 Main.coffee               </a>                                           <a class="source" href="Map.html">                 Map.coffee               </a>                                           <a class="source" href="MapLayer.html">                 MapLayer.coffee               </a>                                           <a class="source" href="Marble.html">                 Marble.coffee               </a>                                           <a class="source" href="Palette.html">                 Palette.coffee               </a>                                           <a class="source" href="Path.html">                 Path.coffee               </a>                                           <a class="source" href="Renderer.html">                 Renderer.coffee               </a>                                           <a class="source" href="TextureStore.html">                 TextureStore.coffee               </a>                                           <a class="source" href="VisibilityLayer.html">                 VisibilityLayer.coffee               </a>                        </div>         </div>       </div>          <table cellpadding="0" cellspacing="0">       <thead>         <tr>           <th class="docs">             <h1>               TextureStore.coffee             </h1>           </th>           <th class="code">           </th>         </tr>       </thead>       <tbody>                               <tr id="section-1">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-1">&#182;</a>               </div>                            </td>             <td class="code">               <div class="highlight"><pre><span class="k">class</span> <span class="nx">TextureStore</span>
+  <span class="nv">constructor: </span><span class="nf">(onload) -&gt;</span>
+    <span class="vi">@textures = </span><span class="p">{}</span></pre></div>             </td>           </tr>                               <tr id="section-2">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-2">&#182;</a>               </div>               <p>Loads the textures from the texture file.</p>
+
+<p>The <code>TextureStore.TextureFileDescription</code> hash describes the layout of
+the texture file. The texture file is split into a number of smaller
+canvases that can be accessed from the @textures object.</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nv">setupTextures = </span><span class="p">(</span><span class="nx">textureFile</span><span class="p">)</span> <span class="o">=&gt;</span>
+      <span class="nv">textureOffset = </span><span class="mi">0</span>
+      <span class="k">for</span> <span class="nx">textureGroup</span><span class="p">,</span> <span class="nx">textureDescription</span> <span class="k">of</span> <span class="nx">TextureStore</span><span class="p">.</span><span class="nx">TextureFileDescription</span>
+        <span class="k">for</span> <span class="nx">texture</span><span class="p">,</span> <span class="nx">rotationsCount</span> <span class="k">of</span> <span class="nx">textureDescription</span>
+          <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s2">&quot;loading #{textureGroup}.#{texture}&quot;</span> <span class="k">if</span> <span class="nx">DEBUG</span>
+
+          <span class="nx">@textures</span><span class="p">[</span><span class="nx">textureGroup</span><span class="p">]</span> <span class="o">?=</span> <span class="p">{}</span>
+          <span class="nx">@textures</span><span class="p">[</span><span class="nx">textureGroup</span><span class="p">][</span><span class="nx">texture</span><span class="p">]</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Array</span> <span class="nx">rotationsCount</span></pre></div>             </td>           </tr>                               <tr id="section-3">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-3">&#182;</a>               </div>               <p>Iterate over the avaible rotations</p>             </td>             <td class="code">               <div class="highlight"><pre>          <span class="k">for</span> <span class="nx">rotation</span> <span class="k">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">...</span><span class="nx">rotationsCount</span><span class="p">]</span>
+            <span class="nv">canvas = </span><span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span> <span class="s1">&#39;canvas&#39;</span>
+            <span class="nv">canvas.width  = </span><span class="nx">Settings</span><span class="p">.</span><span class="nx">textureSize</span>
+            <span class="nv">canvas.height = </span><span class="nx">Settings</span><span class="p">.</span><span class="nx">textureSize</span>
+            <span class="nv">context = </span><span class="nx">canvas</span><span class="p">.</span><span class="nx">getContext</span> <span class="s1">&#39;2d&#39;</span>
+            <span class="k">try</span>
+              <span class="nv">textureSize = </span><span class="nx">Settings</span><span class="p">.</span><span class="nx">textureSize</span>
+              <span class="nx">context</span><span class="p">.</span><span class="nx">drawImage</span> <span class="nx">textureFile</span><span class="p">,</span>
+                                <span class="nx">rotation</span> <span class="o">*</span> <span class="nx">textureSize</span><span class="p">,</span> <span class="nx">textureOffset</span> <span class="o">*</span> <span class="nx">textureSize</span><span class="p">,</span> <span class="nx">textureSize</span><span class="p">,</span> <span class="nx">textureSize</span>
+                                                     <span class="mi">0</span><span class="p">,</span>                           <span class="mi">0</span><span class="p">,</span> <span class="nx">textureSize</span><span class="p">,</span> <span class="nx">textureSize</span>
+            <span class="k">catch</span> <span class="nx">error</span>
+              <span class="k">if</span> <span class="nx">DEBUG</span>
+                <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s2">&quot;Encountered error #{error} while loading texture: #{texture}&quot;</span>
+                <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s2">&quot;Texture file may be too small&quot;</span> <span class="k">if</span> <span class="nx">error</span><span class="p">.</span><span class="nx">name</span> <span class="o">is</span> <span class="s2">&quot;INDEX_SIZE_ERR&quot;</span>
+              <span class="k">break</span>
+
+            <span class="nx">@textures</span><span class="p">[</span><span class="nx">textureGroup</span><span class="p">][</span><span class="nx">texture</span><span class="p">][</span><span class="nx">rotation</span><span class="p">]</span> <span class="o">=</span> <span class="nx">canvas</span>
+          <span class="nx">textureOffset</span><span class="o">++</span>
+
+    <span class="nv">onloadCallback = </span><span class="o">=&gt;</span>
+      <span class="nx">setupTextures</span> <span class="nx">textureFile</span>
+      <span class="nx">onload</span><span class="p">()</span>
+
+    <span class="nv">textureFile = </span><span class="k">new</span> <span class="nx">Image</span>
+    <span class="nv">textureFile.onload = </span><span class="nx">onloadCallback</span>
+    <span class="nv">textureFile.src = </span><span class="nx">Settings</span><span class="p">.</span><span class="nx">textureFile</span>
+
+  <span class="nv">getTexture: </span><span class="nf">(group, type, rotation) -&gt;</span>
+    <span class="nx">unless</span> <span class="nx">rotation</span>
+      <span class="k">return</span> <span class="nx">@textures</span><span class="p">[</span><span class="nx">group</span><span class="p">][</span><span class="nx">type</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nx">TextureStore</span><span class="p">.</span><span class="nx">TextureFileDescription</span><span class="p">[</span><span class="nx">group</span><span class="p">][</span><span class="nx">type</span><span class="p">]</span><span class="o">?</span>
+
+    <span class="nv">rotationCount = </span><span class="nx">TextureStore</span><span class="p">.</span><span class="nx">TextureFileDescription</span><span class="p">[</span><span class="nx">group</span><span class="p">][</span><span class="nx">type</span><span class="p">]</span>
+    <span class="k">return</span> <span class="kc">null</span> <span class="nx">unless</span> <span class="nx">rotationCount</span><span class="o">?</span>
+    <span class="k">return</span> <span class="nx">@textures</span><span class="p">[</span><span class="nx">group</span><span class="p">][</span><span class="nx">type</span><span class="p">][</span><span class="nx">rotation</span> <span class="err">/ 90 % rotationCount]</span></pre></div>             </td>           </tr>                               <tr id="section-4">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-4">&#182;</a>               </div>               <p>This hash descripes the make-up of the texture files.</p>
+
+<p>The file is split into multiple groups that consist of block types at
+their different rotations, each occupying one row in the file.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="vi">@TextureFileDescription:</span>
+    <span class="s1">&#39;basic&#39;</span><span class="o">:</span></pre></div>             </td>           </tr>                               <tr id="section-5">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-5">&#182;</a>               </div>               <p>This hitbox is used to detect which side of the block
+is at a given pixel by looking up the color.</p>
+
+<pre><code>  RGBA       side
+#0000FFFF =&gt; Top
+#00FF00FF =&gt; East
+#FF0000FF =&gt; South
+#000000FF =&gt; Floor
+</code></pre>             </td>             <td class="code">               <div class="highlight"><pre>      <span class="s1">&#39;hitbox&#39;</span><span class="o">:</span>          <span class="mi">1</span>
+      <span class="s1">&#39;floor-hitbox&#39;</span><span class="o">:</span>    <span class="mi">1</span>
+      <span class="s1">&#39;solid&#39;</span><span class="o">:</span>           <span class="mi">1</span>
+      <span class="s1">&#39;floor&#39;</span><span class="o">:</span>           <span class="mi">1</span>
+      <span class="s1">&#39;backside&#39;</span><span class="o">:</span>        <span class="mi">1</span>
+      <span class="s1">&#39;outline&#39;</span><span class="o">:</span>         <span class="mi">1</span>
+      <span class="s1">&#39;hole-middle&#39;</span><span class="o">:</span>     <span class="mi">2</span>
+      <span class="s1">&#39;hole-low&#39;</span><span class="o">:</span>        <span class="mi">2</span>
+      <span class="s1">&#39;hole-bottom&#39;</span><span class="o">:</span>     <span class="mi">2</span></pre></div>             </td>           </tr>                               <tr id="section-6">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-6">&#182;</a>               </div>               <p>TODO: Add cutouts for straights/crossings</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="s1">&#39;cutouts-top&#39;</span><span class="o">:</span>
+      <span class="s1">&#39;crossing&#39;</span><span class="o">:</span>        <span class="mi">1</span>
+      <span class="s1">&#39;curve&#39;</span><span class="o">:</span>           <span class="mi">4</span>
+      <span class="s1">&#39;straight&#39;</span><span class="o">:</span>        <span class="mi">2</span>
+    <span class="s1">&#39;cutouts-bottom&#39;</span><span class="o">:</span>
+      <span class="s1">&#39;crossing&#39;</span><span class="o">:</span>        <span class="mi">1</span>
+      <span class="s1">&#39;curve&#39;</span><span class="o">:</span>           <span class="mi">4</span>
+      <span class="s1">&#39;straight&#39;</span><span class="o">:</span>        <span class="mi">2</span>
+    <span class="s1">&#39;top&#39;</span><span class="o">:</span>
+      <span class="s1">&#39;crossing&#39;</span><span class="o">:</span>        <span class="mi">1</span>
+      <span class="s1">&#39;crossing-hole&#39;</span><span class="o">:</span>   <span class="mi">1</span>
+      <span class="s1">&#39;curve&#39;</span><span class="o">:</span>           <span class="mi">4</span>
+      <span class="s1">&#39;straight&#39;</span><span class="o">:</span>        <span class="mi">2</span>
+    <span class="s1">&#39;middle&#39;</span><span class="o">:</span>
+      <span class="s1">&#39;crossing&#39;</span><span class="o">:</span>        <span class="mi">1</span>
+      <span class="s1">&#39;curve&#39;</span><span class="o">:</span>           <span class="mi">4</span>
+      <span class="s1">&#39;straight&#39;</span><span class="o">:</span>        <span class="mi">2</span>
+      <span class="s1">&#39;dive&#39;</span><span class="o">:</span>            <span class="mi">4</span>
+      <span class="s1">&#39;drop-middle&#39;</span><span class="o">:</span>     <span class="mi">4</span>
+      <span class="s1">&#39;drop-low&#39;</span><span class="o">:</span>        <span class="mi">4</span>
+      <span class="s1">&#39;exchange-alt&#39;</span><span class="o">:</span>    <span class="mi">4</span>
+      <span class="s1">&#39;exchange&#39;</span><span class="o">:</span>        <span class="mi">4</span>
+    <span class="s1">&#39;low&#39;</span><span class="o">:</span>
+      <span class="s1">&#39;crossing&#39;</span><span class="o">:</span>        <span class="mi">1</span>
+      <span class="s1">&#39;curve&#39;</span><span class="o">:</span>           <span class="mi">4</span>
+      <span class="s1">&#39;straight&#39;</span><span class="o">:</span>        <span class="mi">2</span>
+
+</pre></div>             </td>           </tr>                </tbody>     </table>   </div> </body> </html> 
