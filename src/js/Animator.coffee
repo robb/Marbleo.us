@@ -15,7 +15,8 @@ class Animator extends EventEmitter
       newTargetNode = @path.nodeAt @marble.targetNode.getCoordinates()...
       newLastNode   = @path.nodeAt @marble.lastNode.getCoordinates()...
 
-    if newTargetNode and newLastNode
+    if newTargetNode and newLastNode and
+       @marble.currentBlock is @blockAtWorldCoordinates @marble.getCoordinates()...
       @marble.targetNode = newTargetNode
       @marble.lastNode   = newLastNode
     else
