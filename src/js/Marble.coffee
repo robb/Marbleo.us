@@ -1,14 +1,13 @@
 # This class manages the marble.
 class Marble
   # Creates a new marble
-  constructor: (@radius = 8) ->
-    [@x, @y, @z]             = [  25, 255, 200]
-    [@x_V, @y_V, @z_V]       = [   0,  -5,   0]
+  constructor: (@radius = 7) ->
+    [@x, @y, @z]             = [-5000, -5000, 0] # XXX: Hide marble outside of map
+    [@x_V, @y_V, @z_V]       = [0, 0, 0]
 
   setCoordinates: (x, y, z) ->
     throw new Error "Missing parameter" unless (x? and y? and z?)
 
-    [@x_old, @y_old, @z_old] = [@x, @y, @z]
     [@x, @y, @z] = [x, y, z]
 
   getCoordinates: -> [@x, @y, @z]
