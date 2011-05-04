@@ -14,6 +14,23 @@ $(document).ready ->
 
     $('#share input').focus -> @select()
 
+    $('.network.button').bind 'click', (event) ->
+      event.preventDefault()
+      url = $(this).attr 'href'
+
+      window.open url,
+                  'popup',
+                  'location=1,width=600,height=290,toolbar=no,scrollbars=no'
+
+    updateNetworks = (url) ->
+      escaped = encodeURI(url).replace '#', '%23'
+
+      $('.facebook').attr
+        'href': "http://facebook.com/sharer.php?u=#{escaped}"
+
+      $('.twitter').attr
+        'href': "http://twitter.com/share?text=I've+built+a+marble+run+with+%23marbleous,+check+it+out&url=#{escaped}"
+
     # Setup share popup
     $('.button.share').bind 'click', =>
       $('.popup').removeClass 'visible'
@@ -25,6 +42,7 @@ $(document).ready ->
       window.location.replace '#' + string
 
       $('#share input').val url
+      updateNetworks url
 
       $('#share').addClass 'visible'
 
@@ -40,4 +58,7 @@ $(document).ready ->
           apiKey:  BITLY_API_KEY
           longUrl: url
         success: (result, status) ->
-          $('#share input').val result.data.url if result.status_code is 200
+          if result.status_code is 200
+            $('#share input').val result.data.url
+
+            updateNetworks result.data.url

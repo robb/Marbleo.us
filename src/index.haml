@@ -71,11 +71,19 @@
       %a.rotate.right{:href => 'javascript:void(0)'}
     #share.popup
       %h1 Share your Map!
-      %input
+
+      %input{:readonly => true, :title => 'Copy the link'}
+
+      .networks
+        %a.facebook.small.network.button Facebook
+        %a.twitter.small.network.button  Twitter
+
       %p
-        Send this URL around to let other have a look at what you’ve built.
-        Thanks for using marbleo.us!
-      %a.black.button.dismiss Dismiss
+        Great map! Now pass your creation around by sharing the link with
+        your friends. Thanks for using marbleo.us!
+
+      .dismiss
+        %a.white.button.dismiss Dismiss
 
     #warning.popup
       %h1 Hold your horses!
@@ -89,4 +97,4 @@
         Once you’re good to go, The “Test your Map”-Button will turn green.
         Click it to take your marble for a ride!
 
-      %a.black.button.dismiss Dismiss
+      %a.white.button.dismiss Dismiss

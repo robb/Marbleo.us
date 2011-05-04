@@ -37,3 +37,11 @@ $base-vertical-margin: 1.75em
   background: -moz-linear-gradient(top, $a 0%, $b 100%)
   background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,$a), color-stop(100%,$b))
 
+@mixin button-color($hi, $low)
+  @include gradient($hi, $low)
+
+  &:hover
+    @include gradient(darken($hi, 10%), darken($low, 10%))
+
+  &:active
+    @include gradient($low, $hi)

@@ -5,15 +5,16 @@ body
   overflow-y: scroll
 
 .button
+  height:  $vertical-rhythm
+  margin:  ($vertical-rhythm / 2) 0
+  padding: 0 ($vertical-rhythm / 2)
+
+  line-height: 1.75em
+
   font-family: Lucida Grande, Helvetica, Arial, sans
 
   background: black
   display: inline-block
-
-  padding: ($vertical-rhythm / 8) ($vertical-rhythm / 4)
-
-  margin-top:   $vertical-rhythm / 4
-  margin-right: $vertical-rhythm / 4
 
   color: #fff
   text-decoration: none
@@ -29,6 +30,14 @@ body
   border-bottom:      1px solid rgba(0,0,0,0.25)
 
   cursor: pointer
+  -webkit-user-select: none
+  -moz-user-select:    none
+
+  span
+    vertical-align: top
+
+  &.small
+    font-size: small
 
   &:active
     position: relative
@@ -37,43 +46,26 @@ body
     -webkit-box-shadow: 0 0px 1px rgba(0,0,0,0.5)
     box-shadow: 0 0px 1px rgba(0,0,0,0.5)
 
+  &.facebook
+    @include button-color(#3b5998, darken(#3b5998, 10))
+
+  &.twitter
+    @include button-color(#9AE4E8, darken(#9AE4E8, 10))
+
   &.red
-    $hi:  #ff3019
-    $low: #cf0404
-
-    @include gradient($hi, $low)
-
-    &:hover
-      @include gradient(darken($hi, 10%), darken($low, 10%))
-
-    &:active
-      @include gradient($low, $hi)
+    @include button-color(#ff3019, #cf0404)
 
   &.green
-    $hi:  #19ff30
-    $low: #04cf04
+    @include button-color(#19ff30, #04cf04)
 
-    @include gradient($hi, $low)
-
-    &:hover
-      @include gradient(darken($hi, 10%), darken($low, 10%))
-
-    &:active
-      @include gradient($low, $hi)
+  &.white
+    @include button-color(#c2c2c2, #aaa)
 
   &.inactive
-    $hi:  #CCC
-    $low: #888
+    @include button-color(#aaa, #888)
 
-    @include gradient($hi, $low)
-
-    &:hover
-      @include gradient(darken($hi, 10%), darken($low, 10%))
-
-    &:active
-      @include gradient($low, $hi)
-
-    -webkit-transition: all 2s ease-in-out
+.button + .button
+  margin-left: ($vertical-rhythm / 4)
 
 #info
   color: black
