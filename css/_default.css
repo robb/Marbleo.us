@@ -3,12 +3,13 @@ body {
   overflow-y: scroll; }
 
 .button {
+  height: 1.75em;
+  margin: 0.875em 0;
+  padding: 0 0.875em;
+  line-height: 1.75em;
   font-family: Lucida Grande, Helvetica, Arial, sans;
   background: black;
   display: inline-block;
-  padding: 0.219em 0.438em;
-  margin-top: 0.438em;
-  margin-right: 0.438em;
   color: white;
   text-decoration: none;
   font-weight: bold;
@@ -20,13 +21,43 @@ body {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
   text-shadow: 0 -1px 1px rgba(0, 0, 0, 0.25);
   border-bottom: 1px solid rgba(0, 0, 0, 0.25);
-  cursor: pointer; }
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none; }
+  .button span {
+    vertical-align: top; }
+  .button.small {
+    font-size: small; }
   .button:active {
     position: relative;
     top: 1px;
     -moz-box-shadow: 0 0px 1px rgba(0, 0, 0, 0.5);
     -webkit-box-shadow: 0 0px 1px rgba(0, 0, 0, 0.5);
     box-shadow: 0 0px 1px rgba(0, 0, 0, 0.5); }
+  .button.facebook {
+    background: #3b5998;
+    background: -moz-linear-gradient(top, #3b5998 0%, #2d4373 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #3b5998), color-stop(100%, #2d4373)); }
+    .button.facebook:hover {
+      background: #2d4373;
+      background: -moz-linear-gradient(top, #2d4373 0%, #1e2e4f 100%);
+      background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #2d4373), color-stop(100%, #1e2e4f)); }
+    .button.facebook:active {
+      background: #2d4373;
+      background: -moz-linear-gradient(top, #2d4373 0%, #3b5998 100%);
+      background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #2d4373), color-stop(100%, #3b5998)); }
+  .button.twitter {
+    background: #9ae4e8;
+    background: -moz-linear-gradient(top, #9ae4e8 0%, #70d9df 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #9ae4e8), color-stop(100%, #70d9df)); }
+    .button.twitter:hover {
+      background: #70d9df;
+      background: -moz-linear-gradient(top, #70d9df 0%, #47ced5 100%);
+      background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #70d9df), color-stop(100%, #47ced5)); }
+    .button.twitter:active {
+      background: #70d9df;
+      background: -moz-linear-gradient(top, #70d9df 0%, #9ae4e8 100%);
+      background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #70d9df), color-stop(100%, #9ae4e8)); }
   .button.red {
     background: #ff3019;
     background: -moz-linear-gradient(top, #ff3019 0%, #cf0404 100%);
@@ -51,19 +82,33 @@ body {
       background: #04cf04;
       background: -moz-linear-gradient(top, #04cf04 0%, #19ff30 100%);
       background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #04cf04), color-stop(100%, #19ff30)); }
+  .button.white {
+    background: #c2c2c2;
+    background: -moz-linear-gradient(top, #c2c2c2 0%, #aaaaaa 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #c2c2c2), color-stop(100%, #aaaaaa)); }
+    .button.white:hover {
+      background: #a9a9a9;
+      background: -moz-linear-gradient(top, #a9a9a9 0%, #909090 100%);
+      background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #a9a9a9), color-stop(100%, #909090)); }
+    .button.white:active {
+      background: #aaaaaa;
+      background: -moz-linear-gradient(top, #aaaaaa 0%, #c2c2c2 100%);
+      background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #aaaaaa), color-stop(100%, #c2c2c2)); }
   .button.inactive {
-    background: #cccccc;
-    background: -moz-linear-gradient(top, #cccccc 0%, #888888 100%);
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #cccccc), color-stop(100%, #888888));
-    -webkit-transition: all 2s ease-in-out; }
+    background: #aaaaaa;
+    background: -moz-linear-gradient(top, #aaaaaa 0%, #888888 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #aaaaaa), color-stop(100%, #888888)); }
     .button.inactive:hover {
-      background: #b3b3b3;
-      background: -moz-linear-gradient(top, #b3b3b3 0%, #6f6f6f 100%);
-      background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #b3b3b3), color-stop(100%, #6f6f6f)); }
+      background: #909090;
+      background: -moz-linear-gradient(top, #909090 0%, #6f6f6f 100%);
+      background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #909090), color-stop(100%, #6f6f6f)); }
     .button.inactive:active {
       background: #888888;
-      background: -moz-linear-gradient(top, #888888 0%, #cccccc 100%);
-      background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #888888), color-stop(100%, #cccccc)); }
+      background: -moz-linear-gradient(top, #888888 0%, #aaaaaa 100%);
+      background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #888888), color-stop(100%, #aaaaaa)); }
+
+.button + .button {
+  margin-left: 0.438em; }
 
 #info {
   color: black; }
