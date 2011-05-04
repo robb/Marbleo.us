@@ -51,14 +51,14 @@ $(document).ready ->
 
       # Shorten URL using bit.ly
       $.ajax
-        url:     'http://api.bitly.com/v3/shorten'
-        data:
-          format:  'json'
-          login:   'robertboehnke'
-          apiKey:  BITLY_API_KEY
-          longUrl: url
-        success: (result, status) ->
-          if result.status_code is 200
-            $('#share input').val result.data.url
+        'url':     'http://api.bitly.com/v3/shorten'
+        'data':
+          'format':  'json'
+          'login':   'robertboehnke'
+          'apiKey':  BITLY_API_KEY
+          'longUrl': url
+        'success': (result, status) ->
+          if result['status_code'] is 200
+            $('#share input').val result['data']['url']
 
-            updateNetworks result.data.url
+            updateNetworks result['data']['url']
