@@ -9,6 +9,9 @@ POINT_DEBUG = on
 MAP_SIZE     =   7
 TEXTURE_SIZE = 101
 
+# Please do not abuse this API key.
+BITLY_API_KEY = "R_787e723dc060169b3bfde946beef129a"
+
 Settings =
   mapSize:            MAP_SIZE
   mainCanvasID:       '#main-canvas'
