@@ -32,6 +32,10 @@ class Renderer
       @updateEverything()
       onload()
 
+  setDrawHitmap: (@drawHitmap) ->
+
+  setDrawPaths: (@drawPaths) ->
+
   getTextureStore: ->
     @textureStore
 
@@ -94,14 +98,54 @@ class Renderer
 
     @clear @context
 
-    join @mapLayer
-    join @hitTestLayer,     0.4 if OVERLAY
+    unless @drawHitmap
+      join @mapLayer
+    else
+      join @hitTestLayer
+
+    if @drawPaths
+      @context.strokeStyle = '#C00'
+      @context.fillStyle   = 'red'
+      for node in Path.forMap(@map).getNodes()
+        [x, y] = @renderingCoordinatesForMarble node
+
+        for neighbour in node.getNeighbours()
+          [nX, nY] = @renderingCoordinatesForMarble neighbour
+
+          @context.beginPath()
+          @context.moveTo  x,  y
+          @context.lineTo nX, nY
+          @context.closePath()
+          @context.stroke()
+      for node in Path.forMap(@map).getNodes()
+        [x, y] = @renderingCoordinatesForMarble node
+
+        r = if node.getNeighbours().length is 1
+          3
+        else
+          2
+
+        @context.beginPath()
+        @context.arc x, y, r, 0, Math.PI * 2, yes
+        @context.closePath()
+        @context.fill()
+
+      @context.strokeStyle = @context.fillStyle = 'black' # XXX
 
   updateMainCanvas: ->
     @clear @mainContext
 
-    @mainContext.drawImage @canvas, 0, 0, Settings.canvasWidth, Settings.canvasHeight
-    @mainContext.drawImage @marbleCanvas, 0, 0, Settings.canvasWidth, Settings.canvasHeight
+    @mainContext.drawImage @canvas,
+                           0,
+                           0,
+                           Settings.canvasWidth,
+                           Settings.canvasHeight
+
+    @mainContext.drawImage @marbleCanvas,
+                           0,
+                           0,
+                           Settings.canvasWidth,
+                           Settings.canvasHeight
 
   drawBlock: (context, block, x = 0, y = 0) ->
     @mapLayer.drawBlock context, block, x, y

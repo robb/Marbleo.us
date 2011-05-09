@@ -22,6 +22,14 @@ $(document).ready ->
                   'popup',
                   'location=1,width=600,height=290,toolbar=no,scrollbars=no'
 
+    $('input.paths').change =>
+      @game.renderer.setDrawPaths $('input.paths').attr('checked')
+      @game.map.forceUpdate()
+
+    $('input.hitmap').change =>
+      @game.renderer.setDrawHitmap $('input.hitmap').attr('checked')
+      @game.map.forceUpdate()
+
     updateNetworks = (url) ->
       escaped = encodeURI(url).replace '#', '%23'
 
